@@ -21,6 +21,7 @@ classdef (Sealed) sxmdata < dynamicprops
         header = []; %stores the .hdr information
         basefile = []; %stores the base filename
         dataStore = []; %stores the imported data
+        evalStore = []; %stores evaluation data
     end
     
     methods (Access = public)
@@ -101,6 +102,24 @@ classdef (Sealed) sxmdata < dynamicprops
             end
             %return data
             output = obj.dataStore(region).(channel);
+        end
+        
+        function output = eval(obj, type, varargin)
+            %provide transparent read & process operations to evalStore
+            %input type: type
+            %optional input: channel
+            
+            %check for evaluation result presence
+            if isempty(obj.evalStore(type))
+                switch type
+                    case 'FFT'
+                        obj.evalFFT
+                    case 'FrequencySpectrum'
+                        obj.evalFrequencySpectrum
+                end
+            end
+            %return data
+            output = obj.evalStore(type);
         end
     end
     
