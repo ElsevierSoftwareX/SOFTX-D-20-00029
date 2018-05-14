@@ -6,7 +6,7 @@
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function readXSP(obj)
-    filename = fullfile(obj.basefile, '_0.xsp');
+    filename = strcat(obj.basefile, '_0.xsp');
     data = dlmread(filename);
     obj.dataStore.Energy = data(:,1);
     for i=1:size(data,2)-1
