@@ -6,18 +6,10 @@
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function readBBX(obj)
-%check provided input
-switch size(varargin)
-    case 1
-        %only filename is provided
-        filename = varargin{1};
-        %ask for magic number
-        magicn = inputdlg('Magic Number?');
-        magicn = str2double(magicn{:});
-    case 2
-        %filename and magic number are provided
-        filename = varargin{1};
-        magicn = varargin{2};
+%check if magic numbmer is set, otherwise ask
+if isempty(obj.magicNumber)
+    queryString = ['Magic Number for ', obj.header.Label, '?'];
+    obj.magicNumber = str2double(inputdlg(queryString));
 end
 
 %open file
@@ -44,7 +36,7 @@ fclose(fid);
 
 %calculate image times and normalize
 obj.dataStore(1).BBX = mean(images,3);
-sortkey = mod((1:nImages)*magicn,nImages)+1;
+sortkey = mod((1:nImages)*obj.magicNumber,nImages)+1;
 obj.dataStore(1).RawMovie = zeros(height, width, nImages);
 obj.dataStore(1).Movie = zeros(height, width, nImages);
 for i=1:nImages
