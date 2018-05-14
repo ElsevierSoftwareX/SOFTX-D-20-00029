@@ -11,6 +11,11 @@
 classdef (Sealed) sxmdata < dynamicprops
     %the sxm data class is sealed
     
+    properties
+        %General properties
+        magicNumber = []; %stores magic number for BBX import
+    end
+    
     properties (SetAccess = private)
         %Read only properties
         header = []; %stores the .hdr information
