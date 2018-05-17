@@ -36,4 +36,4 @@ end
 obj.evalStore.FFT.Frequency = (-numFrequencies/2:numFrequencies/2-1)*(samplingRate/numFrequencies);
 obj.evalStore.FFT.Power = power;
 obj.evalStore.FFT.Amplitude = amplitude;
-obj.evalSotre.FFT.Phase = phase;
+obj.evalStore.FFT.Phase = phase;

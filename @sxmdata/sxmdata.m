@@ -84,7 +84,7 @@ classdef (Sealed) sxmdata < dynamicprops
                             %Total Electron Yield
                             %read XIM file
                             obj.readXIM(region, channel)
-                        %Time Machine channels
+                            %Time Machine channels
                         case 'BBX'
                             %Total Image
                             %read BBX file
@@ -110,7 +110,7 @@ classdef (Sealed) sxmdata < dynamicprops
             %optional input: channel
             
             %check for evaluation result presence
-            if isempty(obj.evalStore(type))
+            if isempty(obj.evalStore(1).(type))
                 switch type
                     case 'FFT'
                         obj.evalFFT
@@ -119,7 +119,7 @@ classdef (Sealed) sxmdata < dynamicprops
                 end
             end
             %return data
-            output = obj.evalStore(type);
+            output = obj.evalStore.(type);
         end
     end
     
@@ -147,8 +147,15 @@ classdef (Sealed) sxmdata < dynamicprops
                     obj.dataStore(1).BBX = [];
                     obj.dataStore(1).RawMovie = [];
                     obj.dataStore(1).Movie = [];
+                    obj.initEvalStore
                 end
             end
+        end
+        
+        function initEvalStore(obj)
+            %initializes evalStore for potential eval results
+            obj.evalStore(1).FFT = [];
+            obj.evalStore(1).FrequencySpectrum = [];
         end
     end
     
