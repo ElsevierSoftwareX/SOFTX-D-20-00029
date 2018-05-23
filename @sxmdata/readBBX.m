@@ -41,7 +41,7 @@ obj.dataStore(1).RawMovie = zeros(height, width, nImages);
 obj.dataStore(1).Movie = zeros(height, width, nImages);
 for i=1:nImages
     obj.dataStore(1).RawMovie(:,:,sortkey(i)) = images(:,:,i);
-    obj.dataStore(1).Movie = images(:,:,i)./obj.dataStore(1).BBX;
+    obj.dataStore(1).Movie(:,:,sortkey(i)) = images(:,:,i)./obj.dataStore(1).BBX;
 end
 
 end
