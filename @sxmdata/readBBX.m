@@ -42,6 +42,7 @@ obj.dataStore(1).Movie = zeros(height, width, nImages);
 for i=1:nImages
     obj.dataStore(1).RawMovie(:,:,sortkey(i)) = images(:,:,i);
     obj.dataStore(1).Movie(:,:,sortkey(i)) = images(:,:,i)./obj.dataStore(1).BBX;
+    obj.dataStore(1).Movie(:,:,sortkey(i)) = obj.dataStore(1).Movie(:,:,sortkey(i)) ./ mean(mean(obj.dataStore(1).Movie(:,:,sortkey(i))));
 end
 
 end

@@ -11,4 +11,5 @@ fftdata = obj.eval('FFT');
 
 %calculate sum spectrum
 obj.evalStore.FrequencySpectrum.Frequency = fftdata.Frequency;
-obj.evalStore.FrequencySpectrum.Power = reshape(mean(mean(fftdata.Power,1),2),1,[]);
+obj.evalStore.FrequencySpectrum.Power = reshape(sum(sum(fftdata.Power,1),2),1,[])...
+                                        ./(size(fftdata.Power,1)*size(fftdata.Power,2));
