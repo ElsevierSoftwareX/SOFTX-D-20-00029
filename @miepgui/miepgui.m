@@ -23,6 +23,27 @@ classdef (Sealed) miepgui < handle
         workFolder = []; %stores current work folder
     end
     
+    %dependent properties and respective get/set methods
+    properties (Dependent)
+        settings; %settings are stored in settings.mat
+    end
+    methods
+        function settings = get.settings(~)
+            if(~exist('settings.mat','file'))
+                settings = miepsettings;
+                save('settings.mat', 'settings')
+            else
+                input = load('settings.mat', 'settings');
+                settings = input.settings;
+            end
+        end
+        function set.settings(~, settings)
+            if isa(settings, 'miepsettings')
+                save('settings.mat', 'settings')
+            end
+        end
+    end
+    
     methods (Access = public)
         %public methods including constructor and display
         
@@ -44,6 +65,7 @@ classdef (Sealed) miepgui < handle
             
             %add menubar to figure
             menuFile = uimenu(obj.fig, 'Text', 'File');
+            uimenu(menuFile, 'Text', 'Settings', 'MenuSelectedFcn', @obj.showSettings);
             uimenu(menuFile, 'Text', 'Close', 'MenuSelectedFcn', @obj.guiFileClose, 'Accelerator', 'X');
             menuHelp = uimenu(obj.fig, 'Text', '?');
             uimenu(menuHelp, 'Text', 'Info', 'MenuSelectedFcn', @obj.guiHelpInfo);
@@ -52,15 +74,13 @@ classdef (Sealed) miepgui < handle
             obj.tBar = uitoolbar(obj.fig);
             
             %load folder icon and add to toolbar
-            icon = imread(fullfile(matlabroot, 'toolbox', 'matlab', 'icons', ...
-                'file_open.png'), 'Background', obj.fig.Color);
+            icon = imread(fullfile(matlabroot, 'toolbox', 'matlab', 'icons', 'file_open.png'), 'Background', obj.fig.Color);
             [img, map] = rgb2ind(icon, 65535);
             iconLoad = ind2rgb(img, map);
             uipushtool(obj.tBar, 'CData', iconLoad, 'TooltipString', 'Load Folder', 'ClickedCallback', @obj.loadFolder);
             
             %load help icon and add to toolbar
-            icon = imread(fullfile(matlabroot, 'toolbox', 'matlab', 'icons', ...
-                'help_ex.png'), 'Background', obj.fig.Color);
+            icon = imread(fullfile(matlabroot, 'toolbox', 'matlab', 'icons', 'help_ex.png'), 'Background', obj.fig.Color);
             [img, map] = rgb2ind(icon, 65535);
             iconHelp = ind2rgb(img, map);
             uipushtool(obj.tBar, 'CData', iconHelp, 'TooltipString', 'Info', 'ClickedCallback', @obj.guiHelpInfo);
@@ -109,6 +129,8 @@ classdef (Sealed) miepgui < handle
             obj.energyList = uicontrol(obj.fig, 'Style', 'popupmenu', 'Units', 'pixels', 'Position', Pos);
             obj.energyList.String = 'Select Energy ...';
         end
+        
+        showSettings(obj, ~, ~, ~) %show settings dialog
     end
     
     methods (Access = private)
