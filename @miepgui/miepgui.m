@@ -128,6 +128,9 @@ classdef (Sealed) miepgui < handle
             Pos(4) = 20; %height
             obj.energyList = uicontrol(obj.fig, 'Style', 'popupmenu', 'Units', 'pixels', 'Position', Pos);
             obj.energyList.String = 'Select Energy ...';
+            
+            %load work folder from settings
+            obj.workFolder = obj.settings.inputFolder;
         end
         
         showSettings(obj, ~, ~, ~) %show settings dialog
