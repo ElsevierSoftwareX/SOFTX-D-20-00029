@@ -40,7 +40,7 @@ classdef miepfile < handle
                 miepDate = num2str(miepDate);
             end
             outputData = [miepTable.Properties.VariableNames; table2cell(miepTable)];
-            xlswrite(obj.filename, outputData, miepDate);
+            [~, ~] = xlswrite(obj.filename, outputData, miepDate);
         end
         
         function miepEntry = readEntry(obj, miepDate, miepNumber)

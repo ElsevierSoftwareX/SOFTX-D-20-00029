@@ -14,6 +14,8 @@ classdef (Sealed) miepgui < handle
         tBar = []; %toolbar handle
         fileList = []; %file listbox handle
         tabGroup = []; %result tab group handle
+        tabs = struct(); %stores individual tab handles
+        tabHandles = struct(); %stores handles on individual tabs
         regionList = []; %region list handle
         energyList = []; %energy list handle
         comment = []; %comment box handle
@@ -122,8 +124,7 @@ classdef (Sealed) miepgui < handle
             Pos(3) = drawingArea(3)*3/4; %width
             Pos(4) = drawingArea(4) - 20 - 60 - 4*5; %height
             obj.tabGroup = uitabgroup(obj.fig, 'Units', 'pixels', 'Position', Pos);
-            uitab(obj.tabGroup, 'Title', 'Dööfe');
-            uitab(obj.tabGroup, 'Title', 'MegaDoof');
+            uitab(obj.tabGroup, 'Title', 'MIEP');
             
             %draw region selector list
             Pos(1) = drawingArea(3)/4; %position left
@@ -143,6 +144,43 @@ classdef (Sealed) miepgui < handle
             
             %load work folder from settings
             obj.workFolder = obj.settings.inputFolder;
+        end
+        
+        function saveFile(obj)
+            %save current sxmdata file
+            dataPath = fullfile(obj.settings.dataFolder, strcat(obj.workFile, '.miep'));
+            data = obj.workData;
+            save(dataPath, 'data')
+        end
+        
+        function displayData(obj)
+            %display data
+            
+            %clear current tabs
+            delete(obj.tabGroup.Children)
+            obj.tabs = struct();
+            obj.tabHandles = struct();
+            
+            %determine if specturm or image
+            if strcmp(obj.workData.header.Flags, 'Spectra')
+                obj.tabs.spectrum = uitab(obj.tabGroup, 'Title', 'Spectrum');
+                obj.tabHandles.spectrumAxes = axes(obj.tabs.spectrum, 'OuterPosition', obj.tabs.spectrum.InnerPosition);
+                plot(obj.tabHandles.spectrumAxes, obj.workData.dataStore.Energy, obj.workData.data)
+                obj.tabHandles.spectrumAxes.XLabel.String = 'Energy [eV]';
+                obj.tabHandles.spectrumAxes.YLabel.String = 'Intensity [counts]';
+                obj.tabHandles.spectrumAxes.TickDir = 'out';
+            else
+                obj.tabs.image = uitab(obj.tabGroup, 'Title', 'Image');
+                obj.tabHandles.imageAxes = axes(obj.tabs.image, 'OuterPosition', obj.tabs.image.InnerPosition);
+                imagesc(obj.tabHandles.imageAxes, obj.workData.data)
+                obj.tabHandles.imageAxes.TickDir = 'out';
+                xMin = obj.workData.header.Regions.PAxis.Min;
+                xMax = obj.workData.header.Regions.PAxis.Max;
+                yMin = obj.workData.header.Regions.QAxis.Min;
+                yMax = obj.workData.header.Regions.QAxis.Max;
+                obj.tabHandles.imageAxes.XTickLabel = {xMin:(xMax-xMin)/10:xMax};
+                obj.tabHandles.imageAxes.YTickLabel = {yMin:(yMax-yMin)/10:yMax};
+            end
         end
         
         showSettings(obj, ~, ~, ~) %show settings dialog
@@ -180,17 +218,27 @@ classdef (Sealed) miepgui < handle
             obj.workFolder = curFolder;
             %actually load folder
             obj.loadFolder
+            %load first file from list
+            obj.fileList.Value = 1;
+            obj.workFile = obj.fileList.String{1};
+            obj.loadFile
         end
         
         function guiRefreshFolder(obj, ~, ~)
             %refresh folder
             obj.loadFolder
+            obj.workFile = obj.fileList.String{obj.fileList.Value};
+            obj.loadFile
         end
         
         function guiLoadFile(obj, ~, ~)
+            %save previous file
+            obj.saveFile
             %determine selected file
             obj.workFile = obj.fileList.String{obj.fileList.Value};
             obj.loadFile
+            %focus back on gui list
+            uicontrol(obj.fileList)
         end
     end
 end

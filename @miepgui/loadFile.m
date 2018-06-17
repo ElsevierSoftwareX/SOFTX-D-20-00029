@@ -13,10 +13,14 @@ function loadFile(obj)
     dataPath = fullfile(obj.settings.dataFolder, strcat(obj.workFile, '.miep'));
     if exist(dataPath, 'file')
         %load existing sxmdata from file
-        obj.workData = load(dataPath, '-mat');
+        load(dataPath, '-mat', 'data');
+        obj.workData = data;
     else
         %create new sxmdata
         hdrFile = fullfile(obj.workFolder, strcat(obj.workFile, '.hdr'));
         obj.workData = sxmdata(hdrFile);
     end
+    
+    %update display
+    obj.displayData
 end

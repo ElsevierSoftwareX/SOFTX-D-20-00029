@@ -14,7 +14,9 @@ function loadFolder(obj)
     dispFileList = cell(0);
     
     %create waitbar
-    wb = waitbar(0, ['Loading ', obj.workFolder, ' ...']);
+    wb = waitbar(0, '', 'Name', 'MIEP');
+    wb.Children(1).Title.Interpreter = 'none';
+    wb.Children(1).Title.String = ['Loading ', obj.workFolder, ' ...'];
     
     %create list to display and update MIEP file
     for i=1:size(hdrList,1)
@@ -54,8 +56,4 @@ function loadFolder(obj)
     %display file list and delete waitbar
     obj.fileList.String = dispFileList;
     delete(wb)
-    
-    %load first file from list
-    obj.workFile = obj.fileList.String{1};
-    obj.loadFile
 end

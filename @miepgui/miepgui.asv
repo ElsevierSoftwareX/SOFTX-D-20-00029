@@ -14,6 +14,7 @@ classdef (Sealed) miepgui < handle
         tBar = []; %toolbar handle
         fileList = []; %file listbox handle
         tabGroup = []; %result tab group handle
+        tabs = strcut(); %stores individual tab handles
         regionList = []; %region list handle
         energyList = []; %energy list handle
         comment = []; %comment box handle
@@ -21,6 +22,8 @@ classdef (Sealed) miepgui < handle
     
     properties (Access = private)
         workFolder = []; %stores current work folder
+        workFile = []; %stores current work file
+        workData = []; %holds current sxmdata
     end
     
     %dependent properties and respective get/set methods
@@ -81,7 +84,7 @@ classdef (Sealed) miepgui < handle
             icon = imread(fullfile(matlabroot, 'toolbox', 'matlab', 'icons', 'file_open.png'), 'Background', obj.fig.Color);
             [img, map] = rgb2ind(icon, 65535);
             iconLoad = ind2rgb(img, map);
-            uipushtool(obj.tBar, 'CData', iconLoad, 'TooltipString', 'Load Folder', 'ClickedCallback', @obj.loadFolder);
+            uipushtool(obj.tBar, 'CData', iconLoad, 'TooltipString', 'Load Folder', 'ClickedCallback', @obj.guiLoadFolder);
             
             %load refresh icon and add to toolbar
             icon = imread(fullfile(matlabroot, 'toolbox', 'physmod', 'common', 'dataservices', 'resources', 'icons', 'refresh.png'), 'Background', obj.fig.Color);
@@ -103,7 +106,7 @@ classdef (Sealed) miepgui < handle
             Pos(2) = 5; % position bottom
             Pos(3) = drawingArea(3)*1/4 - 2*5; %width
             Pos(4) = drawingArea(4) - 2*5; %height
-            obj.fileList = uicontrol(obj.fig, 'Style', 'listbox', 'Units', 'pixels', 'Position', Pos);
+            obj.fileList = uicontrol(obj.fig, 'Style', 'listbox', 'Units', 'pixels', 'Position', Pos, 'Callback', @obj.guiLoadFile);
             
             %draw comment box
             Pos(1) = drawingArea(3)/4; %position left
@@ -120,8 +123,7 @@ classdef (Sealed) miepgui < handle
             Pos(3) = drawingArea(3)*3/4; %width
             Pos(4) = drawingArea(4) - 20 - 60 - 4*5; %height
             obj.tabGroup = uitabgroup(obj.fig, 'Units', 'pixels', 'Position', Pos);
-            uitab(obj.tabGroup, 'Title', 'Dööfe');
-            uitab(obj.tabGroup, 'Title', 'MegaDoof');
+            uitab(obj.tabGroup, 'Title', 'MIEP');
             
             %draw region selector list
             Pos(1) = drawingArea(3)/4; %position left
@@ -143,6 +145,32 @@ classdef (Sealed) miepgui < handle
             obj.workFolder = obj.settings.inputFolder;
         end
         
+        function saveFile(obj)
+            %save current sxmdata file
+            dataPath = fullfile(obj.settings.dataFolder, strcat(obj.workFile, '.miep'));
+            data = obj.workData;
+            save(dataPath, 'data')
+        end
+        
+        function displayData(obj)
+            %display data
+            
+            %clear current tabs
+            delete(obj.tabGroup.Children)
+            obj.tabs = struct();
+            
+            %determine if specturm or image
+            if strcmp(obj.workData.header.Flags, 'Spectra')
+                obj.tabs.spectrum = uitab(obj.tabGroup, 'Title', 'Spectrum');
+                spectrumAxes = axes(spectrumTab, 'Position', obj.tabs.spectrum.InnerPosition);
+                plot(spectrumAxes, obj.workData.dataStore.Energy, obj.workData.data)
+            else
+                imageTab = uitab(obj.tabGroup, 'Title', 'Image');
+                imageAxes = axes(imageTab, 'Position', imageTab.InnerPosition);
+                imagesc(imageAxes, obj.workData.data)
+            end
+        end
+        
         showSettings(obj, ~, ~, ~) %show settings dialog
     end
     
@@ -162,11 +190,43 @@ classdef (Sealed) miepgui < handle
         end
         
         function guiLoadFolder(obj, ~, ~)
+            %determine current directory
+            if isempty(obj.workFolder)
+                curFolder = fullfile(getenv('HOMEDRIVE'),getenv('HOMEPATH'));
+            else
+                curFolder = obj.workFolder;
+            end
+            %ask for folder to load
+            curFolder = uigetdir(curFolder, 'Open SXM Data Folder');
+            %exit function if uigetdir dialog was canceld
+            if curFolder == 0
+                return
+            end
+            %write new folder to object
+            obj.workFolder = curFolder;
+            %actually load folder
+            obj.loadFolder
+            %load first file from list
+            obj.fileList.Value = 1;
+            obj.workFile = obj.fileList.String{1};
+            obj.loadFile
+        end
         
         function guiRefreshFolder(obj, ~, ~)
             %refresh folder
+            obj.loadFolder
+            obj.workFile = obj.fileList.String{obj.fileList.Value};
+            obj.loadFile
         end
         
-        loadFolder(obj, ~, ~, ~) %load data folder
+        function guiLoadFile(obj, ~, ~)
+            %save previous file
+            obj.saveFile
+            %determine selected file
+            obj.workFile = obj.fileList.String{obj.fileList.Value};
+            obj.loadFile
+            %focus back on gui list
+            uicontrol(obj.fileList)
+        end
     end
 end
