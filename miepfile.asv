@@ -36,9 +36,6 @@ classdef miepfile < handle
         
         function writeDate(obj, miepDate, miepTable)
             %write full table for measurement date
-            if isnumeric(miepDate)
-                miepDate = num2str(miepDate);
-            end
             outputData = [miepTable.Properties.VariableNames; table2cell(miepTable)];
             xlswrite(obj.filename, outputData, miepDate);
         end
@@ -66,19 +63,17 @@ classdef miepfile < handle
             miepTable = obj.readDate(miepDate);
             %check if table already exists
             if isempty(miepTable)
-                miepTable = table(miepEntry.Measurement, miepEntry.MagicNumber, {miepEntry.Comment}, {miepEntry.HeaderFile}, 'VariableNames', {'Measurement', 'MagicNumber', 'Comment', 'HeaderFile'});
             else
-                %check if measurement is already present in table
-                if isempty(obj.readEntry(miepEntry.Measurement))
-                    %append table
-                    miepTable(end+1,:) = {miepEntry.Measurement, miepEntry.MagicNumber, miepEntry.Comment, miepEntry.HeaderFile};
-                else
-                    %update table
-                    miepTable(miepTable.Measurement == miepEntry.Measurement,:) = {miepEntry.Measurement, miepEntry.MagicNumber, miepEntry.Comment, miepEntry.HeaderFile};
-                end
-                %sort table for ascending measurement number
-                miepTable = sortrows(miepTable);
+            %check if measurement is already present
+            if isempty(obj.readEntry(miepEntry.Measurement))
+                %append table
+                miepTable(end+1,:) = {miepEntry.Measurement, miepEntry.MagicNumber, miepEntry.Comment, miepEntry.HeaderFile};
+            else
+                %update table
+                miepTable(miepTable.Measurement == miepEntry.Measurement,:) = {miepEntry.Measurement, miepEntry.MagicNumber, miepEntry.Comment, miepEntry.HeaderFile};
             end
+            %sort table for ascending measurement number
+            miepTable = sortrows(miepTable);
             %write to file
             obj.writeDate(miepDate, miepTable);
         end
