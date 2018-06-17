@@ -46,18 +46,22 @@ classdef miepfile < handle
         function miepEntry = readEntry(obj, miepDate, miepNumber)
             %read inidividual entry from measurement table
             miepTable = obj.readDate(miepDate);
-            Measurement = miepTable.Measurement(miepTable.Measurement == miepNumber);
-            MagicNumber = miepTable.MagicNumber(miepTable.Measurement == miepNumber);
-            Comment = miepTable.Comment(miepTable.Measurement == miepNumber);
-            HeaderFile = miepTable.HeaderFile(miepTable.Measurement == miepNumber);
-            if isempty(Measurement)
+            if isempty(miepTable)
                 miepEntry = [];
             else
-                miepEntry = struct;
-                miepEntry.Measurement = Measurement;
-                miepEntry.MagicNumber = MagicNumber;
-                miepEntry.Comment = Comment{1};
-                miepEntry.HeaderFile = HeaderFile{1};
+                Measurement = miepTable.Measurement(miepTable.Measurement == miepNumber);
+                MagicNumber = miepTable.MagicNumber(miepTable.Measurement == miepNumber);
+                Comment = miepTable.Comment(miepTable.Measurement == miepNumber);
+                HeaderFile = miepTable.HeaderFile(miepTable.Measurement == miepNumber);
+                if isempty(Measurement)
+                    miepEntry = [];
+                else
+                    miepEntry = struct;
+                    miepEntry.Measurement = Measurement;
+                    miepEntry.MagicNumber = MagicNumber;
+                    miepEntry.Comment = Comment{1};
+                    miepEntry.HeaderFile = HeaderFile{1};
+                end
             end
         end
         
@@ -69,7 +73,7 @@ classdef miepfile < handle
                 miepTable = table(miepEntry.Measurement, miepEntry.MagicNumber, {miepEntry.Comment}, {miepEntry.HeaderFile}, 'VariableNames', {'Measurement', 'MagicNumber', 'Comment', 'HeaderFile'});
             else
                 %check if measurement is already present in table
-                if isempty(obj.readEntry(miepEntry.Measurement))
+                if isempty(obj.readEntry(miepDate, miepEntry.Measurement))
                     %append table
                     miepTable(end+1,:) = {miepEntry.Measurement, miepEntry.MagicNumber, miepEntry.Comment, miepEntry.HeaderFile};
                 else
@@ -77,7 +81,7 @@ classdef miepfile < handle
                     miepTable(miepTable.Measurement == miepEntry.Measurement,:) = {miepEntry.Measurement, miepEntry.MagicNumber, miepEntry.Comment, miepEntry.HeaderFile};
                 end
                 %sort table for ascending measurement number
-                miepTable = sortrows(miepTable);
+                miepTable = sortrows(miepTable, 1);
             end
             %write to file
             obj.writeDate(miepDate, miepTable);

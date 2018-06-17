@@ -21,8 +21,6 @@ classdef (Sealed) miepgui < handle
     
     properties (Access = private)
         workFolder = []; %stores current work folder
-        workFile = []; %stores current work file
-        workData = []; %holds current sxmdata
     end
     
     %dependent properties and respective get/set methods
@@ -83,7 +81,7 @@ classdef (Sealed) miepgui < handle
             icon = imread(fullfile(matlabroot, 'toolbox', 'matlab', 'icons', 'file_open.png'), 'Background', obj.fig.Color);
             [img, map] = rgb2ind(icon, 65535);
             iconLoad = ind2rgb(img, map);
-            uipushtool(obj.tBar, 'CData', iconLoad, 'TooltipString', 'Load Folder', 'ClickedCallback', @obj.guiLoadFolder);
+            uipushtool(obj.tBar, 'CData', iconLoad, 'TooltipString', 'Load Folder', 'ClickedCallback', @obj.loadFolder);
             
             %load refresh icon and add to toolbar
             icon = imread(fullfile(matlabroot, 'toolbox', 'physmod', 'common', 'dataservices', 'resources', 'icons', 'refresh.png'), 'Background', obj.fig.Color);
@@ -105,7 +103,7 @@ classdef (Sealed) miepgui < handle
             Pos(2) = 5; % position bottom
             Pos(3) = drawingArea(3)*1/4 - 2*5; %width
             Pos(4) = drawingArea(4) - 2*5; %height
-            obj.fileList = uicontrol(obj.fig, 'Style', 'listbox', 'Units', 'pixels', 'Position', Pos, 'Callback', @obj.guiLoadFile);
+            obj.fileList = uicontrol(obj.fig, 'Style', 'listbox', 'Units', 'pixels', 'Position', Pos);
             
             %draw comment box
             Pos(1) = drawingArea(3)/4; %position left
@@ -164,33 +162,11 @@ classdef (Sealed) miepgui < handle
         end
         
         function guiLoadFolder(obj, ~, ~)
-            %determine current directory
-            if isempty(obj.workFolder)
-                curFolder = fullfile(getenv('HOMEDRIVE'),getenv('HOMEPATH'));
-            else
-                curFolder = obj.workFolder;
-            end
-            %ask for folder to load
-            curFolder = uigetdir(curFolder, 'Open SXM Data Folder');
-            %exit function if uigetdir dialog was canceld
-            if curFolder == 0
-                return
-            end
-            %write new folder to object
-            obj.workFolder = curFolder;
-            %actually load folder
-            obj.loadFolder
-        end
         
         function guiRefreshFolder(obj, ~, ~)
             %refresh folder
-            obj.loadFolder
         end
         
-        function guiLoadFile(obj, ~, ~)
-            %determine selected file
-            obj.workFile = obj.fileList.String{obj.fileList.Value};
-            obj.loadFile
-        end
+        loadFolder(obj, ~, ~, ~) %load data folder
     end
 end

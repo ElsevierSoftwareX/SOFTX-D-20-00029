@@ -1,0 +1,19 @@
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% % MIEP GUI Load File                                     %
+% %                                                        %
+% % Loads File into GUI                                    %
+% %                                                        %
+% % Max Planck Institute for Intelligent Systems           %
+% % Joachim Gräfe                                          %
+% % graefe@is.mpg.de                                       %
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+function loadFile(obj)
+    %check for sxm data file
+    dataPath = fullfile(obj.settings.dataFolder, strcat(obj.workFile, '.miep'));
+    if exist(dataPath, 'file')
+        obj.workData = load(dataPath, '-mat');
+    else
+        miepDate = obj.workFile(5:10);
+        miepNumber = str2double(obj.workFile(11:13));
+        miepEntry = obj.miepFile.readEntry(miepDate, miepNumber);

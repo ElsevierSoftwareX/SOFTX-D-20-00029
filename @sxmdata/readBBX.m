@@ -8,7 +8,7 @@
 
 function readBBX(obj)
 %check if magic numbmer is set, otherwise ask
-if isempty(obj.magicNumber)
+if isempty(obj.magicNumber) || obj.magicNumber == 0
     queryString = ['Magic Number for ', obj.header.Label, '?'];
     obj.magicNumber = str2double(inputdlg(queryString));
 end
