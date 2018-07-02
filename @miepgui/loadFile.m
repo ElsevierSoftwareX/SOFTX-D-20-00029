@@ -16,8 +16,13 @@ function loadFile(obj)
         load(dataPath, '-mat', 'data');
         obj.workData = data;
     else
-        %create new sxmdata
+        %create new sxmdata from measurement data
+        %check single file
         hdrFile = fullfile(obj.workFolder, strcat(obj.workFile, '.hdr'));
+        if ~exist(hdrFile, 'file')
+            %try multi energy folder
+            hdrFile = fullfile(obj.workFolder, obj.workFile, strcat(obj.workFile, '.hdr'));
+        end
         obj.workData = sxmdata(hdrFile);
     end
     
