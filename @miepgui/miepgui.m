@@ -163,7 +163,7 @@ classdef (Sealed) miepgui < handle
             end
             
             %determine if specturm or image
-            if strcmp(obj.workData.header.Flags, 'Spectra')o
+            if strcmp(obj.workData.header.Flags, 'Spectra')
                 spectrumTab = mieptab(obj, 'Spectrum');
                 spectrumTab.uiHandles.spectrumAxes = axes(spectrumTab.tabHandle, 'OuterPosition', spectrumTab.InnerPosition);
                 plot(spectrumTab.uiHandles.spectrumAxes, obj.workData.dataStore(1,1).Energy, obj.workData.data)
