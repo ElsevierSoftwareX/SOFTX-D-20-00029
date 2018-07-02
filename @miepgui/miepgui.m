@@ -166,7 +166,7 @@ classdef (Sealed) miepgui < handle
             if strcmp(obj.workData.header.Flags, 'Spectra')
                 spectrumTab = mieptab(obj, 'Spectrum');
                 spectrumTab.uiHandles.spectrumAxes = axes(spectrumTab.tabHandle, 'OuterPosition', spectrumTab.InnerPosition);
-                plot(spectrumTab.uiHandles.spectrumAxes, obj.workData.dataStore.Energy, obj.workData.data)
+                plot(spectrumTab.uiHandles.spectrumAxes, obj.workData.dataStore(1,1).Energy, obj.workData.data)
                 spectrumTab.uiHandles.spectrumAxes.XLabel.String = 'Energy [eV]';
                 spectrumTab.uiHandles.spectrumAxes.YLabel.String = 'Intensity [counts]';
                 spectrumTab.uiHandles.spectrumAxes.TickDir = 'out';
