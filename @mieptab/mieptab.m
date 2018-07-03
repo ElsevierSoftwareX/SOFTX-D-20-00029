@@ -41,8 +41,12 @@ classdef mieptab < handle
         function obj = mieptab(miepGUIObj, tabType)
             %miep tab constructor greates tab on miep GUI
             %input: MIEP GUI Object, Tab Type
+            
+            %create tab
             obj.tabHandle = uitab(miepGUIObj.tabGroup, 'Title', tabType);
             miepGUIObj.tabs.(tabType) = obj;
+            
+            %decide which type of tab to draw
             switch tabType
                 case 'MIEP'
                     %empty welcome tab

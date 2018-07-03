@@ -16,7 +16,6 @@ classdef (Sealed) miepgui < handle
         tabGroup = []; %tab group handle
         tabs = struct(); %stores individual miep tab handles
         regionList = []; %region list handle
-        energyList = []; %energy list handle
         comment = []; %comment box handle
     end
     
@@ -24,7 +23,8 @@ classdef (Sealed) miepgui < handle
     properties (SetAccess = private)
         workFolder = []; %stores current work folder
         workFile = []; %stores current work file
-        workData = []; %holds current sxmdata
+        workData = []; %stores current sxmdata
+        workRegion = []; %stores current region
         workTab = []; %stores selected tab
         miepFile = []; %wrapper for XLSX list of measurements
     end
@@ -120,7 +120,7 @@ classdef (Sealed) miepgui < handle
             Pos(2) = 5; % position bottom
             Pos(3) = drawingArea(3)*3/4; %width
             Pos(4) = 60; %height
-            obj.comment = uicontrol(obj.fig, 'Style', 'edit', 'Units', 'pixels', 'Position', Pos, 'Callback', @obj.guiUpdateComment);
+            obj.comment = uicontrol(obj.fig, 'Style', 'edit', 'Units', 'pixels', 'Position', Pos, 'Callback', @obj.guiSaveComment);
             obj.comment.HorizontalAlignment = 'left';
             obj.comment.Max = 3; %multi line would be nice, but comment update doesn't work
             obj.comment.Max = 1;
@@ -136,18 +136,10 @@ classdef (Sealed) miepgui < handle
             %draw region selector list
             Pos(1) = drawingArea(3)/4; %position left
             Pos(2) = drawingArea(4) - 20 - 5; % position bottom
-            Pos(3) = drawingArea(3)*3/8 - 1*5; %width
+            Pos(3) = drawingArea(3)*3/4 - 5; %width
             Pos(4) = 20; %height
             obj.regionList = uicontrol(obj.fig, 'Style', 'popupmenu', 'Units', 'pixels', 'Position', Pos);
             obj.regionList.String = 'Select Region ...';
-            
-            %draw energy selector list
-            Pos(1) = drawingArea(3)*5/8; %position left
-            Pos(2) = drawingArea(4) - 20 - 5; % position bottom
-            Pos(3) = drawingArea(3)*3/8 - 1*5; %width
-            Pos(4) = 20; %height
-            obj.energyList = uicontrol(obj.fig, 'Style', 'popupmenu', 'Units', 'pixels', 'Position', Pos);
-            obj.energyList.String = 'Select Energy ...';
             
             %load work folder from settings
             obj.workFolder = obj.settings.inputFolder;
@@ -176,11 +168,28 @@ classdef (Sealed) miepgui < handle
             miepEntry = obj.miepFile.readEntry(miepDate, miepNumber);
             obj.comment.String = miepEntry.Comment;
             
+            %display region list
+            numRegions = size(obj.workData.header.Regions);
+            if numRegions == 1
+                obj.regionList.String = 'Region 1';
+                obj.regionList.Enable = 'off';
+            else
+                newList = cell(numRegions);
+                for i = 1:numRegions
+                    newList{i} = ['Region ', num2str(i)];
+                end
+                obj.regionList.String = newList;
+                obj.regionList.Enable = 'on';
+            end
+            obj.workRegion = 1;
+            
             %determine if specturm or image
             if strcmp(obj.workData.header.Flags, 'Spectra')
                 mieptab(obj, 'Spectrum');
+                obj.workTab = 'Spectrum';
             else
                 mieptab(obj, 'Image');
+                obj.workTab = 'Image';
             end
         end
         
@@ -243,7 +252,7 @@ classdef (Sealed) miepgui < handle
             uicontrol(obj.fileList)
         end
         
-        function guiUpdateComment(obj, ~, ~)
+        function guiSaveComment(obj, ~, ~)
             %write comment to miep file after change
             miepDate = obj.workFile(5:10);
             miepNumber = str2double(obj.workFile(11:13));
