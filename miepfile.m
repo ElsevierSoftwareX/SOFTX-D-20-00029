@@ -11,14 +11,16 @@ classdef miepfile < handle
     
     properties
         filename = []; %stores MIEP file name
+        importOptions = []; %stores import options
     end
     
     methods (Access = public)
         %public methods including constructor and display
         
         function obj = miepfile(inputfilename)
-            %constructor
+            %constructor, intitializes import options for miep file
             obj.filename = inputfilename;
+            obj.importOptions = detectImportOptions(obj.filename);
         end
         
         function miepTable = readDate(obj, miepDate)
@@ -27,8 +29,8 @@ classdef miepfile < handle
                 miepDate = num2str(miepDate);
             end
             try
-                [~, ~, importData] = xlsread(obj.filename, miepDate);
-                miepTable = cell2table(importData(2:end,:), 'VariableNames', importData(1,:));
+                obj.importOptions.Sheet = miepDate;
+                miepTable = readtable(obj.filename, obj.importOptions, 'Baisc', 1);
             catch
                 miepTable = [];
             end

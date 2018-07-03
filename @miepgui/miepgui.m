@@ -20,16 +20,25 @@ classdef (Sealed) miepgui < handle
         comment = []; %comment box handle
     end
     
+    %private properties and respective get/set methods
     properties (Access = private)
         workFolder = []; %stores current work folder
         workFile = []; %stores current work file
         workData = []; %holds current sxmdata
+        miepFile = []; %wrapper for XLSX list of measurements
+    end
+    methods
+        function miepFile = get.miepFile(obj)
+            if isempty(obj.miepFile)
+                obj.miepFile = miepfile(obj.settings.miepFile);
+            end
+            miepFile = obj.miepFile;
+        end
     end
     
     %dependent properties and respective get/set methods
     properties (Dependent)
         settings; %settings are stored in settings.mat
-        miepFile; %wrapper for XLSX list of measurements
     end
     methods
         function settings = get.settings(~)
@@ -45,9 +54,6 @@ classdef (Sealed) miepgui < handle
             if isa(settings, 'miepsettings')
                 save('settings.mat', 'settings')
             end
-        end
-        function miepFile = get.miepFile(obj)
-            miepFile = miepfile(obj.settings.miepFile);
         end
     end
     
