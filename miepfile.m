@@ -30,7 +30,7 @@ classdef miepfile < handle
             end
             try
                 obj.importOptions.Sheet = miepDate;
-                miepTable = readtable(obj.filename, obj.importOptions, 'Baisc', 1);
+                miepTable = readtable(obj.filename, obj.importOptions, 'Basic', 1);
             catch
                 miepTable = [];
             end
@@ -41,6 +41,7 @@ classdef miepfile < handle
             if isnumeric(miepDate)
                 miepDate = num2str(miepDate);
             end
+            warning('off', 'MATLAB:xlswrite:AddSheet')
             outputData = [miepTable.Properties.VariableNames; table2cell(miepTable)];
             [~, ~] = xlswrite(obj.filename, outputData, miepDate);
         end

@@ -8,4 +8,10 @@
 
 function miep
     myMiep = miepgui;
+    try
+        waitfor(myMiep)
+    catch errMiep
+        disp(errMiep)
+        delete(myMiep)
+    end
 end

@@ -20,11 +20,12 @@ classdef (Sealed) miepgui < handle
         comment = []; %comment box handle
     end
     
-    %private properties and respective get/set methods
-    properties (Access = private)
+    %read only properties and respective get/set methods
+    properties (SetAccess = private)
         workFolder = []; %stores current work folder
         workFile = []; %stores current work file
         workData = []; %holds current sxmdata
+        workTab = []; %stores selected tab
         miepFile = []; %wrapper for XLSX list of measurements
     end
     methods
@@ -74,7 +75,7 @@ classdef (Sealed) miepgui < handle
             %open figure
             obj.fig = figure('Position', figPos, 'Resize', 'off', 'WindowStyle', 'normal', ...
                 'DockControls', 'off', 'MenuBar', 'none', 'ToolBar', 'none', ...
-                'NumberTitle', 'off', 'Name', 'MIEP');
+                'NumberTitle', 'off', 'Name', 'MIEP', 'CloseRequestFcn', @obj.guiFileClose);
             
             %add menubar to figure
             menuFile = uimenu(obj.fig, 'Text', 'File');
@@ -119,9 +120,10 @@ classdef (Sealed) miepgui < handle
             Pos(2) = 5; % position bottom
             Pos(3) = drawingArea(3)*3/4; %width
             Pos(4) = 60; %height
-            obj.comment = uicontrol(obj.fig, 'Style', 'edit', 'Units', 'pixels', 'Position', Pos);
+            obj.comment = uicontrol(obj.fig, 'Style', 'edit', 'Units', 'pixels', 'Position', Pos, 'Callback', @obj.guiUpdateComment);
             obj.comment.HorizontalAlignment = 'left';
-            obj.comment.Max = 3;
+            obj.comment.Max = 3; %multi line would be nice, but comment update doesn't work
+            obj.comment.Max = 1;
             
             %draw results display tabgroup
             Pos(1) = drawingArea(3)/4; %position left
@@ -129,7 +131,7 @@ classdef (Sealed) miepgui < handle
             Pos(3) = drawingArea(3)*3/4; %width
             Pos(4) = drawingArea(4) - 20 - 60 - 4*5; %height
             obj.tabGroup = uitabgroup(obj.fig, 'Units', 'pixels', 'Position', Pos);
-            mieptab(obj, 'MIEP')
+            mieptab(obj, 'MIEP');
             
             %draw region selector list
             Pos(1) = drawingArea(3)/4; %position left
@@ -168,25 +170,17 @@ classdef (Sealed) miepgui < handle
                 delete(obj.tabs.(curTabs{i}))
             end
             
+            %display comment
+            miepDate = obj.workFile(5:10);
+            miepNumber = str2double(obj.workFile(11:13));
+            miepEntry = obj.miepFile.readEntry(miepDate, miepNumber);
+            obj.comment.String = miepEntry.Comment;
+            
             %determine if specturm or image
             if strcmp(obj.workData.header.Flags, 'Spectra')
-                spectrumTab = mieptab(obj, 'Spectrum');
-                spectrumTab.uiHandles.spectrumAxes = axes(spectrumTab.tabHandle, 'OuterPosition', spectrumTab.InnerPosition);
-                plot(spectrumTab.uiHandles.spectrumAxes, obj.workData.dataStore(1,1).Energy, obj.workData.data)
-                spectrumTab.uiHandles.spectrumAxes.XLabel.String = 'Energy [eV]';
-                spectrumTab.uiHandles.spectrumAxes.YLabel.String = 'Intensity [counts]';
-                spectrumTab.uiHandles.spectrumAxes.TickDir = 'out';
+                mieptab(obj, 'Spectrum');
             else
-                imageTab = mieptab(obj, 'Image');
-                imageTab.uiHandles.imageAxes = axes(imageTab.tabHandle, 'OuterPosition', imageTab.InnerPosition);
-                imagesc(imageTab.uiHandles.imageAxes, obj.workData.data)
-                imageTab.uiHandles.imageAxes.TickDir = 'out';
-                xMin = obj.workData.header.Regions.PAxis.Min;
-                xMax = obj.workData.header.Regions.PAxis.Max;
-                yMin = obj.workData.header.Regions.QAxis.Min;
-                yMax = obj.workData.header.Regions.QAxis.Max;
-                imageTab.uiHandles.imageAxes.XTickLabel = {xMin:(xMax-xMin)/10:xMax};
-                imageTab.uiHandles.imageAxes.YTickLabel = {yMin:(yMax-yMin)/10:yMax};
+                mieptab(obj, 'Image');
             end
         end
         
@@ -206,6 +200,7 @@ classdef (Sealed) miepgui < handle
         function guiFileClose(obj, ~, ~)
             %file close function
             delete(obj.fig)
+            delete(obj)
         end
         
         function guiLoadFolder(obj, ~, ~)
@@ -246,6 +241,15 @@ classdef (Sealed) miepgui < handle
             obj.loadFile
             %focus back on gui list
             uicontrol(obj.fileList)
+        end
+        
+        function guiUpdateComment(obj, ~, ~)
+            %write comment to miep file after change
+            miepDate = obj.workFile(5:10);
+            miepNumber = str2double(obj.workFile(11:13));
+            miepEntry = obj.miepFile.readEntry(miepDate, miepNumber);
+            miepEntry.Comment = obj.comment.String;
+            obj.miepFile.writeEntry(miepDate, miepEntry)
         end
     end
 end

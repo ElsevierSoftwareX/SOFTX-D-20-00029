@@ -2,7 +2,6 @@
 % % MIEP Tab                                               %
 % %                                                        %
 % % Tab functionality for MIEP Tabs                        %
-% % Master Class for specialized tabs                      %
 % %                                                        %
 % % Max Planck Institute for Intelligent Systems           %
 % % Joachim Gräfe                                          %
@@ -39,11 +38,19 @@ classdef mieptab < handle
     end 
     
     methods
-        function obj = mieptab(miepGUIObj, tabTitle)
+        function obj = mieptab(miepGUIObj, tabType)
             %miep tab constructor greates tab on miep GUI
-            %input: MIEP GUI Object, Tab Title
-            obj.tabHandle = uitab(miepGUIObj.tabGroup, 'Title', tabTitle);
-            miepGUIObj.tabs.(tabTitle) = obj;
+            %input: MIEP GUI Object, Tab Type
+            obj.tabHandle = uitab(miepGUIObj.tabGroup, 'Title', tabType);
+            miepGUIObj.tabs.(tabType) = obj;
+            switch tabType
+                case 'MIEP'
+                    %empty welcome tab
+                case 'Image'
+                    obj.showImage(miepGUIObj)
+                case 'Spectrum'
+                    obj.showSpectrum(miepGUIObj)
+            end
         end
         
         function delete(obj)
