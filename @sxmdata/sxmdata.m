@@ -24,6 +24,25 @@ classdef (Sealed) sxmdata < dynamicprops
         evalStore = []; %stores evaluation data
     end
     
+    properties (Dependent)
+        %Dependent virtual properties
+        channels %provides list of available channels
+    end
+    methods
+        function channels = get.channels(obj)
+            %compile list of channels
+            numChannels = size(obj.header.Channels, 2);
+            channels = cell(numChannels, 1);
+            for i=1:numChannels
+                channels{i} = obj.header.Channels(i).Name;
+            end
+            if isfield(obj.dataStore(1,1), 'BBX')
+                channels{end+1} = 'BBX';
+            end
+        end
+    end
+            
+    
     methods (Access = public)
         %public methods including constructor and display
         
@@ -135,6 +154,7 @@ classdef (Sealed) sxmdata < dynamicprops
         
         function initDataStore(obj)
             %initializes dataStore depending on header information
+            
             if strcmp(obj.header.Flags, 'Spectra')
                 %init for Spectra
                 obj.dataStore = struct;
@@ -147,7 +167,11 @@ classdef (Sealed) sxmdata < dynamicprops
             else
                 %init for Images
                 for region = 1:size(obj.header.Regions,2)
-                    for energy = 1:obj.header.StackAxis.Points
+                    numEnergies = 1:obj.header.StackAxis.Points;
+                    if isnan(numEnergies)
+                        numEnergies = 1; %OSA Focus Scan contingency
+                    end
+                    for energy = 1:numEnergies
                         for channel = {obj.header.Channels.Name}
                             obj.dataStore(region,energy).(channel{1}) = [];
                         end

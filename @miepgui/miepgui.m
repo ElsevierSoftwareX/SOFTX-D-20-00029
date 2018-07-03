@@ -155,7 +155,6 @@ classdef (Sealed) miepgui < handle
         
         function displayData(obj)
             %display data
-            
             %clear current tabs
             curTabs = fields(obj.tabs);
             for i=1:size(curTabs, 1)
@@ -169,7 +168,11 @@ classdef (Sealed) miepgui < handle
             obj.comment.String = miepEntry.Comment;
             
             %display region list
-            numRegions = size(obj.workData.header.Regions);
+            try
+                numRegions = size(obj.workData.header.Regions);
+            catch
+                numRegions = 1;
+            end
             if numRegions == 1
                 obj.regionList.String = 'Region 1';
                 obj.regionList.Enable = 'off';
@@ -183,8 +186,10 @@ classdef (Sealed) miepgui < handle
             end
             obj.workRegion = 1;
             
-            %determine if specturm or image
-            if strcmp(obj.workData.header.Flags, 'Spectra')
+            %determine if specturm or image  
+            if strcmp(obj.workData.header.Type, 'OSA Focus Scan')
+                waitfor(errordlg('OSA Focus Scan is not supported', 'MIEP'));
+            elseif strcmp(obj.workData.header.Flags, 'Spectra')
                 mieptab(obj, 'Spectrum');
                 obj.workTab = 'Spectrum';
             else
