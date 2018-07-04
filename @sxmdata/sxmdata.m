@@ -105,7 +105,11 @@ classdef (Sealed) sxmdata < dynamicprops
             end
             %get channel name
             if isnumeric(channel)
-                channel = obj.header.Channels(channel).Name;
+                if (channel > size(obj.header.Channels,2)) && isfield(obj.dataStore(1,1), 'BBX')
+                    channel = 'BBX';
+                else
+                    channel = obj.header.Channels(channel).Name;
+                end
             end
             %check for data presence
             if isempty(obj.dataStore(region,energy).(channel))
@@ -140,7 +144,7 @@ classdef (Sealed) sxmdata < dynamicprops
                 end
             end
             %return data
-            output = obj.dataStore(region).(channel);
+            output = obj.dataStore(region,energy).(channel);
         end
         
         function output = eval(obj, type, varargin)

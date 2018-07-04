@@ -17,10 +17,16 @@ classdef mieptab < handle
         tabData = struct(); %variable tab data store
     end
     
+    properties (Access = private)
+        miepGUIObj = []; %stores MIEP GUI handle
+    end
+    
     methods
         function obj = mieptab(miepGUIObj, tabType)
             %miep tab constructor greates tab on miep GUI
             %input: MIEP GUI Object, Tab Type
+            
+            obj.miepGUIObj = miepGUIObj;
             
             %create tab
             obj.tabHandle = uitab(miepGUIObj.tabGroup, 'Title', tabType, 'Units', 'pixels');
@@ -31,9 +37,9 @@ classdef mieptab < handle
                 case 'MIEP'
                     %empty welcome tab
                 case 'Image'
-                    obj.showImage(miepGUIObj)
+                    obj.imageTab(miepGUIObj)
                 case 'Spectrum'
-                    obj.showSpectrum(miepGUIObj)
+                    obj.spectrumTab(miepGUIObj)
             end
         end
         

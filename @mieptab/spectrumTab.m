@@ -1,14 +1,14 @@
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % % MIEP Spectrum Tab                                      %
 % %                                                        %
-% % Draws a tab to show spectra                            %
+% % Spectrum Tab Class Subset                              %
 % %                                                        %
 % % Max Planck Institute for Intelligent Systems           %
 % % Joachim Gräfe                                          %
 % % graefe@is.mpg.de                                       %
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function showSpectrum(obj, miepGUIObj)
+function spectrumTab(obj, miepGUIObj)
 
 %determine drawing area
 drawingArea = obj.tabHandle.Position;
