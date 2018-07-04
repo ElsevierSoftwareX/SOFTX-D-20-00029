@@ -112,11 +112,13 @@ classdef (Sealed) sxmdata < dynamicprops
                 end
             end
             %check for data presence
-            if isempty(obj.dataStore(region,energy).(channel))
-                if strcmp(obj.header.Flags, 'Spectra')
+            if strcmp(obj.header.Flags, 'Spectra')
+                if isempty(obj.dataStore(region).(channel))
                     %read XSP file
                     obj.readXSP(region)
-                else
+                end
+            else
+                if isempty(obj.dataStore(region,energy).(channel))
                     switch channel
                         %low level channels
                         case 'APD'

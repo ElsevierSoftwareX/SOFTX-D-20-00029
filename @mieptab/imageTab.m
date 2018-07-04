@@ -75,11 +75,6 @@ obj.uiHandles.imageAxes.YLabel.String = [yLabel ' [' yUnit ']'];
 
 obj.uiHandles.image = image(obj.uiHandles.imageAxes);
 obj.uiHandles.image.CDataMapping = 'scaled';
-% obj.uiHandles.image.XData = miepGUIObj.workData.header.Regions(miepGUIObj.workRegion).PAxis.Axis;
-% obj.uiHandles.image.YData = miepGUIObj.workData.header.Regions(miepGUIObj.workRegion).QAxis.Axis;
-
-% obj.uiHandles.imageAxes.XTickLabel = {xMin:(xMax-xMin)/10:xMax};
-% obj.uiHandles.imageAxes.YTickLabel = {yMin:(yMax-yMin)/10:yMax};
 
 %draw image on first energy/channel
 imageDraw(1,1);
