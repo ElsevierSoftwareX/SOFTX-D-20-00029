@@ -27,6 +27,7 @@ classdef (Sealed) sxmdata < dynamicprops
     properties (Dependent)
         %Dependent virtual properties
         channels %provides list of available channels
+        energies %provides list of available energies
     end
     methods
         function channels = get.channels(obj)
@@ -38,6 +39,18 @@ classdef (Sealed) sxmdata < dynamicprops
             end
             if isfield(obj.dataStore(1,1), 'BBX')
                 channels{end+1} = 'BBX';
+            end
+        end
+        function energies = get.energies(obj)
+            %compile list of energies
+            numEnergies = obj.header.StackAxis.Points;
+            if isnan(numEnergies)
+                energies{1} = obj.header.Type;
+            else
+                energies = cell(numEnergies, 1);
+                for i=1:numEnergies
+                    energies{i} = [num2str(obj.header.StackAxis.Axis(i)), ' ', obj.header.StackAxis.Unit];
+                end
             end
         end
     end

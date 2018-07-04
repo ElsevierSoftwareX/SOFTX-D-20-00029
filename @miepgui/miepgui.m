@@ -187,9 +187,7 @@ classdef (Sealed) miepgui < handle
             obj.workRegion = 1;
             
             %determine if specturm or image  
-            if strcmp(obj.workData.header.Type, 'OSA Focus Scan')
-                waitfor(errordlg('OSA Focus Scan is not supported', 'MIEP'));
-            elseif strcmp(obj.workData.header.Flags, 'Spectra')
+            if strcmp(obj.workData.header.Flags, 'Spectra')
                 mieptab(obj, 'Spectrum');
                 obj.workTab = 'Spectrum';
             else

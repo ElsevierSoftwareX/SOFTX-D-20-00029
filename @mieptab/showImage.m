@@ -20,13 +20,9 @@ Pos(2) = drawingArea(4) - 20 - 5; % position bottom
 Pos(3) = drawingArea(3)/2 - 2*5; %width
 Pos(4) = 20; %height
 obj.uiHandles.energyList = uicontrol(obj.tabHandle, 'Style', 'popupmenu', 'String', 'Select Energy ...', 'Units', 'pixels', 'Position', Pos);
-numEnergies = miepGUIObj.workData.header.StackAxis.Points;
-energies = cell(numEnergies, 1);
-for i=1:numEnergies
-    energies{i} = [num2str(miepGUIObj.workData.header.StackAxis.Axis(i)), ' ', miepGUIObj.workData.header.StackAxis.Unit];
-end
+energies = miepGUIObj.workData.energies;
 obj.uiHandles.energyList.String = energies;
-if numEnergies == 1
+if max(size(energies)) == 1
     obj.uiHandles.energyList.Enable = 'off';
 end
 
