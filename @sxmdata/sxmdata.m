@@ -24,6 +24,38 @@ classdef (Sealed) sxmdata < dynamicprops
         evalStore = []; %stores evaluation data
     end
     
+    properties (Dependent)
+        %Dependent virtual properties
+        channels %provides list of available channels
+        energies %provides list of available energies
+    end
+    methods
+        function channels = get.channels(obj)
+            %compile list of channels
+            numChannels = size(obj.header.Channels, 2);
+            channels = cell(numChannels, 1);
+            for i=1:numChannels
+                channels{i} = obj.header.Channels(i).Name;
+            end
+            if isfield(obj.dataStore(1,1), 'BBX')
+                channels{end+1} = 'BBX';
+            end
+        end
+        function energies = get.energies(obj)
+            %compile list of energies
+            numEnergies = obj.header.StackAxis.Points;
+            if isnan(numEnergies)
+                energies{1} = obj.header.Type;
+            else
+                energies = cell(numEnergies, 1);
+                for i=1:numEnergies
+                    energies{i} = [num2str(obj.header.StackAxis.Axis(i)), ' ', obj.header.StackAxis.Unit];
+                end
+            end
+        end
+    end
+            
+    
     methods (Access = public)
         %public methods including constructor and display
         
@@ -73,14 +105,20 @@ classdef (Sealed) sxmdata < dynamicprops
             end
             %get channel name
             if isnumeric(channel)
-                channel = obj.header.Channels(channel).Name;
+                if (channel > size(obj.header.Channels,2)) && isfield(obj.dataStore(1,1), 'BBX')
+                    channel = 'BBX';
+                else
+                    channel = obj.header.Channels(channel).Name;
+                end
             end
             %check for data presence
-            if isempty(obj.dataStore(region,energy).(channel))
-                if strcmp(obj.header.Flags, 'Spectra')
+            if strcmp(obj.header.Flags, 'Spectra')
+                if isempty(obj.dataStore(region).(channel))
                     %read XSP file
                     obj.readXSP(region)
-                else
+                end
+            else
+                if isempty(obj.dataStore(region,energy).(channel))
                     switch channel
                         %low level channels
                         case 'APD'
@@ -108,7 +146,7 @@ classdef (Sealed) sxmdata < dynamicprops
                 end
             end
             %return data
-            output = obj.dataStore(region).(channel);
+            output = obj.dataStore(region,energy).(channel);
         end
         
         function output = eval(obj, type, varargin)
@@ -135,6 +173,7 @@ classdef (Sealed) sxmdata < dynamicprops
         
         function initDataStore(obj)
             %initializes dataStore depending on header information
+            
             if strcmp(obj.header.Flags, 'Spectra')
                 %init for Spectra
                 obj.dataStore = struct;
@@ -147,7 +186,11 @@ classdef (Sealed) sxmdata < dynamicprops
             else
                 %init for Images
                 for region = 1:size(obj.header.Regions,2)
-                    for energy = 1:obj.header.StackAxis.Points
+                    numEnergies = 1:obj.header.StackAxis.Points;
+                    if isnan(numEnergies)
+                        numEnergies = 1; %OSA Focus Scan contingency
+                    end
+                    for energy = 1:numEnergies
                         for channel = {obj.header.Channels.Name}
                             obj.dataStore(region,energy).(channel{1}) = [];
                         end
@@ -170,5 +213,5 @@ classdef (Sealed) sxmdata < dynamicprops
             obj.evalStore(1,1).FrequencySpectrum = [];
         end
     end
-
+    
 end

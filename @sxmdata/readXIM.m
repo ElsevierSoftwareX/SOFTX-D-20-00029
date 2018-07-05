@@ -12,6 +12,9 @@ function readXIM(obj, varargin)
 %determine number of regions and energies
 numRegions = size(obj.header.Regions, 2);
 numEnergies = obj.header.StackAxis.Points;
+if isnan(numEnergies)
+    numEnergies = 1; % OSA Focus Scan has NaN points
+end
 
 %check for optional inputs
 switch nargin
