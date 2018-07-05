@@ -33,7 +33,6 @@ end
 %close file
 fclose(fid);
 
-
 %calculate image times and normalize
 obj.dataStore(1).BBX = mean(images,3);
 sortkey = mod((1:nImages)*obj.magicNumber,nImages)+1;

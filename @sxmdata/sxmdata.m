@@ -20,9 +20,41 @@ classdef (Sealed) sxmdata < dynamicprops
         %Read only properties
         header = []; %stores the .hdr information
         basefile = []; %stores the base filename
-        dataStore = []; %stores the imported data
+        dataStore = []; %stores the imported data (region,energy)
         evalStore = []; %stores evaluation data
     end
+    
+    properties (Dependent)
+        %Dependent virtual properties
+        channels %provides list of available channels
+        energies %provides list of available energies
+    end
+    methods
+        function channels = get.channels(obj)
+            %compile list of channels
+            numChannels = size(obj.header.Channels, 2);
+            channels = cell(numChannels, 1);
+            for i=1:numChannels
+                channels{i} = obj.header.Channels(i).Name;
+            end
+            if isfield(obj.dataStore(1,1), 'BBX')
+                channels{end+1} = 'BBX';
+            end
+        end
+        function energies = get.energies(obj)
+            %compile list of energies
+            numEnergies = obj.header.StackAxis.Points;
+            if isnan(numEnergies)
+                energies{1} = obj.header.Type;
+            else
+                energies = cell(numEnergies, 1);
+                for i=1:numEnergies
+                    energies{i} = [num2str(obj.header.StackAxis.Axis(i)), ' ', obj.header.StackAxis.Unit];
+                end
+            end
+        end
+    end
+            
     
     methods (Access = public)
         %public methods including constructor and display
@@ -49,41 +81,54 @@ classdef (Sealed) sxmdata < dynamicprops
         
         function output = data(obj, varargin)
             %provide transparent read & process operations to dataStore
-            %optional input: channel, region
+            %optional input: channel, energy, region
             %note inverse order to low level functions
             
             %parse input
             switch nargin
                 case 1
                     channel = 1;
+                    energy = 1;
                     region = 1;
                 case 2
                     channel = varargin{1};
+                    energy = 1;
                     region = 1;
                 case 3
                     channel = varargin{1};
-                    region = varargin{2};
+                    energy = varargin{2};
+                    region = 1;
+                case 4
+                    channel = varargin{1};
+                    energy = varargin{2};
+                    region = varargin{3};
             end
             %get channel name
             if isnumeric(channel)
-                channel = obj.header.Channels(channel).Name;
+                if (channel > size(obj.header.Channels,2)) && isfield(obj.dataStore(1,1), 'BBX')
+                    channel = 'BBX';
+                else
+                    channel = obj.header.Channels(channel).Name;
+                end
             end
             %check for data presence
-            if isempty(obj.dataStore(region).(channel))
-                if strcmp(obj.header.Flags, 'Spectra')
+            if strcmp(obj.header.Flags, 'Spectra')
+                if isempty(obj.dataStore(region).(channel))
                     %read XSP file
-                    obj.readXSP
-                else
+                    obj.readXSP(region)
+                end
+            else
+                if isempty(obj.dataStore(region,energy).(channel))
                     switch channel
                         %low level channels
                         case 'APD'
                             %Transmission
                             %read XIM file
-                            obj.readXIM(region, channel)
+                            obj.readXIM(region, energy, channel)
                         case 'VCO'
                             %Total Electron Yield
                             %read XIM file
-                            obj.readXIM(region, channel)
+                            obj.readXIM(region, energy, channel)
                             %Time Machine channels
                         case 'BBX'
                             %Total Image
@@ -101,7 +146,7 @@ classdef (Sealed) sxmdata < dynamicprops
                 end
             end
             %return data
-            output = obj.dataStore(region).(channel);
+            output = obj.dataStore(region,energy).(channel);
         end
         
         function output = eval(obj, type, varargin)
@@ -110,7 +155,7 @@ classdef (Sealed) sxmdata < dynamicprops
             %optional input: channel
             
             %check for evaluation result presence
-            if isempty(obj.evalStore(1).(type))
+            if isempty(obj.evalStore(1,1).(type))
                 switch type
                     case 'FFT'
                         obj.evalFFT
@@ -119,7 +164,7 @@ classdef (Sealed) sxmdata < dynamicprops
                 end
             end
             %return data
-            output = obj.evalStore.(type);
+            output = obj.evalStore(1,1).(type);
         end
     end
     
@@ -128,25 +173,34 @@ classdef (Sealed) sxmdata < dynamicprops
         
         function initDataStore(obj)
             %initializes dataStore depending on header information
+            
             if strcmp(obj.header.Flags, 'Spectra')
                 %init for Spectra
                 obj.dataStore = struct;
                 obj.dataStore.Energy = [];
-                for channel = {obj.header.Channels.Name}
-                    obj.dataStore.(channel{1}) = [];
-                end
-            else
-                %init for Images
                 for region = 1:size(obj.header.Regions,2)
                     for channel = {obj.header.Channels.Name}
                         obj.dataStore(region).(channel{1}) = [];
                     end
                 end
+            else
+                %init for Images
+                for region = 1:size(obj.header.Regions,2)
+                    numEnergies = 1:obj.header.StackAxis.Points;
+                    if isnan(numEnergies)
+                        numEnergies = 1; %OSA Focus Scan contingency
+                    end
+                    for energy = 1:numEnergies
+                        for channel = {obj.header.Channels.Name}
+                            obj.dataStore(region,energy).(channel{1}) = [];
+                        end
+                    end
+                end
                 %check for BBX file
                 if exist(strcat(obj.basefile,'.bbx'),'file')
-                    obj.dataStore(1).BBX = [];
-                    obj.dataStore(1).RawMovie = [];
-                    obj.dataStore(1).Movie = [];
+                    obj.dataStore(1,1).BBX = [];
+                    obj.dataStore(1,1).RawMovie = [];
+                    obj.dataStore(1,1).Movie = [];
                     obj.initEvalStore
                 end
             end
@@ -154,8 +208,9 @@ classdef (Sealed) sxmdata < dynamicprops
         
         function initEvalStore(obj)
             %initializes evalStore for potential eval results
-            obj.evalStore(1).FFT = [];
-            obj.evalStore(1).FrequencySpectrum = [];
+            %current time machine only runs on single region/energy
+            obj.evalStore(1,1).FFT = [];
+            obj.evalStore(1,1).FrequencySpectrum = [];
         end
     end
     

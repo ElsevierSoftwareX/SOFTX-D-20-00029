@@ -1,8 +1,8 @@
 % calculate FFT from BBX
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % % Max Planck Institute for Intelligent Systems           %
-% %	Nick Träger                                            %
-% % traeger@is.mpg.de                                      %
+% %	Joachim Gräfe / Nick Träger                            %
+% % graefe@is.mpg.de / traeger@is.mpg.de                   %
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function evalFFT(obj)
