@@ -30,7 +30,12 @@ classdef mieptab < handle
             
             %create tab
             obj.tabHandle = uitab(miepGUIObj.tabGroup, 'Title', tabType, 'Units', 'pixels');
+            
+            % clear current tabs here instead of in function displayData(obj) of gui to avoid stuttering?
+            waitfor(obj.tabHandle, 'Position') % Fix Matlab Madness
+            
             miepGUIObj.tabs.(tabType) = obj;
+            
             
             %decide which type of tab to draw
             switch tabType
@@ -40,6 +45,14 @@ classdef mieptab < handle
                     obj.imageTab(miepGUIObj)
                 case 'Spectrum'
                     obj.spectrumTab(miepGUIObj)
+                case 'PhaseAmplitude'
+                    obj.phaseAmpTab(miepGUIObj)
+                case 'kSpace'
+                    obj.kSpaceTab(miepGUIObj)
+                case 'Filter'
+                    obj.filterTab(miepGUIObj)
+                case 'CWT'
+                    obj.CWTTab(miepGUIObj)
             end
         end
         

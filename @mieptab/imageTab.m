@@ -12,7 +12,6 @@ function imageTab(obj, miepGUIObj)
 %% intialize / draws the image tab
 %determine drawing area
 drawingArea = obj.tabHandle.Position;
-drawingArea = drawingArea - [0 0 5 30]; %correct MATLAB madness?
 
 %draw energy selector list
 Pos(1) = 5; %position left
