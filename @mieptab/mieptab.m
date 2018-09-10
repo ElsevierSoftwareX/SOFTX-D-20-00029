@@ -40,6 +40,8 @@ classdef mieptab < handle
                     obj.imageTab(miepGUIObj)
                 case 'Spectrum'
                     obj.spectrumTab(miepGUIObj)
+                case 'Movie'
+                    obj.movieTab(miepGUIObj)
             end
         end
         
