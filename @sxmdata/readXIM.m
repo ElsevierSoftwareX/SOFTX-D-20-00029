@@ -74,3 +74,5 @@ end
 
 %readfile
 obj.dataStore(region,energy).(obj.header.Channels(channel).Name) = dlmread(filename);
+
+end

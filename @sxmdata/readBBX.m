@@ -33,7 +33,6 @@ end
 %close file
 fclose(fid);
 
-
 %calculate image times and normalize
 obj.dataStore(1).BBX = mean(images,3);
 sortkey = mod((1:nImages)*obj.magicNumber,nImages)+1;
@@ -42,4 +41,7 @@ obj.dataStore(1).Movie = zeros(height, width, nImages);
 for i=1:nImages
     obj.dataStore(1).RawMovie(:,:,sortkey(i)) = images(:,:,i);
     obj.dataStore(1).Movie(:,:,sortkey(i)) = images(:,:,i)./obj.dataStore(1).BBX;
+    obj.dataStore(1).Movie(:,:,sortkey(i)) = obj.dataStore(1).Movie(:,:,sortkey(i)) ./ mean(mean(obj.dataStore(1).Movie(:,:,sortkey(i))));
+end
+
 end
