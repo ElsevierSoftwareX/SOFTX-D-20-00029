@@ -53,6 +53,8 @@ classdef mieptab < handle
                     obj.filterTab(miepGUIObj)
                 case 'CWT'
                     obj.CWTTab(miepGUIObj)
+                case 'Movie'
+                    obj.movieTab(miepGUIObj)
             end
         end
         

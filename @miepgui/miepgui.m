@@ -193,6 +193,10 @@ classdef (Sealed) miepgui < handle
             else
                 mieptab(obj, 'Image');
                 obj.workTab = 'Image';
+                if strcmp(obj.workData.channels{end}, 'BBX')
+                    mieptab(obj, 'Movie');
+                    obj.workTab = 'Movie';
+                end
             end
             
             %check whether picutre is muwie
