@@ -165,7 +165,7 @@ classdef (Sealed) miepgui < handle
             miepDate = obj.workFile(5:10);
             miepNumber = str2double(obj.workFile(11:13));
             miepEntry = obj.miepFile.readEntry(miepDate, miepNumber);
-            %obj.comment.String = miepEntry.Comment;
+            obj.comment.String = miepEntry.Comment;
             
             %display region list
             try
