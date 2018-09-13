@@ -3,7 +3,7 @@
 % % provides interface to XLSX measurement list            %
 % %                                                        %
 % % Max Planck Institute for Intelligent Systems           %
-% % Joachim Gräfe                                          %
+% % Joachim Gräfe / Nick-André Träger                      %
 % % graefe@is.mpg.de                                       %
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -30,7 +30,18 @@ classdef miepfile < handle
             end
             try
                 obj.importOptions.Sheet = miepDate;
-                miepTable = readtable(obj.filename, obj.importOptions, 'Basic', 1);
+                data = readtable(obj.filename, 'Sheet', obj.importOptions.Sheet, 'Basic', 1);  
+                CommentVal = num2cell(data.Comment);
+                try 
+                    CommentVal(cellfun(@isnan,CommentVal)) = {[]};
+                    data.Comment = CommentVal;
+                    miepTable = data;
+                catch
+                    miepTable = data;
+                end    
+                
+                %MATLAB 2017 Command% miepTable = readtable(obj.filename, obj.importOptions, 'Basic', 1);
+                
             catch
                 miepTable = [];
             end
@@ -54,7 +65,7 @@ classdef miepfile < handle
             else
                 Measurement = miepTable.Measurement(miepTable.Measurement == miepNumber);
                 MagicNumber = miepTable.MagicNumber(miepTable.Measurement == miepNumber);
-                Comment = miepTable.Comment(miepTable.Measurement == miepNumber);
+                Comment = miepTable.Comment(miepTable.Measurement == miepNumber);   
                 HeaderFile = miepTable.HeaderFile(miepTable.Measurement == miepNumber);
                 if isempty(Measurement)
                     miepEntry = [];
@@ -62,7 +73,8 @@ classdef miepfile < handle
                     miepEntry = struct;
                     miepEntry.Measurement = Measurement;
                     miepEntry.MagicNumber = MagicNumber;
-                    miepEntry.Comment = Comment{1};
+                    %miepEntry.Comment = Comment{1};
+                    miepEntry.Comment = Comment;
                     miepEntry.HeaderFile = HeaderFile{1};
                 end
             end
@@ -78,10 +90,12 @@ classdef miepfile < handle
                 %check if measurement is already present in table
                 if isempty(obj.readEntry(miepDate, miepEntry.Measurement))
                     %append table
-                    miepTable(end+1,:) = {miepEntry.Measurement, miepEntry.MagicNumber, miepEntry.Comment, miepEntry.HeaderFile};
+                    %miepTable(end+1,:) = {miepEntry.Measurement, miepEntry.MagicNumber, miepEntry.Comment, miepEntry.HeaderFile};
+                    miepTable = [miepTable; struct2table(miepEntry)]; 
                 else
                     %update table
                     miepTable(miepTable.Measurement == miepEntry.Measurement,:) = {miepEntry.Measurement, miepEntry.MagicNumber, miepEntry.Comment, miepEntry.HeaderFile};
+                    %miepTable(miepTable.Measurement == miepEntry.Measurement,:) = struct2table(miepEntry);           
                 end
                 %sort table for ascending measurement number
                 miepTable = sortrows(miepTable, 1);
