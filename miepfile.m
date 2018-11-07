@@ -4,7 +4,7 @@
 % %                                                        %
 % % Max Planck Institute for Intelligent Systems           %
 % % Joachim Gräfe / Nick-André Träger                      %
-% % graefe@is.mpg.de                                       %
+% % graefe@is.mpg.de / traeger@is.mpg.de                   %
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 classdef miepfile < handle

@@ -32,7 +32,7 @@ for i=1:width
 end
 
 %write results into evalStore
-obj.evalStore.FFT.Frequency = (-timeSteps/2:timeSteps/2-1)*(samplingRate/timeSteps);
+obj.evalStore.FFT.Frequency = (-floor(timeSteps/2):floor(timeSteps/2))*(samplingRate/timeSteps);
 obj.evalStore.FFT.Power = power;
 obj.evalStore.FFT.Amplitude = amplitude;
 obj.evalStore.FFT.Phase = phase;

@@ -1,11 +1,11 @@
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% % MIEP Image Tab                                         %
+% % MIEP FreqSpectrum Tab                                  %
 % %                                                        %
 % % Image Tab Class Subset                                 %
 % %                                                        %
 % % Max Planck Institute for Intelligent Systems           %
-% % Joachim Gräfe                                          %
-% % graefe@is.mpg.de                                       %
+% % Nick-André Träger                                      %
+% % traeger@is.mpg.de                                      %
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function phaseAmpTab(obj, miepGUIObj)
@@ -31,37 +31,37 @@ Pos(2) = 5; % position bottom
 Pos(3) = drawingArea(3) - 2*5; %width
 Pos(4) = drawingArea(4) - 3*5 - 20; %height
 
-xLabel = miepGUIObj.workData.header.Regions(miepGUIObj.workRegion).PAxis.Name;
-xUnit = miepGUIObj.workData.header.Regions(miepGUIObj.workRegion).PAxis.Unit;
-xMin = miepGUIObj.workData.header.Regions(miepGUIObj.workRegion).PAxis.Min;
-xMax = miepGUIObj.workData.header.Regions(miepGUIObj.workRegion).PAxis.Max;
-xPoints = miepGUIObj.workData.header.Regions(miepGUIObj.workRegion).PAxis.Points;
+xLabel = 'Frequency';
+xUnit = 'GHz';
+xMin = miepGUIObj.workData.evalStore.FrequencySpectrum.Frequency(1);
+xMax = miepGUIObj.workData.evalStore.FrequencySpectrum.Frequency(length(miepGUIObj.workData.evalStore.FrequencySpectrum.Frequency));
+xPoints = length(miepGUIObj.workData.evalStore.FrequencySpectrum.Frequency);
 xStep = (xMax - xMin) / xPoints;
 xTicks = 10;
-yLabel = miepGUIObj.workData.header.Regions(miepGUIObj.workRegion).QAxis.Name;
-yUnit = miepGUIObj.workData.header.Regions(miepGUIObj.workRegion).QAxis.Unit;
-yMin = miepGUIObj.workData.header.Regions(miepGUIObj.workRegion).QAxis.Min;
-yMax = miepGUIObj.workData.header.Regions(miepGUIObj.workRegion).QAxis.Max;
-yPoints = miepGUIObj.workData.header.Regions(miepGUIObj.workRegion).QAxis.Points;
+yLabel = 'Power';
+yUnit = 'arb. Units';
+yMin = 0;
+yMax = miepGUIObj.workData.evalStore.FrequencySpectrum.Power(length(miepGUIObj.workData.evalStore.FrequencySpectrum.Power));
+yPoints = length(miepGUIObj.workData.evalStore.FrequencySpectrum.Power);
 yStep = (yMax - yMin) / yPoints;
 yTicks = 10;
 
 obj.uiHandles.imageAxes = axes(obj.tabHandle, 'Units', 'pixels', 'OuterPosition', Pos);
-obj.uiHandles.imageAxes.Color = obj.tabHandle.BackgroundColor;
-obj.uiHandles.imageAxes.Box = 'on';
-obj.uiHandles.imageAxes.XLim = [0 xPoints+1];
-obj.uiHandles.imageAxes.YLim = [0 yPoints+1];
-obj.uiHandles.imageAxes.DataAspectRatio = [1 1 1];
-obj.uiHandles.imageAxes.TickDir = 'out';
-obj.uiHandles.imageAxes.XTick = 1:(xPoints-1)/xTicks:xPoints;
-obj.uiHandles.imageAxes.XTickLabel = {0:xPoints*xStep/xTicks:xPoints*xStep};
-obj.uiHandles.imageAxes.YTick = 1:(yPoints-1)/yTicks:yPoints;
-obj.uiHandles.imageAxes.YTickLabel = {0:yPoints*yStep/yTicks:yPoints*yStep};
+plot(miepGUIObj.workData.evalStore.FrequencySpectrum.Frequency(miepGUIObj.workData.evalStore.FrequencySpectrum.Frequency>0), miepGUIObj.workData.evalStore.FrequencySpectrum.Power(miepGUIObj.workData.evalStore.FrequencySpectrum.Frequency>0));
+% obj.uiHandles.imageAxes.Color = obj.tabHandle.BackgroundColor;
+% obj.uiHandles.imageAxes.Box = 'on';
+% obj.uiHandles.imageAxes.XLim = [0 xPoints];
+% obj.uiHandles.imageAxes.YLim = [0 yPoints];
+% obj.uiHandles.imageAxes.TickDir = 'out';
+% obj.uiHandles.imageAxes.XTick = 1:(xPoints-1)/xTicks:xPoints;
+% obj.uiHandles.imageAxes.XTickLabel = {0:xPoints*xStep/xTicks:xPoints*xStep};
+% obj.uiHandles.imageAxes.YTick = 1:(yPoints-1)/yTicks:yPoints;
+% obj.uiHandles.imageAxes.YTickLabel = {0:yPoints*yStep/yTicks:yPoints*yStep};
 obj.uiHandles.imageAxes.XLabel.String = [xLabel ' [' xUnit ']'];
 obj.uiHandles.imageAxes.YLabel.String = [yLabel ' [' yUnit ']'];
 
-obj.uiHandles.image = image(obj.uiHandles.imageAxes);
-obj.uiHandles.image.CDataMapping = 'scaled';
+% obj.uiHandles.image = image(obj.uiHandles.imageAxes);
+% obj.uiHandles.image.CDataMapping = 'scaled';
 
 %draw image on first energy/channel
 imageDraw(1,1);

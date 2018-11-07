@@ -161,6 +161,8 @@ classdef (Sealed) sxmdata < dynamicprops
                         obj.evalFFT
                     case 'FrequencySpectrum'
                         obj.evalFrequencySpectrum
+                    case 'SpatialFFT'
+                        obj.evalSpatialFFT
                 end
             end
             %return data
@@ -211,6 +213,7 @@ classdef (Sealed) sxmdata < dynamicprops
             %current time machine only runs on single region/energy
             obj.evalStore(1,1).FFT = [];
             obj.evalStore(1,1).FrequencySpectrum = [];
+            obj.evalStore(1,1).SpatialFFT = [];
         end
     end
     
