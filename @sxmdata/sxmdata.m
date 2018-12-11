@@ -210,7 +210,7 @@ classdef (Sealed) sxmdata < dynamicprops
         
         function initEvalStore(obj)
             %initializes evalStore for potential eval results
-            %current time machine only runs on single region/energy
+            %current time machine only runs on single region/energy         
             obj.evalStore(1,1).FFT = [];
             obj.evalStore(1,1).FrequencySpectrum = [];
             obj.evalStore(1,1).SpatialFFT = [];
