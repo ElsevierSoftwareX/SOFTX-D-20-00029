@@ -43,17 +43,17 @@ classdef (Sealed) miepgui < handle
     end
     methods
         function settings = get.settings(~)
-            if(~exist('settings.mat','file'))
+            if(~exist(fullfile(tempdir, 'settings.mat'),'file'))
                 settings = miepsettings;
-                save('settings.mat', 'settings')
+                save(fullfile(tempdir, 'settings.mat'), 'settings')
             else
-                input = load('settings.mat', 'settings');
+                input = load(fullfile(tempdir, 'settings.mat'), 'settings');
                 settings = input.settings;
             end
         end
         function set.settings(~, settings)
             if isa(settings, 'miepsettings')
-                save('settings.mat', 'settings')
+                save(fullfile(tempdir, 'settings.mat'), 'settings')
             end
         end
     end

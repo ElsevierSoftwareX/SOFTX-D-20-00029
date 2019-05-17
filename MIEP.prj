@@ -1,5 +1,5 @@
 <deployment-project plugin="plugin.ezdeploy" plugin-version="1.0">
-  <configuration file="D:\GitHub\miep\MIEP.prj" location="D:\GitHub\miep" name="MIEP" target="target.ezdeploy.standalone" target-name="Application Compiler">
+  <configuration build-checksum="4000339923" file="D:\GitHub\miep\MIEP.prj" location="D:\GitHub\miep" name="MIEP" preferred-package-location="D:\GitHub\miep\MIEP\for_redistribution" preferred-package-type="package.type.exe" target="target.ezdeploy.standalone" target-name="Application Compiler">
     <param.appname>MIEP</param.appname>
     <param.icon />
     <param.icons />
@@ -101,7 +101,6 @@
       <file>${PROJECT_ROOT}\@sxmdata\sxmdata.m</file>
       <file>${PROJECT_ROOT}\miepfile.m</file>
       <file>${PROJECT_ROOT}\miepsettings.m</file>
-      <file>${PROJECT_ROOT}\settings.mat</file>
     </fileset.depfun>
     <build-deliverables>
       <file location="${PROJECT_ROOT}\MIEP\for_testing" name="readme.txt" optional="true">D:\GitHub\miep\MIEP\for_testing\readme.txt</file>
