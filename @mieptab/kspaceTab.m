@@ -13,6 +13,7 @@ function kspaceTab(obj, miepGUIObj)
 %determine drawing area
 drawingArea = obj.tabHandle.Position - [-2 -3 5 30]; %correct MATLAB madness?
 
+
 %draw energy selector list
 Pos(1) = 5; %position left
 Pos(2) = drawingArea(4) - 20 - 5; % position bottom
