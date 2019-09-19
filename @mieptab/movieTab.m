@@ -11,8 +11,7 @@
 function movieTab(obj, miepGUIObj)
 %% intialize / draws the movie tab
 %determine drawing area
-drawingArea = obj.tabHandle.Position;
-drawingArea = drawingArea - [0 0 5 30]; %correct MATLAB madness?
+drawingArea = obj.tabHandle.Position - [-2 -3 5 30]; %correct MATLAB madness?
 
 %draw movie selector list
 Pos(1) = 5; %position left
@@ -49,72 +48,23 @@ Pos(2) = 2*5 + 20; % position bottom
 Pos(3) = drawingArea(3) - 2*5; %width
 Pos(4) = drawingArea(4) - 4*5 - 2*20; %height
 
-xLabel = miepGUIObj.workData.header.Regions(miepGUIObj.workRegion).PAxis.Name;
-xUnit = miepGUIObj.workData.header.Regions(miepGUIObj.workRegion).PAxis.Unit;
-xMin = miepGUIObj.workData.header.Regions(miepGUIObj.workRegion).PAxis.Min;
-xMax = miepGUIObj.workData.header.Regions(miepGUIObj.workRegion).PAxis.Max;
-xPoints = miepGUIObj.workData.header.Regions(miepGUIObj.workRegion).PAxis.Points;
-xStep = (xMax - xMin) / xPoints;
-xTicks = 10;
-yLabel = miepGUIObj.workData.header.Regions(miepGUIObj.workRegion).QAxis.Name;
-yUnit = miepGUIObj.workData.header.Regions(miepGUIObj.workRegion).QAxis.Unit;
-yMin = miepGUIObj.workData.header.Regions(miepGUIObj.workRegion).QAxis.Min;
-yMax = miepGUIObj.workData.header.Regions(miepGUIObj.workRegion).QAxis.Max;
-yPoints = miepGUIObj.workData.header.Regions(miepGUIObj.workRegion).QAxis.Points;
-yStep = (yMax - yMin) / yPoints;
-yTicks = 10;
-
+%create axes to draw movie
 obj.uiHandles.movieAxes = axes(obj.tabHandle, 'Units', 'pixels', 'OuterPosition', Pos);
 obj.uiHandles.movieAxes.Color = obj.tabHandle.BackgroundColor;
-obj.uiHandles.movieAxes.Box = 'on';
-obj.uiHandles.movieAxes.XLim = [0 xPoints+1];
-obj.uiHandles.movieAxes.YLim = [0 yPoints+1];
-obj.uiHandles.movieAxes.DataAspectRatio = [1 1 1];
-obj.uiHandles.movieAxes.TickDir = 'out';
-obj.uiHandles.movieAxes.XTick = 1:(xPoints-1)/xTicks:xPoints;
-obj.uiHandles.movieAxes.XTickLabel = {0:xPoints*xStep/xTicks:xPoints*xStep};
-obj.uiHandles.movieAxes.YTick = 1:(yPoints-1)/yTicks:yPoints;
-obj.uiHandles.movieAxes.YTickLabel = {0:yPoints*yStep/yTicks:yPoints*yStep};
-obj.uiHandles.movieAxes.XLabel.String = [xLabel ' [' xUnit ']'];
-obj.uiHandles.movieAxes.YLabel.String = [yLabel ' [' yUnit ']'];
 
-obj.uiHandles.movie = image(obj.uiHandles.movieAxes);
-obj.uiHandles.movie.CDataMapping = 'scaled';
-
-%draw playback controls
+%draw runback controls
 Pos(1) = 5; %position left
 Pos(2) = 5; % position bottom
-Pos(3) = 20; %width
-Pos(4) = 20; %height
-iconPlay = imread(fullfile(matlabroot, 'toolbox', 'matlab', 'icons', 'help_gs.png'), 'Background', obj.tabHandle.BackgroundColor);
-[img, map] = rgb2ind(iconPlay, 65535);
-iconPlayLoad = ind2rgb(img, map);
-obj.uiHandles.play = uicontrol(obj.tabHandle, 'Style', 'pushbutton', 'CData', iconPlay, 'Units', 'pixels', 'Position', Pos, 'Callback', @moviePlay);
-
-Pos(1) = 29; %position left
-Pos(2) = 5; % position bottom
-Pos(3) = 20; %width
-Pos(4) = 20; %height
-iconStop = imread(fullfile(matlabroot, 'toolbox', 'matlab', 'icons', 'help_gs.png'), 'Background', obj.tabHandle.BackgroundColor);
-[img, map] = rgb2ind(iconStop, 65535);
-iconStopLoad = ind2rgb(img, map);
-obj.uiHandles.stop = uicontrol(obj.tabHandle, 'Style', 'pushbutton', 'CData', iconStop, 'Units', 'pixels', 'Position', Pos, 'Callback', @movieStop);
+Pos(3) = 30; %width
+Pos(4) = 30; %height
+iconPlay = imread(fullfile(matlabroot, 'toolbox', 'shared', 'controllib', 'general', 'resources', 'toolstrip_icons', 'Run_24.png'), 'Background', obj.tabHandle.BackgroundColor);
+obj.uiHandles.run = uicontrol(obj.tabHandle, 'Style', 'pushbutton', 'CData', iconPlay, 'Units', 'pixels', 'Position', Pos, 'Callback', @movieRun);
 
 %use tabData to store current slice
 obj.tabData.workSlice = 1;
 %draw image on first energy/channel
-movieDraw(1,1,1,1); 
+movieDraw(1,1,1,1);
 
-%define timer object
-tNorm = timer('Period', 0.12, 'TasksToExecute', inf,'ExecutionMode', 'fixedSpacing');
-tNorm.StopFcn = {@movieStop};     
-tNorm.TimerFcn = {@movieDraw, 1, 1};    
-obj.uiHandles.timerNorm = tNorm;
-
-% tFFT = timer('Period', 0.04, 'TasksToExecute', inf,'ExecutionMode', 'fixedSpacing');
-% tFFT.StopFcn = {@movieStop};     
-% tFFT.TimerFcn = {@movieDraw, 1, 1};    
-% obj.uiHandles.timerFFT = tFFT;
 
 obj.tabData.workMovie = 1; %use tabData to store current moive
 obj.tabData.workFrequency = 1; %use tabData to store current frequency
@@ -123,52 +73,79 @@ obj.tabData.workCountInterp = 0; %use tabData to store current counter for FFT m
 
 %% interactive behaviour of tab / callbacks
     function movieSelect(~, ~, ~)
-        %update movie after selection
+        
         try
+            %update movie after selection
             frequency = obj.uiHandles.frequencyList.Value;
-            channel = obj.uiHandles.movieList.Value;     
-            movieDraw(1,1,1,channel);
+            channel = obj.uiHandles.movieList.Value;
+            
             obj.tabData.workFrequency = frequency;
             obj.tabData.workChannel = channel;
-            if isvalid(obj.uiHandles.timerNorm)
-                movieStop;                  
-            end    
+            
+            try
+                movieDraw(1,1,1,channel);
+            end
+            
+            %adjust timer channel and speed depending on which movie is chosen
+            try
+                obj.uiHandles.timer.TimerFcn =  {@movieDraw, 1, channel};
+                
+                %Changing the speed requires the timer to be on hold
+                stop(obj.uiHandles.timer)
+                
+                %Change Speed
+                normMoviePeriod = 0.1;
+                fftMoviePeriod = 0.1/5;
+                if (channel == 1 || channel == 3) && obj.uiHandles.timer.Period ~= normMoviePeriod
+                    obj.uiHandles.timer.Period = normMoviePeriod;
+                elseif channel == 2 && obj.uiHandles.timer.Period ~= fftMoviePeriod
+                    obj.uiHandles.timer.Period = fftMoviePeriod;
+                end
+                
+                %Restart
+                start(obj.uiHandles.timer)
+            end
             
         catch
             %revert to previous selection on error
             obj.uiHandles.movieList.Value = obj.tabData.workMovie;
             obj.uiHandles.frequencyList.Value = obj.tabData.workFrequency;
             uiwait(errordlg('Failed to load selected image.', 'MIEP'))
-        end  
+        end
+        
+        
     end
 
-    function moviePlay(~,~,~)
-            channel = obj.uiHandles.movieList.Value;           
-            try
-                if isvalid(obj.uiHandles.timerNorm) %validation of timer input
-                    obj.uiHandles.timerNorm.TimerFcn = {@movieDraw, 1, channel};
-                    if channel == 2
-                        obj.uiHandles.timerNorm.Period = 0.04;
-                    end    
-                    start(obj.uiHandles.timerNorm)
-                else
-                    %if timer object is empty, define valid input
-                    tNorm = timer('Period', 0.1, 'TasksToExecute', inf,'ExecutionMode', 'fixedSpacing');
-                    tNorm.StopFcn = {@movieStop};     
-                    tNorm.TimerFcn = {@movieDraw, 1, channel};    
-                    obj.uiHandles.timerNorm = tNorm; 
-                    if channel == 2
-                        obj.uiHandles.timerNorm.Period = 0.04;
-                    end
-                    start(obj.uiHandles.timerNorm)
-                end    
-            catch
-            end    
-    end 
-
-    function movieStop(~,~,~)
-        stop(obj.uiHandles.timerNorm)
-        delete(obj.uiHandles.timerNorm)
+    function movieRun(~,~,~)
+        
+        channel = obj.uiHandles.movieList.Value;
+        
+        %if timer object does not exist or is not a valid timer, creat one
+        try
+            if ~isvalid(obj.uiHandles.timer)
+                t = timer('Period', 0.1, 'TasksToExecute', inf,'ExecutionMode', 'fixedSpacing');
+                t.TimerFcn = {@movieDraw, 1, channel};
+                obj.uiHandles.timer = t;
+            end
+        catch
+            t = timer('Period', 0.1, 'TasksToExecute', inf,'ExecutionMode', 'fixedSpacing');
+            t.TimerFcn = {@movieDraw, 1, channel};
+            obj.uiHandles.timer = t;
+        end
+        
+        %If timer is off turn it on and vice versa, also change the icon
+        if strcmp(obj.uiHandles.timer.Running, 'off')
+            start(obj.uiHandles.timer)
+            iconPause = imread(fullfile(matlabroot, 'toolbox', 'shared', 'controllib', 'general', 'resources', 'toolstrip_icons', 'Pause_MATLAB_24.png'), 'Background', obj.tabHandle.BackgroundColor);
+            obj.uiHandles.run.CData = iconPause;
+            
+        else
+            stop(obj.uiHandles.timer)
+            delete(obj.uiHandles.timer)
+            iconPlay = imread(fullfile(matlabroot, 'toolbox', 'shared', 'controllib', 'general', 'resources', 'toolstrip_icons', 'Run_24.png'), 'Background', obj.tabHandle.BackgroundColor);
+            obj.uiHandles.run.CData = iconPlay;
+        end
+        
     end
 
 %% support functions
@@ -176,35 +153,65 @@ obj.tabData.workCountInterp = 0; %use tabData to store current counter for FFT m
         region = miepGUIObj.workRegion;
         freqVal = obj.uiHandles.frequencyList.Value;
         slice = obj.tabData.workSlice;
+        
+        %get sample position data and calculate plot coordinates
+        xMin = miepGUIObj.workData.header.Regions(miepGUIObj.workRegion).PAxis.Min;
+        xMax = miepGUIObj.workData.header.Regions(miepGUIObj.workRegion).PAxis.Max;
+        xPoints = miepGUIObj.workData.header.Regions(miepGUIObj.workRegion).PAxis.Points;
+        
+        yMin = miepGUIObj.workData.header.Regions(miepGUIObj.workRegion).QAxis.Min;
+        yMax = miepGUIObj.workData.header.Regions(miepGUIObj.workRegion).QAxis.Max;
+        yPoints = miepGUIObj.workData.header.Regions(miepGUIObj.workRegion).QAxis.Points;
+        
+        x = linspace(xMin, xMax, xPoints)-xMin;
+        y = linspace(yMin, yMax, yPoints)-yMin;
+        
+        %reset the color map in case it was changed by the hsv plot
+        colormap(obj.uiHandles.movieAxes, parula)
+        
         switch channel
+            %for every channel, get the data and plot it over x and y, also
+            %enable/diable buttons and lists depending on the channel
             case 1
-                channel = 'Movie';    
+                channel = 'Movie';
                 data = miepGUIObj.workData.data(channel, energy, region);
-                obj.uiHandles.movie.CData = data(:,:,slice);
+                surf(obj.uiHandles.movieAxes, x, y, data(:,:,slice), 'edgecolor', 'none')
+                view(obj.uiHandles.movieAxes, 2)
+                
                 obj.uiHandles.frequencyList.Enable = 'off';
-                obj.uiHandles.play.Enable = 'on';
-                obj.uiHandles.stop.Enable = 'on';
+                obj.uiHandles.run.Enable = 'on';
                 obj.tabData.workSlice = slice + 1;
                 if obj.tabData.workSlice > size(data,3)
                     obj.tabData.workSlice = 1;
                 end
             case 2
-                channel = 'FFT';    
+                channel = 'FFT';
                 data = miepGUIObj.workData.eval(channel);
                 workOnes = obj.tabData.workOnes;
                 countInterp = obj.tabData.workCountInterp;
-                obj.uiHandles.movie.CData = data.Amplitude(:,:,freqVal).*sin(countInterp./100.*workOnes.*2.*pi+data.Phase(:,:,freqVal));
+                surfData =  data.Amplitude(:,:,freqVal).*sin(countInterp./50.*workOnes.*2.*pi+data.Phase(:,:,freqVal));
+                surf(obj.uiHandles.movieAxes, x, y, surfData, 'edgecolor', 'none')
+                view(obj.uiHandles.movieAxes, 2)
+                
                 obj.uiHandles.frequencyList.Enable = 'on';
-                obj.uiHandles.play.Enable = 'on';
-                obj.uiHandles.stop.Enable = 'on';
+                obj.uiHandles.run.Enable = 'on';
                 obj.tabData.workCountInterp = countInterp + 1;
-                if obj.tabData.workCountInterp > 99
+                if obj.tabData.workCountInterp > 49
                     obj.tabData.workCountInterp = 0;
                 end
             case 3
-                channel = 'FFT';
-                data = miepGUIObj.workData.eval(channel);      
+                %hsv picture is a little tricky. First of all, stop the
+                %timer
+                try
+                    if strcmp(obj.uiHandles.timer.Running, 'on')
+                        movieRun
+                    end
+                end
                 
+                channel = 'FFT';
+                data = miepGUIObj.workData.eval(channel);
+                
+                %calulate the hsv picture
                 clear hsv
                 hue = (data.Phase(:,:,freqVal)+(8/8)*pi)/2/pi;
                 sat = ones(size(hue,1),size(hue,2));
@@ -213,23 +220,50 @@ obj.tabData.workCountInterp = 0; %use tabData to store current counter for FFT m
                 hsv(:,:,2) = sat;
                 hsv(:,:,3) = val;
                 
-                obj.uiHandles.movie.CData = hsv2rgb(hsv);
+                %and convert it to rgb
+                imageData = hsv2rgb(hsv);
+                
+                %since a Matlab image has its pixel position in the middle
+                %of the pixel, but a surface plot has its pixel position at
+                %the lower left corner, we need to make the data surface
+                %plot compatible
+                %we do that by giving each pixel a unique value: 1, 2, 3...
+                %the color is added by adjusting the color bar so that
+                %every pixel has the correct color
+                
+                colbar = reshape(imageData, [], 3);
+                colData = reshape(1:size(colbar,1), size(imageData,1), size(imageData,2));
+                
+                %now we plot the surface and add the colorbar
+                surf(obj.uiHandles.movieAxes, x, y, colData, 'edgecolor', 'none')
+                view(obj.uiHandles.movieAxes, 2)
+                colormap(obj.uiHandles.movieAxes, colbar)
+
                 obj.uiHandles.frequencyList.Enable = 'on';
-                obj.uiHandles.play.Enable = 'off';
-                obj.uiHandles.stop.Enable = 'off';
+                obj.uiHandles.run.Enable = 'off';
             case 4
-                channel = 'RawMovie';   
+                channel = 'RawMovie';
                 data = miepGUIObj.workData.data(channel, energy, region);
-                obj.uiHandles.movie.CData = data(:,:,slice);
+                
+                surf(obj.uiHandles.movieAxes, x, y, data(:,:,slice), 'edgecolor', 'none')
+                view(obj.uiHandles.movieAxes, 2)
+                
                 obj.uiHandles.frequencyList.Enable = 'off';
-                obj.uiHandles.play.Enable = 'on';
-                obj.uiHandles.stop.Enable = 'on';
+                obj.uiHandles.run.Enable = 'on';
                 obj.tabData.workSlice = slice + 1;
                 if obj.tabData.workSlice > size(data,3)
                     obj.tabData.workSlice = 1;
                 end
-        end    
+        end
+        
+        %also add stuff like axes labels, data aspect ratio ect...
+        obj.uiHandles.movieAxes.Layer = 'Top';
+        obj.uiHandles.movieAxes.Box = 'on';
+        obj.uiHandles.movieAxes.DataAspectRatio = [1 1 1];
+        obj.uiHandles.movieAxes.TickDir = 'out';
+        obj.uiHandles.movieAxes.XLabel.String = '{\it x} [µm]';
+        obj.uiHandles.movieAxes.YLabel.String = '{\it y} [µm]';
         
     end
-   
+
 end

@@ -11,8 +11,8 @@
 function spectrumTab(obj, miepGUIObj)
 %% intialize / draws the sepctrum tab
 %determine drawing area
-drawingArea = obj.tabHandle.Position;
-drawingArea = drawingArea - [0 0 5 30]; %correct MATLAB madness?
+drawingArea = obj.tabHandle.Position - [-2 -3 5 30]; %correct MATLAB madness?
+
 
 %draw channel selector list
 Pos(1) = 5; %position left

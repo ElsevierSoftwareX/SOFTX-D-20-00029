@@ -30,10 +30,28 @@ classdef (Sealed) miepgui < handle
     end
     methods
         function miepFile = get.miepFile(obj)
+            %check if miepfile has not been initialized get name from
+            %settings
             if isempty(obj.miepFile)
-                obj.miepFile = miepfile(obj.settings.miepFile);
+                miepFileName = obj.settings.miepFile;
+            else
+                miepFileName = obj.miepFile.filename;
+            end
+            
+            %if miep file does not exist yet, create it
+            if ~exist(miepFileName, 'file')
+                if ~exist(fileparts(miepFileName), 'dir')
+                    mkdir(fileparts(miepFileName))
+                end
+                xlswrite(miepFileName, 'MIEP Excel File');
+            end
+            
+            %if not initialized, initialize
+            if isempty(obj.miepFile)
+                obj.miepFile = miepfile(miepFileName);  
             end
             miepFile = obj.miepFile;
+            
         end
     end
     
@@ -120,7 +138,7 @@ classdef (Sealed) miepgui < handle
             Pos(2) = 5; % position bottom
             Pos(3) = drawingArea(3)*3/4; %width
             Pos(4) = 60; %height
-            obj.comment = uicontrol(obj.fig, 'Style', 'edit', 'Units', 'pixels', 'Position', Pos, 'Callback', @obj.guiSaveComment);
+            obj.comment = uicontrol(obj.fig, 'Style', 'edit', 'Units', 'pixels', 'Position', Pos, 'Callback', @obj.guiSave);
             obj.comment.HorizontalAlignment = 'left';
             obj.comment.Max = 3; %multi line would be nice, but comment update doesn't work
             obj.comment.Max = 1;
@@ -131,7 +149,7 @@ classdef (Sealed) miepgui < handle
             Pos(3) = drawingArea(3)*3/4; %width
             Pos(4) = drawingArea(4) - 20 - 60 - 4*5; %height
             obj.tabGroup = uitabgroup(obj.fig, 'Units', 'pixels', 'Position', Pos);
-            mieptab(obj, 'MIEP');
+            mieptab(obj, 'miep');
             
             %draw region selector list
             Pos(1) = drawingArea(3)/4; %position left
@@ -186,25 +204,19 @@ classdef (Sealed) miepgui < handle
             end
             obj.workRegion = 1;
             
-            %determine if specturm or image  
+            %determine if specturm or image
             if strcmp(obj.workData.header.Flags, 'Spectra')
-                mieptab(obj, 'Spectrum');
-                obj.workTab = 'Spectrum';
+                mieptab(obj, 'spectrum');
+                obj.workTab = 'spectrum';
             else
-                mieptab(obj, 'Image');
-                obj.workTab = 'Image';
+                mieptab(obj, 'image');
+                obj.workTab = 'image';
                 if strcmp(obj.workData.channels{end}, 'BBX')
-                    mieptab(obj, 'Movie');
-                    obj.workTab = 'Movie';
+                    mieptab(obj, 'movie');
+                    mieptab(obj, 'fft');
+                    mieptab(obj, 'kspace');
+                    obj.workTab = 'movie';
                 end
-            end
-            
-            %check whether picutre is muwie
-            if any(strcmp(obj.workData.channels,'BBX'))
-                mieptab(obj, 'PhaseAmplitude');
-                mieptab(obj, 'kSpace');
-                mieptab(obj, 'Filter');
-                mieptab(obj, 'CWT');
             end
         end
         
@@ -258,7 +270,8 @@ classdef (Sealed) miepgui < handle
         end
         
         function guiLoadFile(obj, ~, ~)
-            %save previous file
+            %save previous file, comments and Magic Number
+            obj.guiSave
             obj.saveFile
             %determine selected file
             obj.workFile = obj.fileList.String{obj.fileList.Value};
@@ -267,12 +280,13 @@ classdef (Sealed) miepgui < handle
             uicontrol(obj.fileList)
         end
         
-        function guiSaveComment(obj, ~, ~)
+        function guiSave(obj, ~, ~)
             %write comment to miep file after change
             miepDate = obj.workFile(5:10);
             miepNumber = str2double(obj.workFile(11:13));
             miepEntry = obj.miepFile.readEntry(miepDate, miepNumber);
             miepEntry.Comment = obj.comment.String;
+            miepEntry.MagicNumber = obj.workData.magicNumber;
             obj.miepFile.writeEntry(miepDate, miepEntry)
         end
     end

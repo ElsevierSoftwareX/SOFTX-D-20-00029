@@ -30,15 +30,15 @@ classdef miepfile < handle
             end
             try
                 obj.importOptions.Sheet = miepDate;
-                data = readtable(obj.filename, 'Sheet', obj.importOptions.Sheet, 'Basic', 1);  
+                data = readtable(obj.filename, 'Sheet', obj.importOptions.Sheet, 'Basic', 1);
                 CommentVal = num2cell(data.Comment);
-                try 
+                try
                     CommentVal(cellfun(@isnan,CommentVal)) = {[]};
                     data.Comment = CommentVal;
                     miepTable = data;
                 catch
                     miepTable = data;
-                end    
+                end
                 
                 %MATLAB 2017 Command% miepTable = readtable(obj.filename, obj.importOptions, 'Basic', 1);
                 
@@ -54,7 +54,9 @@ classdef miepfile < handle
             end
             warning('off', 'MATLAB:xlswrite:AddSheet')
             outputData = [miepTable.Properties.VariableNames; table2cell(miepTable)];
+            
             [~, ~] = xlswrite(obj.filename, outputData, miepDate);
+            
         end
         
         function miepEntry = readEntry(obj, miepDate, miepNumber)
@@ -65,7 +67,7 @@ classdef miepfile < handle
             else
                 Measurement = miepTable.Measurement(miepTable.Measurement == miepNumber);
                 MagicNumber = miepTable.MagicNumber(miepTable.Measurement == miepNumber);
-                Comment = miepTable.Comment(miepTable.Measurement == miepNumber);   
+                Comment = miepTable.Comment(miepTable.Measurement == miepNumber);
                 HeaderFile = miepTable.HeaderFile(miepTable.Measurement == miepNumber);
                 if isempty(Measurement)
                     miepEntry = [];
@@ -91,11 +93,15 @@ classdef miepfile < handle
                 if isempty(obj.readEntry(miepDate, miepEntry.Measurement))
                     %append table
                     %miepTable(end+1,:) = {miepEntry.Measurement, miepEntry.MagicNumber, miepEntry.Comment, miepEntry.HeaderFile};
-                    miepTable = [miepTable; struct2table(miepEntry)]; 
+                    miepTable = [miepTable; struct2table(miepEntry)];
                 else
                     %update table
-                    miepTable(miepTable.Measurement == miepEntry.Measurement,:) = {miepEntry.Measurement, miepEntry.MagicNumber, miepEntry.Comment, miepEntry.HeaderFile};
-                    %miepTable(miepTable.Measurement == miepEntry.Measurement,:) = struct2table(miepEntry);           
+                    if isempty(miepEntry.MagicNumber)
+                        miepTable(miepTable.Measurement == miepEntry.Measurement,:) = {miepEntry.Measurement, 0, miepEntry.Comment, miepEntry.HeaderFile};
+                    else
+                        miepTable(miepTable.Measurement == miepEntry.Measurement,:) = {miepEntry.Measurement, miepEntry.MagicNumber, miepEntry.Comment, miepEntry.HeaderFile};
+                    end
+                    %miepTable(miepTable.Measurement == miepEntry.Measurement,:) = struct2table(miepEntry);
                 end
                 %sort table for ascending measurement number
                 miepTable = sortrows(miepTable, 1);

@@ -9,7 +9,8 @@
 function miep
     myMiep = miepgui;
     try
-        waitfor(myMiep)
+        %waitfor(myMiep)
+        myMiep;
     catch errMiep
         disp(errMiep)
         delete(myMiep)
