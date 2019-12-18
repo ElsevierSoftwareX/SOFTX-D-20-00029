@@ -77,7 +77,6 @@ obj.tabData.workChannel = 1; %use tabData to store current channel
         try
             frequency = obj.uiHandles.frequencyList.Value;
             obj.tabData.workSlice = frequency;
-            cla(obj.uiHandles.fftAxes);
             fftDraw;
             obj.tabData.workFrequency = frequency;
         catch
@@ -90,23 +89,26 @@ obj.tabData.workChannel = 1; %use tabData to store current channel
 
 %% support functions
     function fftDraw(varargin)
-        if length(varargin) == 1
-            ax = varargin{1};
-        else
-            ax = obj.uiHandles.fftAxes;
-        end
-        
+
         data = miepGUIObj.workData.evalStore.SpatialFFT.kImages;
         slice = obj.tabData.workSlice;
         fftData = abs(data(:,:,slice));
         
+        try
+            if ishandle(obj.uiHandles.imageSurf)
+                obj.uiHandles.imageSurf.ZData = fftData;
+            end
+        catch
+        ax = obj.uiHandles.fftAxes;
+        
+        
         kx = obj.miepGUIObj.workData.evalStore.SpatialFFT.kxAxis;
         ky = obj.miepGUIObj.workData.evalStore.SpatialFFT.kyAxis;
-        surf(ax, kx, ky, fftData, 'edgecolor', 'none')
+        obj.uiHandles.imageSurf = surf(ax, kx, ky, fftData, 'edgecolor', 'none');
         view(ax,2)
         ax.PlotBoxAspectRatio = [1 1 1];
-        xlim(ax, [min(kx) max(kx)])
-        ylim(ax, [min(ky) max(ky)])
+        ax.XLim = [min(kx) max(kx)];
+        ax.YLim = [min(ky) max(ky)];
         
         colorbar(ax)
         
@@ -118,13 +120,13 @@ obj.tabData.workChannel = 1; %use tabData to store current channel
         ax.XLabel.String = '{\it k_x} [1/µm]';
         ax.YLabel.String = '{\it k_y} [1/µm]';
         obj.uiHandles.movie.CDataMapping = 'scaled';
-        
+        end
     end
 
     function openinFigure(~, ~, ~)
         titleFreq = obj.uiHandles.frequencyList.String{obj.uiHandles.frequencyList.Value};
-        figure('Numbertitle', 'off', 'Name', ['k-Space - ' titleFreq])
-        ax = axes;
-        fftDraw(ax);
+        newFigure = figure('Numbertitle', 'off', 'Name', ['k-Space - f = ' titleFreq]);
+        newAxis = copyobj(obj.uiHandles.fftAxes, newFigure);
+        set(newAxis,'Units','normalized','Position',[0.13 0.11 0.775 0.815])
     end
 end

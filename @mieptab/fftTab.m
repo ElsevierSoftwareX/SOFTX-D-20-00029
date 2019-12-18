@@ -43,28 +43,36 @@ obj.uiHandles.imageAxes = axes(obj.tabHandle, 'Units', 'pixels', 'OuterPosition'
 fftDraw;
 
     function fftDraw(varargin)
-        if length(varargin) == 1
-            ax = varargin{1};
-        else
-            ax = obj.uiHandles.imageAxes;
-        end
-        
         f = miepGUIObj.workData.evalStore.FrequencySpectrum.Frequency/1e9;
         amplitude = miepGUIObj.workData.evalStore.FrequencySpectrum.Power;
         amplitude = amplitude(f>0);
         f = f(f>0);
-        plot(f, amplitude);
-
-        grid(ax, 'on')
-
-        ax.XLabel.String = '{\it f} [GHz]';
-        ax.YLabel.String = 'Spectral Density [a.u.]';
+        
+        try
+            if ishandle(obj.uiHandles.imagePlot)
+                obj.uiHandles.imagePlot.YData = amplitude;
+                obj.uiHandles.imagePlot.XData = f;
+            end
+        catch
+            ax = obj.uiHandles.imageAxes;
+            
+            
+            obj.uiHandles.imagePlot = plot(ax, f, amplitude);
+            
+            grid(ax, 'on')
+            
+            ax.XLabel.String = '{\it f} [GHz]';
+            ax.YLabel.String = 'Spectral Density [a.u.]';
+            
+        end
     end
 
     function openinFigure(~, ~, ~)
-        figure('Numbertitle', 'off', 'Name', 'FFT Amplitude')
-        ax = axes;
-        fftDraw(ax);
+        
+        newFigure = figure('Numbertitle', 'off', 'Name', 'FFT Amplitude');
+        newAxis = copyobj(obj.uiHandles.imageAxes, newFigure);
+        set(newAxis,'Units','normalized','Position',[0.13 0.11 0.775 0.815])
+        
     end
 
 end

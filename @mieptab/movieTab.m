@@ -95,7 +95,8 @@ obj.tabData.workCountInterp = 0; %use tabData to store current counter for FFT m
                 
                 %Change Speed
                 normMoviePeriod = 0.1;
-                fftMoviePeriod = 0.1/5;
+                speed = 50/length(obj.uiHandles.frequencyList.String);
+                fftMoviePeriod = normMoviePeriod/speed;
                 if (channel == 1 || channel == 3) && obj.uiHandles.timer.Period ~= normMoviePeriod
                     obj.uiHandles.timer.Period = normMoviePeriod;
                 elseif channel == 2 && obj.uiHandles.timer.Period ~= fftMoviePeriod
@@ -150,10 +151,6 @@ obj.tabData.workCountInterp = 0; %use tabData to store current counter for FFT m
 
 %% support functions
     function movieDraw(~,~,energy, channel)
-        region = miepGUIObj.workRegion;
-        freqVal = obj.uiHandles.frequencyList.Value;
-        slice = obj.tabData.workSlice;
-        
         %get sample position data and calculate plot coordinates
         xMin = miepGUIObj.workData.header.Regions(miepGUIObj.workRegion).PAxis.Min;
         xMax = miepGUIObj.workData.header.Regions(miepGUIObj.workRegion).PAxis.Max;
@@ -165,19 +162,49 @@ obj.tabData.workCountInterp = 0; %use tabData to store current counter for FFT m
         
         x = linspace(xMin, xMax, xPoints)-xMin;
         y = linspace(yMin, yMax, yPoints)-yMin;
-        
         %reset the color map in case it was changed by the hsv plot
         colormap(obj.uiHandles.movieAxes, parula)
-        
+        try
+            if ishandle(obj.uiHandles.imageSurf)
+                surfDraw(true, energy, channel, x, y)
+            end
+        catch
+
+            surfDraw(false, energy, channel, x ,y)
+            
+            %also add stuff like axes labels, data aspect ratio ect...
+            view(obj.uiHandles.movieAxes, 2)
+            obj.uiHandles.movieAxes.XLim = [min(x) max(x)];
+            obj.uiHandles.movieAxes.YLim = [min(y) max(y)];
+            %obj.uiHandles.movieAxes.ZLimMode = 'auto';
+            obj.uiHandles.movieAxes.Layer = 'Top';
+            obj.uiHandles.movieAxes.Box = 'on';
+            obj.uiHandles.movieAxes.DataAspectRatio = [1 1 1];
+            obj.uiHandles.movieAxes.TickDir = 'out';
+            obj.uiHandles.movieAxes.XLabel.String = '{\it x} [µm]';
+            obj.uiHandles.movieAxes.YLabel.String = '{\it y} [µm]';
+            
+        end
+    end
+
+    function surfDraw(surfaceExists, energy, channel, x, y)
+        region = miepGUIObj.workRegion;
+        freqVal = obj.uiHandles.frequencyList.Value;
+        slice = obj.tabData.workSlice;
         switch channel
             %for every channel, get the data and plot it over x and y, also
             %enable/diable buttons and lists depending on the channel
+            %If the surface plot already exists, just change the Z data,
+            %otherwise, create the surface plot
+            
             case 1
                 channel = 'Movie';
                 data = miepGUIObj.workData.data(channel, energy, region);
-                surf(obj.uiHandles.movieAxes, x, y, data(:,:,slice), 'edgecolor', 'none')
-                view(obj.uiHandles.movieAxes, 2)
-                
+                if surfaceExists
+                    obj.uiHandles.imageSurf.ZData = data(:,:,slice);
+                else
+                    obj.uiHandles.imageSurf = surf(obj.uiHandles.movieAxes, x, y, data(:,:,slice), 'edgecolor', 'none');
+                end
                 obj.uiHandles.frequencyList.Enable = 'off';
                 obj.uiHandles.run.Enable = 'on';
                 obj.tabData.workSlice = slice + 1;
@@ -190,9 +217,12 @@ obj.tabData.workCountInterp = 0; %use tabData to store current counter for FFT m
                 workOnes = obj.tabData.workOnes;
                 countInterp = obj.tabData.workCountInterp;
                 surfData =  data.Amplitude(:,:,freqVal).*sin(countInterp./50.*workOnes.*2.*pi+data.Phase(:,:,freqVal));
-                surf(obj.uiHandles.movieAxes, x, y, surfData, 'edgecolor', 'none')
-                view(obj.uiHandles.movieAxes, 2)
                 
+                if surfaceExists
+                    obj.uiHandles.imageSurf.ZData = surfData;
+                else
+                    obj.uiHandles.imageSurf = surf(obj.uiHandles.movieAxes, x, y, surfData, 'edgecolor', 'none');
+                end
                 obj.uiHandles.frequencyList.Enable = 'on';
                 obj.uiHandles.run.Enable = 'on';
                 obj.tabData.workCountInterp = countInterp + 1;
@@ -235,19 +265,25 @@ obj.tabData.workCountInterp = 0; %use tabData to store current counter for FFT m
                 colData = reshape(1:size(colbar,1), size(imageData,1), size(imageData,2));
                 
                 %now we plot the surface and add the colorbar
-                surf(obj.uiHandles.movieAxes, x, y, colData, 'edgecolor', 'none')
-                view(obj.uiHandles.movieAxes, 2)
+                if surfaceExists
+                    obj.uiHandles.imageSurf.ZData = colData;
+                else
+                    
+                    obj.uiHandles.imageSurf = surf(obj.uiHandles.movieAxes, x, y, colData, 'edgecolor', 'none');
+                end
                 colormap(obj.uiHandles.movieAxes, colbar)
-
+                
                 obj.uiHandles.frequencyList.Enable = 'on';
                 obj.uiHandles.run.Enable = 'off';
             case 4
                 channel = 'RawMovie';
                 data = miepGUIObj.workData.data(channel, energy, region);
                 
-                surf(obj.uiHandles.movieAxes, x, y, data(:,:,slice), 'edgecolor', 'none')
-                view(obj.uiHandles.movieAxes, 2)
-                
+                if surfaceExists
+                    obj.uiHandles.imageSurf.ZData = data(:,:,slice);
+                else
+                    obj.uiHandles.imageSurf = surf(obj.uiHandles.movieAxes, x, y, data(:,:,slice), 'edgecolor', 'none');
+                end
                 obj.uiHandles.frequencyList.Enable = 'off';
                 obj.uiHandles.run.Enable = 'on';
                 obj.tabData.workSlice = slice + 1;
@@ -255,15 +291,5 @@ obj.tabData.workCountInterp = 0; %use tabData to store current counter for FFT m
                     obj.tabData.workSlice = 1;
                 end
         end
-        
-        %also add stuff like axes labels, data aspect ratio ect...
-        obj.uiHandles.movieAxes.Layer = 'Top';
-        obj.uiHandles.movieAxes.Box = 'on';
-        obj.uiHandles.movieAxes.DataAspectRatio = [1 1 1];
-        obj.uiHandles.movieAxes.TickDir = 'out';
-        obj.uiHandles.movieAxes.XLabel.String = '{\it x} [µm]';
-        obj.uiHandles.movieAxes.YLabel.String = '{\it y} [µm]';
-        
     end
-
 end
