@@ -83,13 +83,11 @@
       <file>${PROJECT_ROOT}\@miepgui\loadFolder.m</file>
       <file>${PROJECT_ROOT}\@miepgui\miepgui.m</file>
       <file>${PROJECT_ROOT}\@miepgui\showSettings.m</file>
-      <file>${PROJECT_ROOT}\@mieptab\CWTTab.m</file>
-      <file>${PROJECT_ROOT}\@mieptab\filterTab.m</file>
+      <file>${PROJECT_ROOT}\@mieptab\fftTab.m</file>
       <file>${PROJECT_ROOT}\@mieptab\imageTab.m</file>
       <file>${PROJECT_ROOT}\@mieptab\kSpaceTab.m</file>
       <file>${PROJECT_ROOT}\@mieptab\mieptab.m</file>
       <file>${PROJECT_ROOT}\@mieptab\movieTab.m</file>
-      <file>${PROJECT_ROOT}\@mieptab\phaseAmpTab.m</file>
       <file>${PROJECT_ROOT}\@mieptab\spectrumTab.m</file>
       <file>${PROJECT_ROOT}\@sxmdata\evalFFT.m</file>
       <file>${PROJECT_ROOT}\@sxmdata\evalFrequencySpectrum.m</file>
