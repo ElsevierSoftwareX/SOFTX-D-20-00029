@@ -11,7 +11,7 @@
 function imageTab(obj, miepGUIObj)
 %% intialize / draws the image tab
 %determine drawing area
-drawingArea = obj.tabHandle.Position;
+drawingArea = obj.tabHandle.Position - [-2 -3 5 30]; %correct MATLAB madness?
 
 %draw energy selector list
 Pos(1) = 5; %position left
@@ -37,46 +37,25 @@ if max(size(channels)) == 1
     obj.uiHandles.channelList.Enable = 'off';
 end
 
+%draw open figure
+Pos(1) = 5; %position left
+Pos(2) = 5; % position bottom
+Pos(3) = 90; %width
+Pos(4) = 30; %height
+obj.uiHandles.run = uicontrol(obj.tabHandle, 'Style', 'pushbutton', 'Units', 'pixels', 'Position', Pos, 'Callback', @openinFigure, 'String', 'Open in Figure');
+
 %draw image axes and image
 Pos(1) = 5; %position left
 Pos(2) = 5; % position bottom
 Pos(3) = drawingArea(3) - 2*5; %width
 Pos(4) = drawingArea(4) - 3*5 - 20; %height
 
-xLabel = miepGUIObj.workData.header.Regions(miepGUIObj.workRegion).PAxis.Name;
-xUnit = miepGUIObj.workData.header.Regions(miepGUIObj.workRegion).PAxis.Unit;
-xMin = miepGUIObj.workData.header.Regions(miepGUIObj.workRegion).PAxis.Min;
-xMax = miepGUIObj.workData.header.Regions(miepGUIObj.workRegion).PAxis.Max;
-xPoints = miepGUIObj.workData.header.Regions(miepGUIObj.workRegion).PAxis.Points;
-xStep = (xMax - xMin) / xPoints;
-xTicks = 10;
-yLabel = miepGUIObj.workData.header.Regions(miepGUIObj.workRegion).QAxis.Name;
-yUnit = miepGUIObj.workData.header.Regions(miepGUIObj.workRegion).QAxis.Unit;
-yMin = miepGUIObj.workData.header.Regions(miepGUIObj.workRegion).QAxis.Min;
-yMax = miepGUIObj.workData.header.Regions(miepGUIObj.workRegion).QAxis.Max;
-yPoints = miepGUIObj.workData.header.Regions(miepGUIObj.workRegion).QAxis.Points;
-yStep = (yMax - yMin) / yPoints;
-yTicks = 10;
-
 obj.uiHandles.imageAxes = axes(obj.tabHandle, 'Units', 'pixels', 'OuterPosition', Pos);
 obj.uiHandles.imageAxes.Color = obj.tabHandle.BackgroundColor;
-obj.uiHandles.imageAxes.Box = 'on';
-obj.uiHandles.imageAxes.XLim = [0 xPoints+1];
-obj.uiHandles.imageAxes.YLim = [0 yPoints+1];
-obj.uiHandles.imageAxes.DataAspectRatio = [1 1 1];
-obj.uiHandles.imageAxes.TickDir = 'out';
-obj.uiHandles.imageAxes.XTick = 1:(xPoints-1)/xTicks:xPoints;
-obj.uiHandles.imageAxes.XTickLabel = {0:xPoints*xStep/xTicks:xPoints*xStep};
-obj.uiHandles.imageAxes.YTick = 1:(yPoints-1)/yTicks:yPoints;
-obj.uiHandles.imageAxes.YTickLabel = {0:yPoints*yStep/yTicks:yPoints*yStep};
-obj.uiHandles.imageAxes.XLabel.String = [xLabel ' [' xUnit ']'];
-obj.uiHandles.imageAxes.YLabel.String = [yLabel ' [' yUnit ']'];
-
-obj.uiHandles.image = image(obj.uiHandles.imageAxes);
-obj.uiHandles.image.CDataMapping = 'scaled';
+imageDraw(1,1);
 
 %draw image on first energy/channel
-imageDraw(1,1);
+
 obj.tabData.workEnergy = 1; %use tabData to store current energy
 obj.tabData.workChannel = 1; %use tabData to store current channel
 
@@ -94,13 +73,73 @@ obj.tabData.workChannel = 1; %use tabData to store current channel
             obj.uiHandles.energyList.Value = obj.tabData.workEnergy;
             obj.uiHandles.channelList.Value = obj.tabData.workChannel;
             uiwait(errordlg('Failed to load selected image.', 'MIEP'))
-        end  
+        end
     end
 
 %% support functions
     function imageDraw(energy, channel)
         region = miepGUIObj.workRegion;
         data = miepGUIObj.workData.data(channel, energy, region);
-        obj.uiHandles.image.CData = data;
+        
+        try
+            if ishandle(obj.uiHandles.imageSurf)
+                obj.uiHandles.imageSurf.ZData = data;
+            end
+        catch
+            ax = obj.uiHandles.imageAxes;
+
+            xMin = miepGUIObj.workData.header.Regions(miepGUIObj.workRegion).PAxis.Min;
+            xMax = miepGUIObj.workData.header.Regions(miepGUIObj.workRegion).PAxis.Max;
+            xPoints = miepGUIObj.workData.header.Regions(miepGUIObj.workRegion).PAxis.Points;
+            
+            yMin = miepGUIObj.workData.header.Regions(miepGUIObj.workRegion).QAxis.Min;
+            yMax = miepGUIObj.workData.header.Regions(miepGUIObj.workRegion).QAxis.Max;
+            yPoints = miepGUIObj.workData.header.Regions(miepGUIObj.workRegion).QAxis.Points;
+            
+            
+            x = linspace(xMin, xMax, xPoints)-xMin;
+            y = linspace(yMin, yMax, yPoints)-yMin;
+            
+            obj.uiHandles.imageSurf = surf(ax, x, y, data, 'edgecolor', 'none');
+            
+            view(ax, 2)
+            
+            ax.XLim = [min(x) max(x)];
+            ax.YLim = [min(y) max(y)];
+            
+            ax.Box = 'on';
+            ax.DataAspectRatio = [1 1 1];
+            ax.TickDir = 'out';
+            ax.Layer = 'top';
+            
+            ax.XLabel.String = '{\it x} [µm]';
+            ax.YLabel.String = '{\it y} [µm]';
+        end
     end
+
+
+    function openinFigure(~, ~, ~)
+        
+        channel = obj.uiHandles.channelList.Value;
+        if channel == 1
+            figureName = 'APD Image';
+        elseif channel == 2
+            figureName = 'BBX Image';
+        end
+        newFigure = figure('Numbertitle', 'off', 'Name', figureName);
+        newAxis = copyobj(obj.uiHandles.imageAxes, newFigure);
+        set(newAxis,'Units','normalized','Position',[0.13 0.11 0.775 0.815])
+    end
+
 end
+
+
+
+
+
+
+
+
+
+
+

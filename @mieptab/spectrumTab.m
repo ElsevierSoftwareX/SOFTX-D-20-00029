@@ -11,8 +11,8 @@
 function spectrumTab(obj, miepGUIObj)
 %% intialize / draws the sepctrum tab
 %determine drawing area
-drawingArea = obj.tabHandle.Position;
-drawingArea = drawingArea - [0 0 5 30]; %correct MATLAB madness?
+drawingArea = obj.tabHandle.Position - [-2 -3 5 30]; %correct MATLAB madness?
+
 
 %draw channel selector list
 Pos(1) = 5; %position left
@@ -25,6 +25,13 @@ obj.uiHandles.channelList.String = channels;
 if max(size(channels)) == 1
     obj.uiHandles.channelList.Enable = 'off';
 end
+
+%draw open figure
+Pos(1) = 5; %position left
+Pos(2) = 5; % position bottom
+Pos(3) = 90; %width
+Pos(4) = 30; %height
+obj.uiHandles.run = uicontrol(obj.tabHandle, 'Style', 'pushbutton', 'Units', 'pixels', 'Position', Pos, 'Callback', @openinFigure, 'String', 'Open in Figure');
 
 %draw spectrum axes
 Pos(1) = 5; %position left
@@ -63,4 +70,11 @@ obj.tabData.workChannel = 1;
         obj.uiHandles.spectrumAxes.XLabel.String = [xLabel ' [' xUnit ']'];
         obj.uiHandles.spectrumAxes.YLabel.String = [yLabel ' [' yUnit ']'];
     end
+
+    function openinFigure(~, ~, ~)
+        newFigure = figure('Numbertitle', 'off', 'Name', 'Spektrum');
+        newAxis = copyobj(obj.uiHandles.spectrumAxes, newFigure);
+        set(newAxis,'Units','normalized','Position',[0.13 0.11 0.775 0.815])
+    end
+
 end
