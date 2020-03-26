@@ -42,7 +42,7 @@ function loadFolder(obj)
             obj.miepFile.writeEntry(miepDate, miepEntry);
         else
             %only update if header file is different
-            if(miepEntry.HeaderFile ~= hdrFile)
+            if ~strcmp(miepEntry.HeaderFile, hdrFile)
                 miepEntry.HeaderFile = hdrFile;
                 obj.miepFile.writeEntry(miepDate, miepEntry);
             end
