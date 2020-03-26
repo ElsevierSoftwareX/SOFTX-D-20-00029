@@ -17,7 +17,14 @@ classdef miepfile < handle
         %public methods including constructor and display
         
         function obj = miepfile(inputfilename)
-            %constructor, intitializes for miep file
+            %constructor, intitializes miep file
+            %if miep file does not exist, creat it
+            if ~exist(inputfilename, 'file')
+                if ~exist(fileparts(inputfilename), 'dir')
+                    mkdir(fileparts(inputfilename))
+                end
+                writetable(table(), inputfilename, 'UseExcel', 0)
+            end
             obj.filename = inputfilename;
         end
         

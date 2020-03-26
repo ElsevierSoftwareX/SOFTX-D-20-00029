@@ -33,25 +33,9 @@ classdef (Sealed) miepgui < handle
             %check if miepfile has not been initialized get name from
             %settings
             if isempty(obj.miepFile)
-                miepFileName = obj.settings.miepFile;
-            else
-                miepFileName = obj.miepFile.filename;
-            end
-            
-            %if miep file does not exist yet, create it
-            if ~exist(miepFileName, 'file')
-                if ~exist(fileparts(miepFileName), 'dir')
-                    mkdir(fileparts(miepFileName))
-                end
-                xlswrite(miepFileName, 'MIEP Excel File');
-            end
-            
-            %if not initialized, initialize
-            if isempty(obj.miepFile)
-                obj.miepFile = miepfile(miepFileName);  
+                obj.miepFile = miepfile(obj.settings.miepFile);  
             end
             miepFile = obj.miepFile;
-            
         end
     end
     
