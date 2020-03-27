@@ -100,7 +100,7 @@ t.TimerFcn = {@movieDraw, 1, 1};
             stop(obj.uiHandles.timer)
             %calculate and set speed
             normMoviePeriod = 0.75;
-            if (channel == 1 || channel == 3)
+            if (channel == 1 || channel == 3 || channel == 4)
                 timerPeriod = normMoviePeriod/length(obj.uiHandles.frequencyList.String)*50/30;
                 if length(obj.uiHandles.frequencyList.String) > 30
                     timerPeriod = timerPeriod * 10;
