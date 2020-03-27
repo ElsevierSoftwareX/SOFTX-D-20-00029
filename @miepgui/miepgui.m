@@ -33,7 +33,7 @@ classdef (Sealed) miepgui < handle
             %check if miepfile has not been initialized get name from
             %settings
             if isempty(obj.miepFile)
-                obj.miepFile = miepfile(obj.settings.miepFile);  
+                obj.miepFile = miepfile(obj.settings.miepFile);
             end
             miepFile = obj.miepFile;
         end
@@ -145,14 +145,6 @@ classdef (Sealed) miepgui < handle
             
             %load work folder from settings
             obj.workFolder = obj.settings.inputFolder;
-        end
-        
-        function saveFile(obj)
-            %save current sxmdata file
-            dataPath = fullfile(obj.settings.dataFolder, strcat(obj.workFile, '.miep'));
-            data = obj.workData;
-            save(dataPath, 'data')
-            delete(data)
         end
         
         function displayData(obj)

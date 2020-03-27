@@ -168,6 +168,13 @@ classdef (Sealed) sxmdata < dynamicprops
             %return data
             output = obj.evalStore(1,1).(type);
         end
+        
+        function reset(obj)
+            %clears datastore, evalstore and magic number
+            obj.initDataStore
+            obj.initEvalStore
+            obj.magicNumber = [];
+        end
     end
     
     methods (Access = private)
