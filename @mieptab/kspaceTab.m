@@ -90,7 +90,7 @@ obj.tabData.workChannel = 1; %use tabData to store current channel
 %% support functions
     function fftDraw(varargin)
 
-        data = miepGUIObj.workData.evalStore.SpatialFFT.kImages;
+        data = miepGUIObj.workData.eval('SpatialFFT').kImages;
         slice = obj.tabData.workSlice;
         fftData = abs(data(:,:,slice));
         
@@ -102,8 +102,8 @@ obj.tabData.workChannel = 1; %use tabData to store current channel
         ax = obj.uiHandles.fftAxes;
         
         
-        kx = obj.miepGUIObj.workData.evalStore.SpatialFFT.kxAxis;
-        ky = obj.miepGUIObj.workData.evalStore.SpatialFFT.kyAxis;
+        kx = obj.miepGUIObj.workData.eval('SpatialFFT').kxAxis;
+        ky = obj.miepGUIObj.workData.eval('SpatialFFT').kyAxis;
         obj.uiHandles.imageSurf = surf(ax, kx, ky, fftData, 'edgecolor', 'none');
         view(ax,2)
         ax.PlotBoxAspectRatio = [1 1 1];
