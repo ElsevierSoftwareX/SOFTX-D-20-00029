@@ -71,14 +71,23 @@ obj.tabData.workFrequency = 1; %use tabData to store current frequency
 obj.tabData.workOnes = ones(size(miepGUIObj.workData.data(1,1,1),1), size(miepGUIObj.workData.data(1,1,1),2));
 obj.tabData.workCountInterp = 0; %use tabData to store current counter for FFT movie
 
+%delete old timers
+try
+    delete(timerfind)
+end
+t = timer('TasksToExecute', inf,'ExecutionMode', 'fixedSpacing');
+obj.uiHandles.timer = t;
+t.TimerFcn = {@movieDraw, 1, 1};
+
 %% interactive behaviour of tab / callbacks
     function movieSelect(~, ~, ~)
-        
+         
         try
             %update movie after selection
             frequency = obj.uiHandles.frequencyList.Value;
             channel = obj.uiHandles.movieList.Value;
             
+            obj.tabData.workSlice = 1;
             obj.tabData.workFrequency = frequency;
             obj.tabData.workChannel = channel;
             
@@ -86,26 +95,23 @@ obj.tabData.workCountInterp = 0; %use tabData to store current counter for FFT m
                 movieDraw(1,1,1,channel);
             end
             
-            %adjust timer channel and speed depending on which movie is chosen
-            try
-                obj.uiHandles.timer.TimerFcn =  {@movieDraw, 1, channel};
-                
-                %Changing the speed requires the timer to be on hold
-                stop(obj.uiHandles.timer)
-                
-                %Change Speed
-                normMoviePeriod = 0.1;
-                speed = 50/length(obj.uiHandles.frequencyList.String);
-                fftMoviePeriod = normMoviePeriod/speed;
-                if (channel == 1 || channel == 3) && obj.uiHandles.timer.Period ~= normMoviePeriod
-                    obj.uiHandles.timer.Period = normMoviePeriod;
-                elseif channel == 2 && obj.uiHandles.timer.Period ~= fftMoviePeriod
-                    obj.uiHandles.timer.Period = fftMoviePeriod;
+            %Change Speed depending on movie
+            %stop timer
+            stop(obj.uiHandles.timer)
+            %calculate and set speed
+            normMoviePeriod = 0.75;
+            if (channel == 1 || channel == 3)
+                timerPeriod = normMoviePeriod/length(obj.uiHandles.frequencyList.String)*50/30;
+                if length(obj.uiHandles.frequencyList.String) > 30
+                    timerPeriod = timerPeriod * 10;
                 end
-                
-                %Restart
-                start(obj.uiHandles.timer)
+            elseif channel == 2
+                timerPeriod = normMoviePeriod/30;
             end
+            obj.uiHandles.timer.Period = round(timerPeriod,3);
+            t.TimerFcn = {@movieDraw, 1, channel};
+            %start timer
+            movieRun
             
         catch
             %revert to previous selection on error
@@ -115,34 +121,24 @@ obj.tabData.workCountInterp = 0; %use tabData to store current counter for FFT m
         end
         
         
+        
     end
 
     function movieRun(~,~,~)
         
         channel = obj.uiHandles.movieList.Value;
-        
-        %if timer object does not exist or is not a valid timer, creat one
-        try
-            if ~isvalid(obj.uiHandles.timer)
-                t = timer('Period', 0.1, 'TasksToExecute', inf,'ExecutionMode', 'fixedSpacing');
-                t.TimerFcn = {@movieDraw, 1, channel};
-                obj.uiHandles.timer = t;
-            end
-        catch
-            t = timer('Period', 0.1, 'TasksToExecute', inf,'ExecutionMode', 'fixedSpacing');
-            t.TimerFcn = {@movieDraw, 1, channel};
-            obj.uiHandles.timer = t;
-        end
+
         
         %If timer is off turn it on and vice versa, also change the icon
         if strcmp(obj.uiHandles.timer.Running, 'off')
+            
             start(obj.uiHandles.timer)
             iconPause = imread(fullfile(matlabroot, 'toolbox', 'shared', 'controllib', 'general', 'resources', 'toolstrip_icons', 'Pause_MATLAB_24.png'), 'Background', obj.tabHandle.BackgroundColor);
             obj.uiHandles.run.CData = iconPause;
             
         else
             stop(obj.uiHandles.timer)
-            delete(obj.uiHandles.timer)
+            %delete(obj.uiHandles.timer)
             iconPlay = imread(fullfile(matlabroot, 'toolbox', 'shared', 'controllib', 'general', 'resources', 'toolstrip_icons', 'Run_24.png'), 'Background', obj.tabHandle.BackgroundColor);
             obj.uiHandles.run.CData = iconPlay;
         end
