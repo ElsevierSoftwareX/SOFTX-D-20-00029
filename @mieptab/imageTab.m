@@ -79,7 +79,7 @@ obj.tabData.workChannel = 1; %use tabData to store current channel
 %% support functions
     function imageDraw(energy, channel)
         region = miepGUIObj.workRegion;
-        data = flipud(miepGUIObj.workData.data(channel, energy, region));
+        data = miepGUIObj.workData.data(channel, energy, region);
         
         try
             if ishandle(obj.uiHandles.imageSurf)
