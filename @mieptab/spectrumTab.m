@@ -61,7 +61,7 @@ obj.tabData.workChannel = 1;
 %% support functions
     function spectrumDraw(channel)
         region = miepGUIObj.workRegion;
-        plot(obj.uiHandles.spectrumAxes, miepGUIObj.workData.dataStore(region).Energy, miepGUIObj.workData.data(channel,1,region))
+        plot(obj.uiHandles.spectrumAxes, miepGUIObj.workData.data('Energy',1,region), miepGUIObj.workData.data(channel,1,region))
         obj.uiHandles.spectrumAxes.TickDir = 'out';
         xLabel = miepGUIObj.workData.header.Regions(miepGUIObj.workRegion).PAxis.Name;
         xUnit = miepGUIObj.workData.header.Regions(miepGUIObj.workRegion).PAxis.Unit;
