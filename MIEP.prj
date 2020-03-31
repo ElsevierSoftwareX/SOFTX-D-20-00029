@@ -31,8 +31,8 @@
     <param.package.mcr.name>MyAppInstaller_mcr</param.package.mcr.name>
     <param.no.mcr.name>MyAppInstaller_app</param.no.mcr.name>
     <param.windows.command.prompt>true</param.windows.command.prompt>
-    <param.create.log>false</param.create.log>
-    <param.log.file />
+    <param.create.log>true</param.create.log>
+    <param.log.file>log.txt</param.log.file>
     <param.native.matlab>false</param.native.matlab>
     <param.checkbox>false</param.checkbox>
     <param.example />
@@ -67,8 +67,6 @@
       <param.package.mcr.name />
       <param.no.mcr.name />
       <param.windows.command.prompt />
-      <param.create.log />
-      <param.log.file />
       <param.native.matlab />
       <param.checkbox />
       <param.example />
@@ -76,13 +74,22 @@
     <fileset.main>
       <file>${PROJECT_ROOT}\miep.m</file>
     </fileset.main>
-    <fileset.resources />
+    <fileset.resources>
+      <file>${PROJECT_ROOT}\@miepicons\file_open.png</file>
+      <file>${PROJECT_ROOT}\@miepicons\help_ex.png</file>
+      <file>${PROJECT_ROOT}\@miepicons\pause.png</file>
+      <file>${PROJECT_ROOT}\@miepicons\refresh.png</file>
+      <file>${PROJECT_ROOT}\@miepicons\run.png</file>
+      <file>${PROJECT_ROOT}\settings.mat</file>
+    </fileset.resources>
     <fileset.package />
     <fileset.depfun>
       <file>${PROJECT_ROOT}\@miepgui\loadFile.m</file>
       <file>${PROJECT_ROOT}\@miepgui\loadFolder.m</file>
       <file>${PROJECT_ROOT}\@miepgui\miepgui.m</file>
+      <file>${PROJECT_ROOT}\@miepgui\saveFile.m</file>
       <file>${PROJECT_ROOT}\@miepgui\showSettings.m</file>
+      <file>${PROJECT_ROOT}\@miepicons\miepicons.m</file>
       <file>${PROJECT_ROOT}\@mieptab\fftTab.m</file>
       <file>${PROJECT_ROOT}\@mieptab\imageTab.m</file>
       <file>${PROJECT_ROOT}\@mieptab\kSpaceTab.m</file>
@@ -107,7 +114,7 @@
     </build-deliverables>
     <workflow />
     <matlab>
-      <root>C:\Program Files\MATLAB\R2019a</root>
+      <root>C:\Program Files\MATLAB\R2020a</root>
       <toolboxes>
         <toolbox name="matlabcoder" />
         <toolbox name="embeddedcoder" />
