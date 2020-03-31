@@ -8,8 +8,10 @@
 function readBBX(obj)
 %check if magic numbmer is set, otherwise ask
 if isempty(obj.magicNumber)
-    queryString = ['Magic Number for ', obj.header.Label, '?'];
-    obj.magicNumber = str2double(inputdlg(queryString));
+    obj.magicNumber = str2double(inputdlg(['Magic Number for ', obj.header.Label, '?']));
+end
+while isempty(obj.magicNumber)
+    obj.magicNumber = str2double(inputdlg(['Magic Number for ', obj.header.Label, 'Nochmals: ?']));
 end
 
 %open file

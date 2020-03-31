@@ -27,31 +27,16 @@ classdef (Sealed) miepgui < handle
         workRegion = []; %stores current region
         workTab = []; %stores selected tab
         miepFile = []; %wrapper for XLSX list of measurements
+        miepIcons = []; %access to GUI icons
     end
     methods
         function miepFile = get.miepFile(obj)
             %check if miepfile has not been initialized get name from
             %settings
             if isempty(obj.miepFile)
-                miepFileName = obj.settings.miepFile;
-            else
-                miepFileName = obj.miepFile.filename;
-            end
-            
-            %if miep file does not exist yet, create it
-            if ~exist(miepFileName, 'file')
-                if ~exist(fileparts(miepFileName), 'dir')
-                    mkdir(fileparts(miepFileName))
-                end
-                xlswrite(miepFileName, 'MIEP Excel File');
-            end
-            
-            %if not initialized, initialize
-            if isempty(obj.miepFile)
-                obj.miepFile = miepfile(miepFileName);  
+                obj.miepFile = miepfile(obj.settings.miepFile);
             end
             miepFile = obj.miepFile;
-            
         end
     end
     
@@ -95,6 +80,9 @@ classdef (Sealed) miepgui < handle
                 'DockControls', 'off', 'MenuBar', 'none', 'ToolBar', 'none', ...
                 'NumberTitle', 'off', 'Name', 'MIEP', 'CloseRequestFcn', @obj.guiFileClose);
             
+            %init icons
+            obj.miepIcons = miepicons(obj.fig.Color);
+            
             %add menubar to figure
             menuFile = uimenu(obj.fig, 'Text', 'File');
             uimenu(menuFile, 'Text', 'Settings', 'MenuSelectedFcn', @obj.showSettings);
@@ -104,24 +92,15 @@ classdef (Sealed) miepgui < handle
             
             %add toolbar to figure
             obj.tBar = uitoolbar(obj.fig);
-            
+
             %load folder icon and add to toolbar
-            icon = imread(fullfile(matlabroot, 'toolbox', 'matlab', 'icons', 'file_open.png'), 'Background', obj.fig.Color);
-            [img, map] = rgb2ind(icon, 65535);
-            iconLoad = ind2rgb(img, map);
-            uipushtool(obj.tBar, 'CData', iconLoad, 'TooltipString', 'Load Folder', 'ClickedCallback', @obj.guiLoadFolder);
+            uipushtool(obj.tBar, 'CData', obj.miepIcons.file_open, 'TooltipString', 'Load Folder', 'ClickedCallback', @obj.guiLoadFolder);
             
             %load refresh icon and add to toolbar
-            icon = imread(fullfile(matlabroot, 'toolbox', 'physmod', 'common', 'dataservices', 'resources', 'icons', 'refresh.png'), 'Background', obj.fig.Color);
-            [img, map] = rgb2ind(icon, 65535);
-            iconLoad = ind2rgb(img, map);
-            uipushtool(obj.tBar, 'CData', iconLoad, 'TooltipString', 'Refresh Folder', 'ClickedCallback', @obj.guiRefreshFolder);
+            uipushtool(obj.tBar, 'CData', obj.miepIcons.refresh, 'TooltipString', 'Refresh Folder', 'ClickedCallback', @obj.guiRefreshFolder);
             
             %load help icon and add to toolbar
-            icon = imread(fullfile(matlabroot, 'toolbox', 'matlab', 'icons', 'help_ex.png'), 'Background', obj.fig.Color);
-            [img, map] = rgb2ind(icon, 65535);
-            iconHelp = ind2rgb(img, map);
-            uipushtool(obj.tBar, 'CData', iconHelp, 'TooltipString', 'Info', 'ClickedCallback', @obj.guiHelpInfo);
+            uipushtool(obj.tBar, 'CData', obj.miepIcons.help_ex, 'TooltipString', 'Info', 'ClickedCallback', @obj.guiHelpInfo);
             
             %determine figure drawing area
             drawingArea = obj.fig.InnerPosition;
@@ -161,14 +140,6 @@ classdef (Sealed) miepgui < handle
             
             %load work folder from settings
             obj.workFolder = obj.settings.inputFolder;
-        end
-        
-        function saveFile(obj)
-            %save current sxmdata file
-            dataPath = fullfile(obj.settings.dataFolder, strcat(obj.workFile, '.miep'));
-            data = obj.workData;
-            save(dataPath, 'data')
-            delete(data)
         end
         
         function displayData(obj)

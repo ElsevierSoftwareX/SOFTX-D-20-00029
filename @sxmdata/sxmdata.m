@@ -20,6 +20,11 @@ classdef (Sealed) sxmdata < dynamicprops
         %Read only properties
         header = []; %stores the .hdr information
         basefile = []; %stores the base filename
+    end
+    
+    properties (Access = private)
+        %storage variables for data and evaluation results
+        %should be accessed via obj.data() and obj.eval()
         dataStore = []; %stores the imported data (region,energy)
         evalStore = []; %stores evaluation data
     end
@@ -167,6 +172,13 @@ classdef (Sealed) sxmdata < dynamicprops
             end
             %return data
             output = obj.evalStore(1,1).(type);
+        end
+        
+        function reset(obj)
+            %clears datastore, evalstore and magic number
+            obj.initDataStore
+            obj.initEvalStore
+            obj.magicNumber = [];
         end
     end
     

@@ -43,8 +43,8 @@ obj.uiHandles.imageAxes = axes(obj.tabHandle, 'Units', 'pixels', 'OuterPosition'
 fftDraw;
 
     function fftDraw(varargin)
-        f = miepGUIObj.workData.evalStore.FrequencySpectrum.Frequency/1e9;
-        amplitude = miepGUIObj.workData.evalStore.FrequencySpectrum.Power;
+        f = miepGUIObj.workData.eval('FrequencySpectrum').Frequency/1e9;
+        amplitude = miepGUIObj.workData.eval('FrequencySpectrum').Power;
         amplitude = amplitude(f>0);
         f = f(f>0);
         

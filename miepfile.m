@@ -11,16 +11,21 @@ classdef miepfile < handle
     
     properties
         filename = []; %stores MIEP file name
-        importOptions = []; %stores import options
     end
     
     methods (Access = public)
         %public methods including constructor and display
         
         function obj = miepfile(inputfilename)
-            %constructor, intitializes import options for miep file
+            %constructor, intitializes miep file
+            %if miep file does not exist, creat it
+            if ~exist(inputfilename, 'file')
+                if ~exist(fileparts(inputfilename), 'dir')
+                    mkdir(fileparts(inputfilename))
+                end
+                writetable(table(), inputfilename, 'UseExcel', 0)
+            end
             obj.filename = inputfilename;
-            obj.importOptions = detectImportOptions(obj.filename);
         end
         
         function miepTable = readDate(obj, miepDate)
@@ -29,8 +34,7 @@ classdef miepfile < handle
                 miepDate = num2str(miepDate);
             end
             try
-                obj.importOptions.Sheet = miepDate;
-                data = readtable(obj.filename, 'Sheet', obj.importOptions.Sheet, 'Basic', 1);
+                data = readtable(obj.filename, 'Sheet', miepDate, 'UseExcel', 0);
                 CommentVal = num2cell(data.Comment);
                 try
                     CommentVal(cellfun(@isnan,CommentVal)) = {[]};
@@ -39,9 +43,6 @@ classdef miepfile < handle
                 catch
                     miepTable = data;
                 end
-                
-                %MATLAB 2017 Command% miepTable = readtable(obj.filename, obj.importOptions, 'Basic', 1);
-                
             catch
                 miepTable = [];
             end
@@ -52,11 +53,7 @@ classdef miepfile < handle
             if isnumeric(miepDate)
                 miepDate = num2str(miepDate);
             end
-            warning('off', 'MATLAB:xlswrite:AddSheet')
-            outputData = [miepTable.Properties.VariableNames; table2cell(miepTable)];
-            
-            [~, ~] = xlswrite(obj.filename, outputData, miepDate);
-            
+            writetable(miepTable, obj.filename, 'Sheet', miepDate, 'UseExcel', 0)
         end
         
         function miepEntry = readEntry(obj, miepDate, miepNumber)
@@ -75,7 +72,6 @@ classdef miepfile < handle
                     miepEntry = struct;
                     miepEntry.Measurement = Measurement;
                     miepEntry.MagicNumber = MagicNumber;
-                    %miepEntry.Comment = Comment{1};
                     miepEntry.Comment = Comment;
                     miepEntry.HeaderFile = HeaderFile{1};
                 end
