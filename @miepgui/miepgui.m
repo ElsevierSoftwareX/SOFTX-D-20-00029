@@ -86,7 +86,10 @@ classdef (Sealed) miepgui < handle
             %add menubar to figure
             menuFile = uimenu(obj.fig, 'Text', 'File');
             uimenu(menuFile, 'Text', 'Settings', 'MenuSelectedFcn', @obj.showSettings);
+            exportMenuFile = uimenu(menuFile, 'Text', 'Export to...');
+            uimenu(exportMenuFile, 'Text', 'POV-Ray', 'MenuSelectedFcn', @obj.export2pov, 'Accelerator', 'E');
             uimenu(menuFile, 'Text', 'Close', 'MenuSelectedFcn', @obj.guiFileClose, 'Accelerator', 'X');
+            
             menuHelp = uimenu(obj.fig, 'Text', '?');
             uimenu(menuHelp, 'Text', 'Info', 'MenuSelectedFcn', @obj.guiHelpInfo);
             
@@ -259,6 +262,11 @@ classdef (Sealed) miepgui < handle
             miepEntry.Comment = obj.comment.String;
             miepEntry.MagicNumber = obj.workData.magicNumber;
             obj.miepFile.writeEntry(miepDate, miepEntry)
+        end
+        
+        function export2pov(obj, ~, ~)
+            %export fft movie to POV-Ray function
+            export2pov(obj.workData, obj.tabs.movie.uiHandles.frequencyList.Value, obj.settings.outputFolder)
         end
     end
 end
