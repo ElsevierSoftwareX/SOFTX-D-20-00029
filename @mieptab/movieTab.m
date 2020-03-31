@@ -58,8 +58,7 @@ Pos(2) = 5; % position bottom
 Pos(3) = 25; %width
 Pos(4) = 25; %height
 
-iconPlay = imread(fullfile(getIconDir, 'Run_16.png'), 'Background', obj.tabHandle.BackgroundColor);
-obj.uiHandles.run = uicontrol(obj.tabHandle, 'Style', 'pushbutton', 'CData', iconPlay, 'Units', 'pixels', 'Position', Pos, 'Callback', @movieRun);
+obj.uiHandles.run = uicontrol(obj.tabHandle, 'Style', 'pushbutton', 'CData', miepGUIObj.miepIcons.run, 'Units', 'pixels', 'Position', Pos, 'Callback', @movieRun);
 
 %use tabData to store current slice
 obj.tabData.workSlice = 1;
@@ -124,14 +123,12 @@ calculateSetSpeed
         if strcmp(obj.uiHandles.timer.Running, 'off')
             
             start(obj.uiHandles.timer)
-            iconPause = imread(fullfile(getIconDir, 'Pause_MATLAB_16.png'), 'Background', obj.tabHandle.BackgroundColor);
-            obj.uiHandles.run.CData = iconPause;
+            obj.uiHandles.run.CData = miepGUIObj.miepIcons.pause;
             
         else
             stop(obj.uiHandles.timer)
             %delete(obj.uiHandles.timer)
-            iconPlay = imread(fullfile(getIconDir, 'Run_16.png'), 'Background', obj.tabHandle.BackgroundColor);
-            obj.uiHandles.run.CData = iconPlay;
+            obj.uiHandles.run.CData = miepGUIObj.miepIcons.run;
         end
     end
 
