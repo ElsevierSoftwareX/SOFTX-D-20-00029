@@ -55,9 +55,10 @@ obj.uiHandles.movieAxes.Color = obj.tabHandle.BackgroundColor;
 %draw runback controls
 Pos(1) = 5; %position left
 Pos(2) = 5; % position bottom
-Pos(3) = 30; %width
-Pos(4) = 30; %height
-iconPlay = imread(fullfile(matlabroot, 'toolbox', 'shared', 'controllib', 'general', 'resources', 'toolstrip_icons', 'Run_24.png'), 'Background', obj.tabHandle.BackgroundColor);
+Pos(3) = 25; %width
+Pos(4) = 25; %height
+
+iconPlay = imread(fullfile(getIconDir, 'Run_16.png'), 'Background', obj.tabHandle.BackgroundColor);
 obj.uiHandles.run = uicontrol(obj.tabHandle, 'Style', 'pushbutton', 'CData', iconPlay, 'Units', 'pixels', 'Position', Pos, 'Callback', @movieRun);
 
 %use tabData to store current slice
@@ -123,18 +124,23 @@ calculateSetSpeed
         if strcmp(obj.uiHandles.timer.Running, 'off')
             
             start(obj.uiHandles.timer)
-            iconPause = imread(fullfile(matlabroot, 'toolbox', 'shared', 'controllib', 'general', 'resources', 'toolstrip_icons', 'Pause_MATLAB_24.png'), 'Background', obj.tabHandle.BackgroundColor);
+            iconPause = imread(fullfile(getIconDir, 'Pause_MATLAB_16.png'), 'Background', obj.tabHandle.BackgroundColor);
             obj.uiHandles.run.CData = iconPause;
             
         else
             stop(obj.uiHandles.timer)
             %delete(obj.uiHandles.timer)
-            iconPlay = imread(fullfile(matlabroot, 'toolbox', 'shared', 'controllib', 'general', 'resources', 'toolstrip_icons', 'Run_24.png'), 'Background', obj.tabHandle.BackgroundColor);
+            iconPlay = imread(fullfile(getIconDir, 'Run_16.png'), 'Background', obj.tabHandle.BackgroundColor);
             obj.uiHandles.run.CData = iconPlay;
         end
     end
 
 %% support functions
+    function iconDir = getIconDir
+        %find directory of miepgui and therefore icon directory
+        miepDir = split(which('miepgui.m'), '@');
+        iconDir = fullfile(miepDir{1}, 'icons');
+    end
     function calculateSetSpeed(~, ~, ~)
         channel = obj.tabData.workChannel;
         %calculate and set speed

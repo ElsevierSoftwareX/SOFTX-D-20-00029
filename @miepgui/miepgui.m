@@ -89,20 +89,24 @@ classdef (Sealed) miepgui < handle
             %add toolbar to figure
             obj.tBar = uitoolbar(obj.fig);
             
+            %find directory of miepgui and therefore icon directory
+            miepDir = split(which('miepgui.m'), '@');
+            iconDir = fullfile(miepDir{1}, 'icons');
+            
             %load folder icon and add to toolbar
-            icon = imread(fullfile(matlabroot, 'toolbox', 'matlab', 'icons', 'file_open.png'), 'Background', obj.fig.Color);
+            icon = imread(fullfile(iconDir, 'file_open.png'), 'Background', obj.fig.Color);
             [img, map] = rgb2ind(icon, 65535);
             iconLoad = ind2rgb(img, map);
             uipushtool(obj.tBar, 'CData', iconLoad, 'TooltipString', 'Load Folder', 'ClickedCallback', @obj.guiLoadFolder);
             
             %load refresh icon and add to toolbar
-            icon = imread(fullfile(matlabroot, 'toolbox', 'physmod', 'common', 'dataservices', 'resources', 'icons', 'refresh.png'), 'Background', obj.fig.Color);
+            icon = imread(fullfile(iconDir, 'refresh.png'), 'Background', obj.fig.Color);
             [img, map] = rgb2ind(icon, 65535);
             iconLoad = ind2rgb(img, map);
             uipushtool(obj.tBar, 'CData', iconLoad, 'TooltipString', 'Refresh Folder', 'ClickedCallback', @obj.guiRefreshFolder);
             
             %load help icon and add to toolbar
-            icon = imread(fullfile(matlabroot, 'toolbox', 'matlab', 'icons', 'help_ex.png'), 'Background', obj.fig.Color);
+            icon = imread(fullfile(iconDir, 'help_ex.png'), 'Background', obj.fig.Color);
             [img, map] = rgb2ind(icon, 65535);
             iconHelp = ind2rgb(img, map);
             uipushtool(obj.tBar, 'CData', iconHelp, 'TooltipString', 'Info', 'ClickedCallback', @obj.guiHelpInfo);

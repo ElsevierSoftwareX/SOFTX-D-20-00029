@@ -23,7 +23,7 @@ classdef mieptab < handle
     
     methods
         function obj = mieptab(miepGUIObj, tabType)
-            %miep tab constructor greates tab on miep GUI
+            %miep tab constructor creates tab on miep GUI
             %input: MIEP GUI Object, Tab Type
             
             obj.miepGUIObj = miepGUIObj;
