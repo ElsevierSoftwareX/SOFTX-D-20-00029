@@ -25,7 +25,7 @@ function export2pov(obj, freqVal, varargin)
 
     amplitude = obj.eval('FFT').Amplitude(:,:,freqVal);
     phase = obj.eval('FFT').Phase(:,:,freqVal);
-    freq = obj.eval('FFT').Phase(freqVal);
+    freq = obj.eval('FFT').Frequency(freqVal);
 
     %User Input for Render Settings
     prompt = {'Applied Field [mT]:','Number of Rendering Frames:',...
@@ -38,13 +38,18 @@ function export2pov(obj, freqVal, varargin)
     end
     
     %gather output from user input
-    field = [sprintf('%g', str2double(userInput{1})) ' mT'];
+    field = [num2str(round(str2double(userInput{1}),3,'significant')) ' mT'];
+
     nFrames = str2double(userInput{2});
     filterWidth = str2double(userInput{3});
     aliasingThreshhold = str2double(userInput{4});
     aliasingDepth = str2double(userInput{5});
     
-    frequency = [sprintf('%.3g', freq) ' GHz'];
+    if filterWidth == 0
+        filterWidth = 0.000000000000001;
+    end
+    
+    frequency = [num2str(round(freq/1e9,3,'significant')) ' GHz'];
     
     
     
@@ -394,13 +399,13 @@ function writePov(M, X, Y, cellM, cellX, cellY, xRes, yRes, frequency, field, ou
     %print text
 
     fprintf(fid, 'text{\n');
-    fprintf(fid, 'ttf "arial.ttf" "%s µm" 1, 0\n', sprintf('%.1g',size(M,2)*yRes));
+    fprintf(fid, 'ttf "arial.ttf" "%s µm" 1, 0\n', num2str(round(size(M,2)*yRes,3,'significant')));
     fprintf(fid, 'texture{ pigment{ color rgb<0,0,0.7>}\n');
     fprintf(fid, 'finish { reflection 0 phong 1} }\n');
     fprintf(fid, 'scale %d/20*<1,1,0.15> rotate<0,-90,90> translate<maxX+20*%d,boxshift + boxThickness/2,maxY/2>\n', size(M,2)*xRes, arrowDiameter);
     fprintf(fid, '}');
     fprintf(fid, 'text{');
-    fprintf(fid, 'ttf "arial.ttf" "%s µm" 1, 0\n', sprintf('%.1g',size(M,3)*xRes));
+    fprintf(fid, 'ttf "arial.ttf" "%s µm" 1, 0\n', num2str(round(size(M,3)*xRes,3,'significant')));
     fprintf(fid, 'texture{ pigment{ color rgb<0,0,0.7>}\n');
     fprintf(fid, 'finish { reflection 0 phong 1} }\n');
     fprintf(fid, 'scale %d/20*<1,1,0.15> rotate<0,-90,90> translate<maxX/2,boxshift + boxThickness/2,maxY+10*%d>\n', size(M,2)*yRes, arrowDiameter);

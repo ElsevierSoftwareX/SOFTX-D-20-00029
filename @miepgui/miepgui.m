@@ -12,6 +12,7 @@ classdef (Sealed) miepgui < handle
     properties
         fig = []; %figure handle
         tBar = []; %toolbar handle
+        menu = [] %menu handle
         fileList = []; %file listbox handle
         tabGroup = []; %tab group handle
         tabs = struct(); %stores individual miep tab handles
@@ -84,11 +85,11 @@ classdef (Sealed) miepgui < handle
             obj.miepIcons = miepicons(obj.fig.Color);
             
             %add menubar to figure
-            menuFile = uimenu(obj.fig, 'Text', 'File');
-            uimenu(menuFile, 'Text', 'Settings', 'MenuSelectedFcn', @obj.showSettings);
-            exportMenuFile = uimenu(menuFile, 'Text', 'Export to...');
-            uimenu(exportMenuFile, 'Text', 'POV-Ray', 'MenuSelectedFcn', @obj.export2pov, 'Accelerator', 'E');
-            uimenu(menuFile, 'Text', 'Close', 'MenuSelectedFcn', @obj.guiFileClose, 'Accelerator', 'X');
+            obj.menu = uimenu(obj.fig, 'Text', 'File');
+            uimenu(obj.menu, 'Text', 'Settings', 'MenuSelectedFcn', @obj.showSettings);
+            exportMenuFile = uimenu(obj.menu, 'Text', 'Export to...');
+            uimenu(exportMenuFile, 'Text', 'POV-Ray', 'MenuSelectedFcn', @obj.export2pov, 'Accelerator', 'E', 'Enable', 'off');
+            uimenu(obj.menu, 'Text', 'Close', 'MenuSelectedFcn', @obj.guiFileClose, 'Accelerator', 'X');
             
             menuHelp = uimenu(obj.fig, 'Text', '?');
             uimenu(menuHelp, 'Text', 'Info', 'MenuSelectedFcn', @obj.guiHelpInfo);
@@ -178,18 +179,27 @@ classdef (Sealed) miepgui < handle
             end
             obj.workRegion = 1;
             
+            %Turn off POV-Ray render Menu
+            povMenu = findobj(obj.menu.Children,'Text', 'POV-Ray');
+            povMenu.Enable = 'off';
+            
             %determine if specturm or image
             if strcmp(obj.workData.header.Flags, 'Spectra')
                 mieptab(obj, 'spectrum');
                 obj.workTab = 'spectrum';
+                %disable POV-Ray export for Spectra
+                
             else
                 mieptab(obj, 'image');
                 obj.workTab = 'image';
+
                 if strcmp(obj.workData.channels{end}, 'BBX')
                     mieptab(obj, 'movie');
                     mieptab(obj, 'fft');
                     mieptab(obj, 'kspace');
                     obj.workTab = 'movie';
+                    %enable POV-Ray export for Movie
+                    povMenu.Enable = 'on';
                 end
             end
         end
