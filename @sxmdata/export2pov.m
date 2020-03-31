@@ -1,9 +1,15 @@
 function export2pov(obj, freqVal, varargin)
 %Function to export MIEP data to PovRay, requires working PovRay installation
-
+    %check if BBX exists for this data
+    if ~any(strcmp(obj.channels,'BBX'))
+        errordlg('No movie to render.', 'Not a movie')
+        return
+    end
     %User input for output path if no path is given
     if length(varargin) == 0
         outpath = uigetdir('C:\', 'Select Output Folder');
+        %Choose first frequency of FFT if no input by GUI
+        freqVal = round(length(obj.eval('FFT').Frequency)/2)+1;
     elseif length(varargin) == 1
         outpath = [varargin{1} '\POV-Ray'];
     end
