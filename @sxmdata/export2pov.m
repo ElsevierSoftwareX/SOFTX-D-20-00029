@@ -30,8 +30,8 @@ function export2pov(obj, varargin)
 
         
     elseif length(varargin) == 2
-        outpath = [varargin{1} '\POV-Ray'];
-        freqVal = varargin{2};
+        outpath = [varargin{2} '\POV-Ray'];
+        freqVal = varargin{1};
     else
         errordlg('Please enter Frequency Slice and Output Path', 'Error')
         return
