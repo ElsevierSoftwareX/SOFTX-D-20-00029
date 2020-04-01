@@ -1,18 +1,44 @@
-function export2pov(obj, freqVal, varargin)
+function export2pov(obj, varargin)
 %Function to export MIEP data to PovRay, requires working PovRay installation
     %check if BBX exists for this data
     if ~any(strcmp(obj.channels,'BBX'))
-        errordlg('No movie to render.', 'Not a movie')
+        errordlg('No movie to render', 'Error')
         return
     end
+    
     %User input for output path if no path is given
-    if length(varargin) == 0
-        outpath = uigetdir('C:\', 'Select Output Folder');
+    if isempty(varargin)
+        %Get Frequency and directory from user input
+        outpath = uigetdir([getenv('USERPROFILE') '\documents\'], 'Select Output Folder');
+        if outpath == 0
+            return
+        end
+        
         %Choose first frequency of FFT if no input by GUI
-        freqVal = round(length(obj.eval('FFT').Frequency)/2)+1;
-    elseif length(varargin) == 1
+        guessFreqVal = round(length(obj.eval('FFT').Frequency)/2)+1;
+        prompt = {'Select Frequency Slice to Render:'};
+        dlgtitle = 'Frequency Slice';
+        dims = [1 35];
+        definput = {num2str(guessFreqVal)};
+        freqValStr = inputdlg(prompt,dlgtitle,dims,definput);
+        
+        if isempty(freqValStr)
+            return
+        end
+        freqVal = str2double(freqValStr{1});
+        
+
+        
+    elseif length(varargin) == 2
         outpath = [varargin{1} '\POV-Ray'];
+        freqVal = varargin{2};
+    else
+        errordlg('Please enter Frequency Slice and Output Path', 'Error')
+        return
     end
+    
+    
+    
     scanname = split(obj.header.Label, '.');
     infile = scanname{1};
     outfolder = [fullfile(outpath, infile) '\'];
@@ -79,10 +105,11 @@ function export2pov(obj, freqVal, varargin)
     writeDynImg(outfolder, infile, amplitude, phase, switched)
     
     %calculating and normalizing M
+    M = NaN([nFrames, size(amplitude)]);
     for j = 1:nFrames
         M(j,:,:) = imgaussfilt(amplitude.* sin(2*pi*j/nFrames+phase), filterWidth);
     end
-    M = M/max(max(max(abs(M))));
+    M = M/max(abs(M(:)));
 
     %create X and Y
     [X,Y] = meshgrid(((0:size(M,3)-1)-(size(M,3)-1)/2)*xRes,((0:size(M,2)-1)-(size(M,2)-1)/2)*yRes);
@@ -103,7 +130,7 @@ function export2pov(obj, freqVal, varargin)
     
     %execute pov-ray
     execString = ['"', povengine, '" ', [outfolder infile '.ini'], ' +UA /EXIT'];
-    system(execString)
+    system(execString);
     
     %import animation and write video
     writePovVideo(outfolder, infile, nFrames)
