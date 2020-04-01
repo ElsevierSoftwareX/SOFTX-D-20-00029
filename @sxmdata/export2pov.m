@@ -301,7 +301,9 @@ function writePov(M, X, Y, cellM, cellX, cellY, xRes, yRes, frequency, field, ou
     fprintf(fid, '#declare camLoc = <r*sind(theta)*sind(phi),r*cosd(theta),r*sind(theta)*cosd(phi)>;\n');
     fprintf(fid, 'camera {\n');
     fprintf(fid, 'location camLoc\n');
-    fprintf(fid, 'look_at <0,0,0>}\n');
+    
+    camerashift = -yRes*size(M,2)/4;
+    fprintf(fid, 'look_at <0,%d,0>}\n', camerashift);
 
 
     fprintf(fid, 'light_source{%d*0.4*<2,1.5,1>\n', size(M,2)*yRes);
@@ -382,7 +384,7 @@ function writePov(M, X, Y, cellM, cellX, cellY, xRes, yRes, frequency, field, ou
     %Axis (box + cylinder + cone)
     tipscale = min([max(max(Y))-min(min(Y)) max(max(X))-min(min(X))])/8;
     arrowDiameter = yRes*size(M,2)/200;
-    boxshift = -yRes*size(M,2)/4;
+    boxshift = camerashift;
     boxThickness = yRes*size(M,2)/100;
     fprintf(fid, '#include "shapes.inc"\n');
     fprintf(fid, '#declare boxshift = %d;\n', boxshift);
@@ -435,13 +437,13 @@ function writePov(M, X, Y, cellM, cellX, cellY, xRes, yRes, frequency, field, ou
     fprintf(fid, 'ttf "arial.ttf" "%s µm" 1, 0\n', num2str(round(size(M,2)*yRes,3,'significant')));
     fprintf(fid, 'texture{ pigment{ color rgb<0,0,0.7>}\n');
     fprintf(fid, 'finish { reflection 0 phong 1} }\n');
-    fprintf(fid, 'scale %d/20*<1,1,0.15> rotate<0,-90,90> translate<maxX+20*%d,boxshift + boxThickness/2,maxY/2>\n', size(M,2)*xRes, arrowDiameter);
+    fprintf(fid, 'scale %d/20*<1,1,0.15> rotate<0,-90,90> translate<maxX+20*%d,boxshift + boxThickness/2,maxY/2>\n', size(M,2)*yRes, arrowDiameter);
     fprintf(fid, '}');
     fprintf(fid, 'text{');
     fprintf(fid, 'ttf "arial.ttf" "%s µm" 1, 0\n', num2str(round(size(M,3)*xRes,3,'significant')));
     fprintf(fid, 'texture{ pigment{ color rgb<0,0,0.7>}\n');
     fprintf(fid, 'finish { reflection 0 phong 1} }\n');
-    fprintf(fid, 'scale %d/20*<1,1,0.15> rotate<0,-90,90> translate<maxX/2,boxshift + boxThickness/2,maxY+10*%d>\n', size(M,2)*yRes, arrowDiameter);
+    fprintf(fid, 'scale %d/20*<1,1,0.15> rotate<0,-90,90> translate<3*maxX/4,boxshift + boxThickness/2,maxY+10*%d>\n', size(M,2)*yRes, arrowDiameter);
     fprintf(fid, '}');
 
     %print B & f

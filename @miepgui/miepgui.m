@@ -39,6 +39,10 @@ classdef (Sealed) miepgui < handle
             end
             miepFile = obj.miepFile;
         end
+        
+        function set.workTab(obj, tabType)
+            obj.tabGroup.SelectedTab = obj.tabs.(tabType).tabHandle;
+        end
     end
     
     %dependent properties and respective get/set methods
@@ -147,12 +151,8 @@ classdef (Sealed) miepgui < handle
         end
         
         function displayData(obj)
-            %display data
-            %clear current tabs
-            curTabs = fields(obj.tabs);
-            for i=1:size(curTabs, 1)
-                delete(obj.tabs.(curTabs{i}))
-            end
+            %close old tabs to avoid error in timer function
+            obj.closeTabs
             
             %display comment
             miepDate = obj.workFile(5:10);
@@ -236,6 +236,8 @@ classdef (Sealed) miepgui < handle
             if curFolder == 0
                 return
             end
+            %close old tabs
+            obj.closeTabs
             %write new folder to object
             obj.workFolder = curFolder;
             %actually load folder
@@ -254,6 +256,8 @@ classdef (Sealed) miepgui < handle
         end
         
         function guiLoadFile(obj, ~, ~)
+            %close old tabs to avoid error in timer function
+            obj.closeTabs
             %save previous file, comments and Magic Number
             obj.guiSave
             obj.saveFile
@@ -278,5 +282,14 @@ classdef (Sealed) miepgui < handle
             %export fft movie to POV-Ray function
             export2pov(obj.workData, obj.tabs.movie.uiHandles.frequencyList.Value, obj.settings.outputFolder)
         end
+        
+        function closeTabs(obj)
+            %clear current tabs
+            tabFields = fields(obj.tabs);
+            for i = 1:length(tabFields)
+                delete(obj.tabs.(tabFields{i}));
+            end
+        end
+        
     end
 end
