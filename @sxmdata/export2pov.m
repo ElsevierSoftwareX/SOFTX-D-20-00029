@@ -40,8 +40,8 @@ function export2pov(obj, varargin)
     
     
     scanname = split(obj.header.Label, '.');
-    infile = scanname{1};
-    outfolder = [fullfile(outpath, infile) '\'];
+    filename = scanname{1};
+    outfolder = [fullfile(outpath, filename) '\'];
 
     %Create the directory if it does not exist
     if ~exist(outfolder, 'dir')
@@ -102,7 +102,7 @@ function export2pov(obj, varargin)
     end
     
     %write dynamic image to png file
-    writeDynImg(outfolder, infile, amplitude, phase, switched)
+    writeDynImg(outfolder, filename, amplitude, phase, switched)
     
     %calculating and normalizing M
     M = NaN([nFrames, size(amplitude)]);
@@ -123,17 +123,17 @@ function export2pov(obj, varargin)
     cellY = formPov(Y, 'Y');
 
     %write to povray file
-    writePov(M, X, Y, cellM, cellX, cellY, xRes, yRes, frequency, field, outfolder, infile)
+    writePov(M, X, Y, cellM, cellX, cellY, xRes, yRes, frequency, field, outfolder, filename)
     
     %POV-Ray animation-file
-    writePovIni(outfolder, infile, nFrames, aliasingThreshhold, aliasingDepth)
+    writePovIni(outfolder, filename, nFrames, aliasingThreshhold, aliasingDepth)
     
     %execute pov-ray
-    execString = ['"', povengine, '" ', [outfolder infile '.ini'], ' +UA /EXIT'];
+    execString = ['"', povengine, '" ', [outfolder filename '.ini'], ' +UA /EXIT'];
     system(execString);
     
     %import animation and write video
-    writePovVideo(outfolder, infile, nFrames)
+    writePovVideo(outfolder, filename, nFrames)
 
 
 end

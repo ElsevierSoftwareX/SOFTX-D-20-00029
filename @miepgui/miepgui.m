@@ -93,6 +93,8 @@ classdef (Sealed) miepgui < handle
             uimenu(obj.menu, 'Text', 'Settings', 'MenuSelectedFcn', @obj.showSettings);
             exportMenuFile = uimenu(obj.menu, 'Text', 'Export to...');
             uimenu(exportMenuFile, 'Text', 'POV-Ray', 'MenuSelectedFcn', @obj.export2pov, 'Accelerator', 'E', 'Enable', 'off');
+            uimenu(exportMenuFile, 'Text', 'CSV', 'MenuSelectedFcn', @obj.writeCSV, 'Accelerator', 'D', 'Enable', 'off');
+
             uimenu(obj.menu, 'Text', 'Close', 'MenuSelectedFcn', @obj.guiFileClose, 'Accelerator', 'X');
             
             menuHelp = uimenu(obj.fig, 'Text', '?');
@@ -179,15 +181,21 @@ classdef (Sealed) miepgui < handle
             end
             obj.workRegion = 1;
             
-            %Turn off POV-Ray render Menu
-            povMenu = findobj(obj.menu.Children,'Text', 'POV-Ray');
-            povMenu.Enable = 'off';
+            %Turn off all export menues
+            exportMenu = findobj(obj.menu.Children, 'Text', 'Export to...');
+            exportOptions = exportMenu.Children;
+            for i = 1:length(exportOptions)
+                exportOptions(i).Enable = 'off';
+            end
+            
+            povMenu = findobj(obj.menu.Children, 'Text', 'POV-Ray');
+            csvMenu = findobj(obj.menu.Children, 'Text', 'CSV');
+            csvMenu.Enable = 'on';
             
             %determine if specturm or image
             if strcmp(obj.workData.header.Flags, 'Spectra')
                 mieptab(obj, 'spectrum');
                 obj.workTab = 'spectrum';
-                %disable POV-Ray export for Spectra
                 
             else
                 mieptab(obj, 'image');
@@ -256,6 +264,10 @@ classdef (Sealed) miepgui < handle
         end
         
         function guiLoadFile(obj, ~, ~)
+            %If no File is loaded yet, return to avoid errors
+            if isempty(obj.fileList.String)
+                return
+            end
             %close old tabs to avoid error in timer function
             obj.closeTabs
             %save previous file, comments and Magic Number
@@ -277,12 +289,7 @@ classdef (Sealed) miepgui < handle
             miepEntry.MagicNumber = obj.workData.magicNumber;
             obj.miepFile.writeEntry(miepDate, miepEntry)
         end
-        
-        function export2pov(obj, ~, ~)
-            %export fft movie to POV-Ray function
-            export2pov(obj.workData, obj.tabs.movie.uiHandles.frequencyList.Value, obj.settings.outputFolder)
-        end
-        
+                
         function closeTabs(obj)
             %clear current tabs
             tabFields = fields(obj.tabs);
@@ -290,6 +297,17 @@ classdef (Sealed) miepgui < handle
                 delete(obj.tabs.(tabFields{i}));
             end
         end
+        
+        function export2pov(obj, ~, ~)
+            %export fft movie to POV-Ray function
+            export2pov(obj.workData, obj.tabs.movie.uiHandles.frequencyList.Value, obj.settings.outputFolder)
+        end
+        
+        function writeCSV(obj, ~, ~)
+            %export data to csv format
+            writeCSV(obj.workData, obj.settings.outputFolder)
+        end
+        
         
     end
 end
