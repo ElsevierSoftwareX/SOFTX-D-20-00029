@@ -72,15 +72,12 @@ obj.tabData.workOnes = ones(size(miepGUIObj.workData.data(1,1,1),1), size(miepGU
 obj.tabData.workCountInterp = 0; %use tabData to store current counter for FFT movie
 obj.tabData.workChannel = 1; %start out with normalized movie
 
-%delete old timers
-try
-    delete(timerfind)
-catch
-end
+
 obj.uiHandles.timer = timer('TasksToExecute', inf,'ExecutionMode', 'fixedSpacing');
 obj.uiHandles.timer.TimerFcn = {@movieDraw, 1, 1};
 %calculae and set speed
 calculateSetSpeed
+movieRun
 
 %% interactive behaviour of tab / callbacks
     function movieSelect(~, ~, ~)
@@ -143,7 +140,7 @@ calculateSetSpeed
         %calculate and set speed
             normMoviePeriod = 0.75;
             if (channel == 1 || channel == 3 || channel == 4)
-                timerPeriod = normMoviePeriod/length(obj.uiHandles.frequencyList.String)*50/30;
+                timerPeriod = normMoviePeriod/length(obj.uiHandles.frequencyList.String);
                 if length(obj.uiHandles.frequencyList.String) > 30
                     timerPeriod = timerPeriod * 10;
                 end
@@ -215,12 +212,17 @@ calculateSetSpeed
                 if obj.tabData.workSlice > size(data,3)
                     obj.tabData.workSlice = 1;
                 end
+                                                      
+                %fix for axis stuttering
+                zlim = max(abs(data(:)));
+                obj.uiHandles.movieAxes.ZLim = [-zlim zlim];
+                
             case 2
                 channel = 'FFT';
                 data = miepGUIObj.workData.eval(channel);
                 workOnes = obj.tabData.workOnes;
                 countInterp = obj.tabData.workCountInterp;
-                surfData =  data.Amplitude(:,:,freqVal).*sin(countInterp./50.*workOnes.*2.*pi+data.Phase(:,:,freqVal));
+                surfData =  data.Amplitude(:,:,freqVal).*sin(countInterp./30.*workOnes.*2.*pi+data.Phase(:,:,freqVal));
                 
                 if surfaceExists
                     obj.uiHandles.imageSurf.ZData = surfData;
@@ -230,9 +232,14 @@ calculateSetSpeed
                 obj.uiHandles.frequencyList.Enable = 'on';
                 obj.uiHandles.run.Enable = 'on';
                 obj.tabData.workCountInterp = countInterp + 1;
-                if obj.tabData.workCountInterp > 49
+                if obj.tabData.workCountInterp > 29
                     obj.tabData.workCountInterp = 0;
                 end
+                                      
+                %fix for axis stuttering
+                zlim = max(abs(data.Amplitude(:)));
+                obj.uiHandles.movieAxes.ZLim = [-zlim zlim];
+                
             case 3
                 %hsv picture is a little tricky. First of all, stop the
                 %timer
@@ -280,6 +287,11 @@ calculateSetSpeed
                 
                 obj.uiHandles.frequencyList.Enable = 'on';
                 obj.uiHandles.run.Enable = 'off';
+                
+                %fix for axis stuttering
+                zlim = max(abs(colData(:)));
+                obj.uiHandles.movieAxes.ZLim = [-zlim zlim];
+
             case 4
                 channel = 'RawMovie';
                 data = miepGUIObj.workData.data(channel, energy, region);
@@ -295,6 +307,10 @@ calculateSetSpeed
                 if obj.tabData.workSlice > size(data,3)
                     obj.tabData.workSlice = 1;
                 end
+                
+                %fix for axis stuttering
+                zlim = max(abs(data(:)));
+                obj.uiHandles.movieAxes.ZLim = [-zlim zlim];
         end
     end
 end

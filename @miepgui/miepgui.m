@@ -12,6 +12,7 @@ classdef (Sealed) miepgui < handle
     properties
         fig = []; %figure handle
         tBar = []; %toolbar handle
+        menu = [] %menu handle
         fileList = []; %file listbox handle
         tabGroup = []; %tab group handle
         tabs = struct(); %stores individual miep tab handles
@@ -37,6 +38,10 @@ classdef (Sealed) miepgui < handle
                 obj.miepFile = miepfile(obj.settings.miepFile);
             end
             miepFile = obj.miepFile;
+        end
+        
+        function set.workTab(obj, tabType)
+            obj.tabGroup.SelectedTab = obj.tabs.(tabType).tabHandle;
         end
     end
     
@@ -84,9 +89,12 @@ classdef (Sealed) miepgui < handle
             obj.miepIcons = miepicons(obj.fig.Color);
             
             %add menubar to figure
-            menuFile = uimenu(obj.fig, 'Text', 'File');
-            uimenu(menuFile, 'Text', 'Settings', 'MenuSelectedFcn', @obj.showSettings);
-            uimenu(menuFile, 'Text', 'Close', 'MenuSelectedFcn', @obj.guiFileClose, 'Accelerator', 'X');
+            obj.menu = uimenu(obj.fig, 'Text', 'File');
+            uimenu(obj.menu, 'Text', 'Settings', 'MenuSelectedFcn', @obj.showSettings);
+            exportMenuFile = uimenu(obj.menu, 'Text', 'Export to...');
+            uimenu(exportMenuFile, 'Text', 'POV-Ray', 'MenuSelectedFcn', @obj.export2pov, 'Accelerator', 'E', 'Enable', 'off');
+            uimenu(obj.menu, 'Text', 'Close', 'MenuSelectedFcn', @obj.guiFileClose, 'Accelerator', 'X');
+            
             menuHelp = uimenu(obj.fig, 'Text', '?');
             uimenu(menuHelp, 'Text', 'Info', 'MenuSelectedFcn', @obj.guiHelpInfo);
             
@@ -143,6 +151,9 @@ classdef (Sealed) miepgui < handle
         end
         
         function displayData(obj)
+            %close old tabs to avoid error in timer function
+            obj.closeTabs
+            
             %display comment
             miepDate = obj.workFile(5:10);
             miepNumber = str2double(obj.workFile(11:13));
@@ -169,36 +180,6 @@ classdef (Sealed) miepgui < handle
             obj.workRegion = 1;
             
             %display Tabs
-            obj.displayTabs
-        end
-        
-        function displayTabs(obj)
-            %display data
-            %clear current tabs
-            curTabs = fields(obj.tabs);
-            for i=1:size(curTabs, 1)
-                delete(obj.tabs.(curTabs{i}))
-            end
-            
-            %determine if specturm or image
-            if ~isempty(strfind(obj.workData.header.Flags, 'Spectra'))
-                mieptab(obj, 'spectrum');
-                obj.workTab = 'spectrum';
-            else
-                mieptab(obj, 'image');
-                obj.workTab = 'image';
-                if strcmp(obj.workData.channels{end}, 'BBX')
-                    mieptab(obj, 'movie');
-                    mieptab(obj, 'fft');
-                    mieptab(obj, 'kspace');
-                    obj.workTab = 'movie';
-                end
-            end
-        end
-        
-        function updateRegion(obj, ~, ~)
-            %get work region from selector and update tabs
-            obj.workRegion = obj.regionList.Value;
             obj.displayTabs
         end
         
@@ -234,6 +215,8 @@ classdef (Sealed) miepgui < handle
             if curFolder == 0
                 return
             end
+            %close old tabs
+            obj.closeTabs
             %write new folder to object
             obj.workFolder = curFolder;
             %actually load folder
@@ -252,6 +235,8 @@ classdef (Sealed) miepgui < handle
         end
         
         function guiLoadFile(obj, ~, ~)
+            %close old tabs to avoid error in timer function
+            obj.closeTabs
             %save previous file, comments and Magic Number
             obj.guiSave
             obj.saveFile
@@ -271,5 +256,54 @@ classdef (Sealed) miepgui < handle
             miepEntry.MagicNumber = obj.workData.magicNumber;
             obj.miepFile.writeEntry(miepDate, miepEntry)
         end
+        
+        function export2pov(obj, ~, ~)
+            %export fft movie to POV-Ray function
+            export2pov(obj.workData, obj.tabs.movie.uiHandles.frequencyList.Value, obj.settings.outputFolder)
+        end
+    end
+    
+    methods (Access = private)
+        %private methods
+        %GUI helper functions
+        function closeTabs(obj)
+            %clear current tabs
+            curTabs = fields(obj.tabs);
+            for i=1:size(curTabs, 1)
+                delete(obj.tabs.(curTabs{i}))
+            end
+        end
+        
+        function displayTabs(obj)
+            %display tabs
+            %Turn off POV-Ray render Menu
+            povMenu = findobj(obj.menu.Children,'Text', 'POV-Ray');
+            povMenu.Enable = 'off';
+            %determine if specturm or image
+            if ~isempty(strfind(obj.workData.header.Flags, 'Spectra'))
+                mieptab(obj, 'spectrum');
+                obj.workTab = 'spectrum';
+                %disable POV-Ray export for Spectra
+                
+            else
+                mieptab(obj, 'image');
+                obj.workTab = 'image';
+                if strcmp(obj.workData.channels{end}, 'BBX')
+                    mieptab(obj, 'movie');
+                    mieptab(obj, 'fft');
+                    mieptab(obj, 'kspace');
+                    obj.workTab = 'movie';
+                    %enable POV-Ray export for Movie
+                    povMenu.Enable = 'on';
+                end
+            end
+        end
+        
+        function updateRegion(obj, ~, ~)
+            %get work region from selector and update tabs
+            obj.workRegion = obj.regionList.Value;
+            obj.displayTabs
+        end
+        
     end
 end
