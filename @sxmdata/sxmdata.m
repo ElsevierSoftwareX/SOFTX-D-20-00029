@@ -200,7 +200,7 @@ classdef (Sealed) sxmdata < dynamicprops
             else
                 %init for Images
                 for region = 1:size(obj.header.Regions,2)
-                    numEnergies = 1:obj.header.StackAxis.Points;
+                    numEnergies = obj.header.StackAxis.Points;
                     if isnan(numEnergies)
                         numEnergies = 1; %OSA Focus Scan contingency
                     end
