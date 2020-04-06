@@ -94,7 +94,7 @@ classdef (Sealed) miepgui < handle
             exportMenuFile = uimenu(obj.menu, 'Text', 'Export to...');
             uimenu(exportMenuFile, 'Text', 'POV-Ray', 'MenuSelectedFcn', @obj.export2pov, 'Accelerator', 'E', 'Enable', 'off');
             uimenu(exportMenuFile, 'Text', 'CSV', 'MenuSelectedFcn', @obj.writeCSV, 'Accelerator', 'D', 'Enable', 'off');
-
+            
             uimenu(obj.menu, 'Text', 'Close', 'MenuSelectedFcn', @obj.guiFileClose, 'Accelerator', 'X');
             
             menuHelp = uimenu(obj.fig, 'Text', '?');
@@ -150,55 +150,6 @@ classdef (Sealed) miepgui < handle
             
             %load work folder from settings
             obj.workFolder = obj.settings.inputFolder;
-        end
-        
-        function displayData(obj)
-            %close old tabs to avoid error in timer function
-            obj.closeTabs
-            
-            %display comment
-            miepDate = obj.workFile(5:10);
-            miepNumber = str2double(obj.workFile(11:13));
-            miepEntry = obj.miepFile.readEntry(miepDate, miepNumber);
-            obj.comment.String = miepEntry.Comment;
-            
-            %display region list
-            try
-                numRegions = size(obj.workData.header.Regions,2);
-            catch
-                numRegions = 1;
-            end
-            if numRegions == 1
-                obj.regionList.String = 'Region 1';
-                obj.regionList.Enable = 'off';
-            else
-                newList = cell(numRegions,1);
-                for i = 1:numRegions
-                    newList{i} = ['Region ', num2str(i)];
-                end
-                obj.regionList.String = newList;
-                obj.regionList.Enable = 'on';
-            end
-            obj.workRegion = 1;
-            
-            %determine if specturm or image
-            if strcmp(obj.workData.header.Flags, 'Spectra')
-                mieptab(obj, 'spectrum');
-                obj.workTab = 'spectrum';   
-            else
-                mieptab(obj, 'image');
-                obj.workTab = 'image';
-                if strcmp(obj.workData.channels{end}, 'BBX')
-                    mieptab(obj, 'movie');
-                    mieptab(obj, 'fft');
-                    mieptab(obj, 'kspace');
-                    obj.workTab = 'movie';
-                end
-            end
-
-            %display Tabs and update export menu
-            obj.displayTabs
-            obj.updateExportMenu
         end
         
         showSettings(obj, ~, ~, ~) %show settings dialog
@@ -278,7 +229,7 @@ classdef (Sealed) miepgui < handle
             miepEntry.MagicNumber = obj.workData.magicNumber;
             obj.miepFile.writeEntry(miepDate, miepEntry)
         end
-
+        
         function export2pov(obj, ~, ~)
             %export fft movie to POV-Ray function
             export2pov(obj.workData, obj.tabs.movie.uiHandles.frequencyList.Value, obj.settings.outputFolder)
@@ -288,12 +239,52 @@ classdef (Sealed) miepgui < handle
             %export data to csv format
             writeCSV(obj.workData, obj.settings.outputFolder)
         end
+        
+        function updateRegion(obj, ~, ~)
+            %get work region from selector and update tabs
+            obj.workRegion = obj.regionList.Value;
+            obj.displayTabs
+        end
     end
     
     methods (Access = private)
         %private methods
         %GUI helper functions
-
+        
+        function displayData(obj)
+            %close old tabs to avoid error in timer function
+            obj.closeTabs
+            
+            %display comment
+            miepDate = obj.workFile(5:10);
+            miepNumber = str2double(obj.workFile(11:13));
+            miepEntry = obj.miepFile.readEntry(miepDate, miepNumber);
+            obj.comment.String = miepEntry.Comment;
+            
+            %display region list
+            try
+                numRegions = size(obj.workData.header.Regions,2);
+            catch
+                numRegions = 1;
+            end
+            if numRegions == 1
+                obj.regionList.String = 'Region 1';
+                obj.regionList.Enable = 'off';
+            else
+                newList = cell(numRegions,1);
+                for i = 1:numRegions
+                    newList{i} = ['Region ', num2str(i)];
+                end
+                obj.regionList.String = newList;
+                obj.regionList.Enable = 'on';
+            end
+            obj.workRegion = 1;
+            
+            %display Tabs and update export menu
+            obj.displayTabs
+            obj.updateExportMenu
+        end
+        
         function closeTabs(obj)
             %clear current tabs
             curTabs = fields(obj.tabs);
@@ -332,7 +323,7 @@ classdef (Sealed) miepgui < handle
             %always on menus
             csvMenu = findobj(obj.menu.Children, 'Text', 'CSV');
             csvMenu.Enable = 'on';
-
+            
             %determine if specturm or image
             if ~isempty(strfind(obj.workData.header.Flags, 'Spectra'))
             else
@@ -344,12 +335,7 @@ classdef (Sealed) miepgui < handle
                 end
             end
         end
-            
-
-        function updateRegion(obj, ~, ~)
-            %get work region from selector and update tabs
-            obj.workRegion = obj.regionList.Value;
-            obj.displayTabs
-        end
+        
+        
     end
 end
