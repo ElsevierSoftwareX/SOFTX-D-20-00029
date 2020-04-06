@@ -102,7 +102,7 @@ classdef (Sealed) miepgui < handle
             
             %add toolbar to figure
             obj.tBar = uitoolbar(obj.fig);
-
+            
             %load folder icon and add to toolbar
             uipushtool(obj.tBar, 'CData', obj.miepIcons.file_open, 'TooltipString', 'Load Folder', 'ClickedCallback', @obj.guiLoadFolder);
             
@@ -145,7 +145,7 @@ classdef (Sealed) miepgui < handle
             Pos(2) = drawingArea(4) - 20 - 5; % position bottom
             Pos(3) = drawingArea(3)*3/4 - 5; %width
             Pos(4) = 20; %height
-            obj.regionList = uicontrol(obj.fig, 'Style', 'popupmenu', 'Units', 'pixels', 'Position', Pos);
+            obj.regionList = uicontrol(obj.fig, 'Style', 'popupmenu', 'Units', 'pixels', 'Position', Pos, 'Callback', @obj.updateRegion);
             obj.regionList.String = 'Select Region ...';
             
             %load work folder from settings
@@ -164,7 +164,7 @@ classdef (Sealed) miepgui < handle
             
             %display region list
             try
-                numRegions = size(obj.workData.header.Regions);
+                numRegions = size(obj.workData.header.Regions,2);
             catch
                 numRegions = 1;
             end
@@ -172,7 +172,7 @@ classdef (Sealed) miepgui < handle
                 obj.regionList.String = 'Region 1';
                 obj.regionList.Enable = 'off';
             else
-                newList = cell(numRegions);
+                newList = cell(numRegions,1);
                 for i = 1:numRegions
                     newList{i} = ['Region ', num2str(i)];
                 end
@@ -181,35 +181,24 @@ classdef (Sealed) miepgui < handle
             end
             obj.workRegion = 1;
             
-            %Turn off all export menues
-            exportMenu = findobj(obj.menu.Children, 'Text', 'Export to...');
-            exportOptions = exportMenu.Children;
-            for i = 1:length(exportOptions)
-                exportOptions(i).Enable = 'off';
-            end
-            
-            povMenu = findobj(obj.menu.Children, 'Text', 'POV-Ray');
-            csvMenu = findobj(obj.menu.Children, 'Text', 'CSV');
-            csvMenu.Enable = 'on';
-            
             %determine if specturm or image
             if strcmp(obj.workData.header.Flags, 'Spectra')
                 mieptab(obj, 'spectrum');
-                obj.workTab = 'spectrum';
-                
+                obj.workTab = 'spectrum';   
             else
                 mieptab(obj, 'image');
                 obj.workTab = 'image';
-
                 if strcmp(obj.workData.channels{end}, 'BBX')
                     mieptab(obj, 'movie');
                     mieptab(obj, 'fft');
                     mieptab(obj, 'kspace');
                     obj.workTab = 'movie';
-                    %enable POV-Ray export for Movie
-                    povMenu.Enable = 'on';
                 end
             end
+
+            %display Tabs and update export menu
+            obj.displayTabs
+            obj.updateExportMenu
         end
         
         showSettings(obj, ~, ~, ~) %show settings dialog
@@ -289,15 +278,7 @@ classdef (Sealed) miepgui < handle
             miepEntry.MagicNumber = obj.workData.magicNumber;
             obj.miepFile.writeEntry(miepDate, miepEntry)
         end
-                
-        function closeTabs(obj)
-            %clear current tabs
-            tabFields = fields(obj.tabs);
-            for i = 1:length(tabFields)
-                delete(obj.tabs.(tabFields{i}));
-            end
-        end
-        
+
         function export2pov(obj, ~, ~)
             %export fft movie to POV-Ray function
             export2pov(obj.workData, obj.tabs.movie.uiHandles.frequencyList.Value, obj.settings.outputFolder)
@@ -307,7 +288,68 @@ classdef (Sealed) miepgui < handle
             %export data to csv format
             writeCSV(obj.workData, obj.settings.outputFolder)
         end
+    end
+    
+    methods (Access = private)
+        %private methods
+        %GUI helper functions
+
+        function closeTabs(obj)
+            %clear current tabs
+            curTabs = fields(obj.tabs);
+            for i=1:size(curTabs, 1)
+                delete(obj.tabs.(curTabs{i}))
+            end
+        end
         
+        function displayTabs(obj)
+            %display tabs
+            %determine if specturm or image
+            if ~isempty(strfind(obj.workData.header.Flags, 'Spectra'))
+                mieptab(obj, 'spectrum');
+                obj.workTab = 'spectrum';
+            else
+                mieptab(obj, 'image');
+                obj.workTab = 'image';
+                if strcmp(obj.workData.channels{end}, 'BBX')
+                    mieptab(obj, 'movie');
+                    mieptab(obj, 'fft');
+                    mieptab(obj, 'kspace');
+                    obj.workTab = 'movie';
+                end
+            end
+        end
         
+        function updateExportMenu(obj)
+            %update available exports depending on settings
+            %Turn off all export menues
+            exportMenu = findobj(obj.menu.Children, 'Text', 'Export to...');
+            exportOptions = exportMenu.Children;
+            for i = 1:length(exportOptions)
+                exportOptions(i).Enable = 'off';
+            end
+            
+            %always on menus
+            csvMenu = findobj(obj.menu.Children, 'Text', 'CSV');
+            csvMenu.Enable = 'on';
+
+            %determine if specturm or image
+            if ~isempty(strfind(obj.workData.header.Flags, 'Spectra'))
+            else
+                %check for bbx
+                if strcmp(obj.workData.channels{end}, 'BBX')
+                    %enable POV-Ray export for Movie
+                    povMenu = findobj(obj.menu.Children, 'Text', 'POV-Ray');
+                    povMenu.Enable = 'on';
+                end
+            end
+        end
+            
+
+        function updateRegion(obj, ~, ~)
+            %get work region from selector and update tabs
+            obj.workRegion = obj.regionList.Value;
+            obj.displayTabs
+        end
     end
 end
