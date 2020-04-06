@@ -92,7 +92,7 @@ classdef (Sealed) miepgui < handle
             
             %add toolbar to figure
             obj.tBar = uitoolbar(obj.fig);
-
+            
             %load folder icon and add to toolbar
             uipushtool(obj.tBar, 'CData', obj.miepIcons.file_open, 'TooltipString', 'Load Folder', 'ClickedCallback', @obj.guiLoadFolder);
             
@@ -135,7 +135,7 @@ classdef (Sealed) miepgui < handle
             Pos(2) = drawingArea(4) - 20 - 5; % position bottom
             Pos(3) = drawingArea(3)*3/4 - 5; %width
             Pos(4) = 20; %height
-            obj.regionList = uicontrol(obj.fig, 'Style', 'popupmenu', 'Units', 'pixels', 'Position', Pos);
+            obj.regionList = uicontrol(obj.fig, 'Style', 'popupmenu', 'Units', 'pixels', 'Position', Pos, 'Callback', @obj.updateRegion);
             obj.regionList.String = 'Select Region ...';
             
             %load work folder from settings
@@ -143,13 +143,6 @@ classdef (Sealed) miepgui < handle
         end
         
         function displayData(obj)
-            %display data
-            %clear current tabs
-            curTabs = fields(obj.tabs);
-            for i=1:size(curTabs, 1)
-                delete(obj.tabs.(curTabs{i}))
-            end
-            
             %display comment
             miepDate = obj.workFile(5:10);
             miepNumber = str2double(obj.workFile(11:13));
@@ -158,7 +151,7 @@ classdef (Sealed) miepgui < handle
             
             %display region list
             try
-                numRegions = size(obj.workData.header.Regions);
+                numRegions = size(obj.workData.header.Regions,2);
             catch
                 numRegions = 1;
             end
@@ -166,7 +159,7 @@ classdef (Sealed) miepgui < handle
                 obj.regionList.String = 'Region 1';
                 obj.regionList.Enable = 'off';
             else
-                newList = cell(numRegions);
+                newList = cell(numRegions,1);
                 for i = 1:numRegions
                     newList{i} = ['Region ', num2str(i)];
                 end
@@ -175,8 +168,20 @@ classdef (Sealed) miepgui < handle
             end
             obj.workRegion = 1;
             
+            %display Tabs
+            obj.displayTabs
+        end
+        
+        function displayTabs(obj)
+            %display data
+            %clear current tabs
+            curTabs = fields(obj.tabs);
+            for i=1:size(curTabs, 1)
+                delete(obj.tabs.(curTabs{i}))
+            end
+            
             %determine if specturm or image
-            if strcmp(obj.workData.header.Flags, 'Spectra')
+            if ~isempty(strfind(obj.workData.header.Flags, 'Spectra'))
                 mieptab(obj, 'spectrum');
                 obj.workTab = 'spectrum';
             else
@@ -189,6 +194,12 @@ classdef (Sealed) miepgui < handle
                     obj.workTab = 'movie';
                 end
             end
+        end
+        
+        function updateRegion(obj, ~, ~)
+            %get work region from selector and update tabs
+            obj.workRegion = obj.regionList.Value;
+            obj.displayTabs
         end
         
         showSettings(obj, ~, ~, ~) %show settings dialog
