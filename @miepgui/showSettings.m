@@ -18,7 +18,7 @@ figPos(3) = figSize(1); %width
 figPos(4) = figSize(2); %height
 
 %open figure
-settingsDialog = figure('Position', figPos, 'Resize', 'off', 'WindowStyle', 'modal', ...
+settingsDialog = dialog('Position', figPos, 'Resize', 'off', 'WindowStyle', 'modal', ...
     'DockControls', 'off', 'MenuBar', 'none', 'ToolBar', 'none', ...
     'NumberTitle', 'off', 'Name', 'MIEP - Settings');
 
@@ -142,6 +142,8 @@ frameRate = uicontrol('Style', 'slider', 'Min', 1, 'Max', 30, 'SliderStep', [1/2
         obj.settings.frameRate = round(frameRate.Value);
         %close dialog
         delete(settingsDialog)
+        %update display
+        obj.displayData
     end
     function butCancel(~, ~, ~)
         %Cancel Button
