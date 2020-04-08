@@ -94,8 +94,10 @@ classdef (Sealed) miepgui < handle
             exportMenuFile = uimenu(obj.menu, 'Text', 'Export to...');
             uimenu(exportMenuFile, 'Text', 'POV-Ray', 'MenuSelectedFcn', @obj.export2pov, 'Accelerator', 'E', 'Enable', 'off');
             uimenu(exportMenuFile, 'Text', 'CSV', 'MenuSelectedFcn', @obj.writeCSV, 'Accelerator', 'D', 'Enable', 'off');
-            
             uimenu(obj.menu, 'Text', 'Close', 'MenuSelectedFcn', @obj.guiFileClose, 'Accelerator', 'X');
+            
+            menuTools = uimenu(obj.fig, 'Text', 'Tools');
+            uimenu(menuTools, 'Text', 'XMCD', 'MenuSelectedFcn', @obj.showXMCDTool);
             
             menuHelp = uimenu(obj.fig, 'Text', '?');
             uimenu(menuHelp, 'Text', 'Info', 'MenuSelectedFcn', @obj.guiHelpInfo);
@@ -153,6 +155,8 @@ classdef (Sealed) miepgui < handle
         end
         
         showSettings(obj, ~, ~, ~) %show settings dialog
+        
+        showXMCDTool(obj, ~, ~, ~) %show XMCD tool
     end
     
     methods (Access = private)

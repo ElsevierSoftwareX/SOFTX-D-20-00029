@@ -9,22 +9,8 @@
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function loadFile(obj)
-    %check for sxm data file
-    dataPath = fullfile(obj.settings.dataFolder, strcat(obj.workFile, '.miep'));
-    if exist(dataPath, 'file')
-        %load existing sxmdata from file
-        load(dataPath, '-mat', 'data');
-        obj.workData = data;
-    else
-        %create new sxmdata from measurement data
-        %check single file
-        hdrFile = fullfile(obj.workFolder, strcat(obj.workFile, '.hdr'));
-        if ~exist(hdrFile, 'file')
-            %try multi energy folder
-            hdrFile = fullfile(obj.workFolder, obj.workFile, strcat(obj.workFile, '.hdr'));
-        end
-        obj.workData = sxmdata(hdrFile);
-    end
+    %load sxmdata for file
+    obj.workData = obj.loadSXMData(obj.workFile);
     
     %load miep file entry
     miepDate = obj.workFile(5:10);
