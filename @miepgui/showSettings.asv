@@ -41,10 +41,10 @@ curPos(1) = 5;
 curPos(2) = butPos(2) + butPos(4) + 5;
 curPos(3) = 120;
 curPos(4) = 20;
-uicontrol('Style', 'text', 'String', 'Export Folder:', 'Position', curPos, 'HorizontalAlignment', 'left');
+uicontrol('Style', 'text', 'String', 'Export Folder:', 'Position', curPos);
 curPos(1) = curPos(1) + curPos(3) + 5;
 curPos(3) = figSize(1) - 120 - 20 - 4*5;
-outputFolder = uicontrol('Style', 'edit', 'String', obj.settings.outputFolder, 'Position', curPos, 'HorizontalAlignment', 'left');
+outputFolder = uicontrol('Style', 'edit', 'String', obj.settings.outputFolder, 'Position', curPos);
 curPos(1) = curPos(1) + curPos(3) + 5;
 curPos(3) = 20;
 uicontrol('Style', 'pushbutton', 'Position', curPos, 'CData', iconLoad, 'Callback', @openOutputFolder);
@@ -54,10 +54,10 @@ curPos(1) = 5;
 curPos(2) = curPos(2) + curPos(4) +5;
 curPos(3) = 120;
 curPos(4) = 20;
-uicontrol('Style', 'text', 'String', 'Measurement List File:', 'Position', curPos, 'HorizontalAlignment', 'left');
+uicontrol('Style', 'text', 'String', 'Measurement List File:', 'Position', curPos);
 curPos(1) = curPos(1) + curPos(3) + 5;
 curPos(3) = figSize(1) - 120 - 20 - 4*5;
-miepFile = uicontrol('Style', 'edit', 'String', obj.settings.miepFile, 'Position', curPos, 'HorizontalAlignment', 'left');
+miepFile = uicontrol('Style', 'edit', 'String', obj.settings.miepFile, 'Position', curPos);
 curPos(1) = curPos(1) + curPos(3) + 5;
 curPos(3) = 20;
 uicontrol('Style', 'pushbutton', 'Position', curPos, 'CData', iconLoad, 'Callback', @openMiepFile);
@@ -67,10 +67,10 @@ curPos(1) = 5;
 curPos(2) = curPos(2) + curPos(4) +5;
 curPos(3) = 120;
 curPos(4) = 20;
-uicontrol('Style', 'text', 'String', 'Evaluation Data Folder:', 'Position', curPos, 'HorizontalAlignment', 'left');
+uicontrol('Style', 'text', 'String', 'Evaluation Data Folder:', 'Position', curPos);
 curPos(1) = curPos(1) + curPos(3) + 5;
 curPos(3) = figSize(1) - 120 - 20 - 4*5;
-dataFolder = uicontrol('Style', 'edit', 'String', obj.settings.dataFolder, 'Position', curPos, 'HorizontalAlignment', 'left');
+dataFolder = uicontrol('Style', 'edit', 'String', obj.settings.dataFolder, 'Position', curPos);
 curPos(1) = curPos(1) + curPos(3) + 5;
 curPos(3) = 20;
 uicontrol('Style', 'pushbutton', 'Position', curPos, 'CData', iconLoad, 'Callback', @openDataFolder);
@@ -80,10 +80,10 @@ curPos(1) = 5;
 curPos(2) = curPos(2) + curPos(4) +5;
 curPos(3) = 120;
 curPos(4) = 20;
-uicontrol('Style', 'text', 'String', 'SXM Data Folder:', 'Position', curPos, 'HorizontalAlignment', 'left');
+uicontrol('Style', 'text', 'String', 'SXM Data Folder:', 'Position', curPos);
 curPos(1) = curPos(1) + curPos(3) + 5;
 curPos(3) = figSize(1) - 120 - 20 - 4*5;
-inputFolder = uicontrol('Style', 'edit', 'String', obj.settings.inputFolder, 'Position', curPos, 'HorizontalAlignment', 'left');
+inputFolder = uicontrol('Style', 'edit', 'String', obj.settings.inputFolder, 'Position', curPos);
 curPos(1) = curPos(1) + curPos(3) + 5;
 curPos(3) = 20;
 uicontrol('Style', 'pushbutton', 'Position', curPos, 'CData', iconLoad, 'Callback', @openInputFolder);
@@ -93,40 +93,10 @@ curPos(1) = 5;
 curPos(2) = curPos(2) + curPos(4) +5;
 curPos(3) = 120;
 curPos(4) = 20;
-uicontrol('Style', 'text', 'String', 'k-Space Color Map:', 'Position', curPos, 'HorizontalAlignment', 'left');
+uicontrol('Style', 'text', 'String', 'k-Space Color Map:', 'Position', curPos);
 curPos(1) = curPos(1) + curPos(3) + 5;
 curPos(3) = figSize(1) - 120 - 3*5;
-kSpaceColorMap = uicontrol('Style', 'popupmenu', 'String', obj.settings.colorMaps, 'Value', obj.settings.kSpaceColorMap, 'Position', curPos);
-
-%movie color map
-curPos(1) = 5;
-curPos(2) = curPos(2) + curPos(4) +5;
-curPos(3) = 120;
-curPos(4) = 20;
-uicontrol('Style', 'text', 'String', 'Movie Color Map:', 'Position', curPos, 'HorizontalAlignment', 'left');
-curPos(1) = curPos(1) + curPos(3) + 5;
-curPos(3) = figSize(1) - 120 - 3*5;
-movieColorMap = uicontrol('Style', 'popupmenu', 'String', obj.settings.colorMaps, 'Value', obj.settings.movieColorMap, 'Position', curPos);
-
-%image color map
-curPos(1) = 5;
-curPos(2) = curPos(2) + curPos(4) +5;
-curPos(3) = 120;
-curPos(4) = 20;
-uicontrol('Style', 'text', 'String', 'Image Color Map:', 'Position', curPos, 'HorizontalAlignment', 'left');
-curPos(1) = curPos(1) + curPos(3) + 5;
-curPos(3) = figSize(1) - 120 - 3*5;
-imageColorMap = uicontrol('Style', 'popupmenu', 'String', obj.settings.colorMaps, 'Value', obj.settings.imageColorMap, 'Position', curPos);
-
-%frame rate
-curPos(1) = 5;
-curPos(2) = curPos(2) + curPos(4) +5;
-curPos(3) = 120;
-curPos(4) = 20;
-uicontrol('Style', 'text', 'String', 'Movie Frame Rate:', 'Position', curPos, 'HorizontalAlignment', 'left');
-curPos(1) = curPos(1) + curPos(3) + 5;
-curPos(3) = figSize(1) - 120 - 3*5;
-frameRate = uicontrol('Style', 'slider', 'Min', 1, 'Max', 30, 'SliderStep', [1/29 1/29], 'Value', obj.settings.frameRate, 'Position', curPos);
+kSpaceColorMap = uicontrol('Style', 'popupmenu', 'String', obj.settings.colorMaps, 'Position', curPos);
 
 %GUI Settings Dialog 'Callback'functions
     function butOK(~, ~, ~)
@@ -136,10 +106,6 @@ frameRate = uicontrol('Style', 'slider', 'Min', 1, 'Max', 30, 'SliderStep', [1/2
         obj.settings.miepFile = miepFile.String;
         obj.settings.dataFolder = dataFolder.String;
         obj.settings.outputFolder = outputFolder.String;
-        obj.settings.imageColorMap = imageColorMap.Value;
-        obj.settings.movieColorMap = movieColorMap.Value;
-        obj.settings.kSpaceColorMap = kSpaceColorMap.Value;
-        obj.settings.frameRate = round(frameRate.Value);
         %close dialog
         delete(settingsDialog)
     end

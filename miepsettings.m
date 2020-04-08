@@ -14,6 +14,14 @@ classdef miepsettings
         miepFile = []; %measurement master list
         dataFolder = []; %sxmdata storage folder
         outputFolder = []; %data export folder
+        imageColorMap = []; %color map for images
+        movieColorMap = []; %color map for movies
+        kSpaceColorMap = []; %color map for k-space
+        frameRate = []; %frame rate for videos
+    end
+    
+    properties (SetAccess = private)
+       colorMaps = {'parula', 'jet', 'hsv', 'hot', 'cool', 'spring', 'summer', 'autumn', 'winter', 'gray', 'bone', 'copper', 'pink', 'lines'}; %available color maps
     end
     
     methods
