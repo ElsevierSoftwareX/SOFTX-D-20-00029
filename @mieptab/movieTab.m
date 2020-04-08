@@ -133,7 +133,7 @@ movieRun
     function calculateSetSpeed(~, ~, ~)
         channel = obj.tabData.workChannel;
         %calculate and set speed
-            normMoviePeriod = 0.75;
+            normMoviePeriod = 0.75 * (30/miepGUIObj.settings.frameRate);
             if (channel == 1 || channel == 3 || channel == 4)
                 timerPeriod = normMoviePeriod/length(obj.uiHandles.frequencyList.String);
                 if length(obj.uiHandles.frequencyList.String) > 30
