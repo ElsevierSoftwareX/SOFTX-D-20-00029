@@ -53,7 +53,7 @@ if contains(flag, 'Spectra')
     end
     
     %write to file
-    writeFile(header, dataMat, [CSVFile '.txt'])
+    writeFile(obj, header, dataMat, [CSVFile '.txt'])
     
 elseif contains(flag, 'Image')
     %if image, export BBX and APD
@@ -61,7 +61,7 @@ elseif contains(flag, 'Image')
         for j = 1:length(obj.energies)
             header{2} = [obj.channels{i} ' ' obj.energies{j} ', Pixel by Pixel'];
             dataMat = obj.data(obj.channels{i}, j);
-            writeFile(header, dataMat, [CSVFile '_' obj.channels{i} '_' obj.energies{j} '.txt'])
+            writeFile(obj, header, dataMat, [CSVFile '_' obj.channels{i} '_' obj.energies{j} '.txt'])
         end
     end
     
@@ -87,14 +87,15 @@ elseif contains(flag, 'Image')
         %export each property
         for i = 1:length(headers)
             header{2} = headers{i};
-            writeFile(header, dataMats{i}, [CSVFile '_' fileEnding{i} '.txt'])    
+            writeFile(obj, header, dataMats{i}, [CSVFile '_' fileEnding{i} '.txt'])    
         end
     end
 end
 
 end
 
-function writeFile(header, dataMat, CSVFile)
+function writeFile(obj, header, dataMat, CSVFile)
+
 %export normal data
 if size(dataMat,3) == 1
     writeHeader(header, CSVFile)
@@ -106,8 +107,12 @@ else
         numheader{1} = insertAfter(header{1},'Frame',[' ' num2str(i)]);
         numheader{2} = header{2};
         %insert Frame number into file name
-        numCSVFile = insertBefore(CSVFile,'.',['_' num2str(i)]);
-        
+        if ~contains(CSVFile, '_f.txt')
+            numCSVFile = insertBefore(CSVFile,'.',['_' num2str(i)]);
+        else
+            freqStr = sprintf('%.2e',obj.eval('FrequencySpectrum').Frequency(i));
+            numCSVFile = insertBefore(CSVFile,'.',['_' freqStr]);
+        end
         %print header
         writeHeader(numheader, numCSVFile)
 
