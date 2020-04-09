@@ -97,6 +97,9 @@ classdef (Sealed) miepgui < handle
             
             uimenu(obj.menu, 'Text', 'Close', 'MenuSelectedFcn', @obj.guiFileClose, 'Accelerator', 'X');
             
+            menuTools = uimenu(obj.fig, 'Text', 'Tools');
+            uimenu(menuTools, 'Text', 'XMCD', 'MenuSelectedFcn', @obj.showXMCDTool);
+            
             menuHelp = uimenu(obj.fig, 'Text', '?');
             uimenu(menuHelp, 'Text', 'Info', 'MenuSelectedFcn', @obj.guiHelpInfo);
             
@@ -153,6 +156,8 @@ classdef (Sealed) miepgui < handle
         end
         
         showSettings(obj, ~, ~, ~) %show settings dialog
+        
+        showXMCDTool(obj, ~, ~, ~) %show XMCD tool
     end
     
     methods (Access = private)
@@ -256,34 +261,39 @@ classdef (Sealed) miepgui < handle
             %close old tabs to avoid error in timer function
             obj.closeTabs
             
-            %display comment
-            miepDate = obj.workFile(5:10);
-            miepNumber = str2double(obj.workFile(11:13));
-            miepEntry = obj.miepFile.readEntry(miepDate, miepNumber);
-            obj.comment.String = miepEntry.Comment;
-            
-            %display region list
-            try
-                numRegions = size(obj.workData.header.Regions,2);
-            catch
-                numRegions = 1;
-            end
-            if numRegions == 1
-                obj.regionList.String = 'Region 1';
-                obj.regionList.Enable = 'off';
+            if isempty(obj.workFile)
+                %if no file is loaded show startup tab
+                mieptab(obj, 'miep');
             else
-                newList = cell(numRegions,1);
-                for i = 1:numRegions
-                    newList{i} = ['Region ', num2str(i)];
+                %display comment
+                miepDate = obj.workFile(5:10);
+                miepNumber = str2double(obj.workFile(11:13));
+                miepEntry = obj.miepFile.readEntry(miepDate, miepNumber);
+                obj.comment.String = miepEntry.Comment;
+                
+                %display region list
+                try
+                    numRegions = size(obj.workData.header.Regions,2);
+                catch
+                    numRegions = 1;
                 end
-                obj.regionList.String = newList;
-                obj.regionList.Enable = 'on';
+                if numRegions == 1
+                    obj.regionList.String = 'Region 1';
+                    obj.regionList.Enable = 'off';
+                else
+                    newList = cell(numRegions,1);
+                    for i = 1:numRegions
+                        newList{i} = ['Region ', num2str(i)];
+                    end
+                    obj.regionList.String = newList;
+                    obj.regionList.Enable = 'on';
+                end
+                obj.workRegion = 1;
+                
+                %display Tabs and update export menu
+                obj.displayTabs
+                obj.updateExportMenu
             end
-            obj.workRegion = 1;
-            
-            %display Tabs and update export menu
-            obj.displayTabs
-            obj.updateExportMenu
         end
         
         function closeTabs(obj)

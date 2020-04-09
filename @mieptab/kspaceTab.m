@@ -89,7 +89,7 @@ obj.tabData.workChannel = 1; %use tabData to store current channel
 
 %% support functions
     function fftDraw(varargin)
-
+        
         data = miepGUIObj.workData.eval('SpatialFFT').kImages;
         slice = obj.tabData.workSlice;
         fftData = abs(data(:,:,slice));
@@ -99,27 +99,28 @@ obj.tabData.workChannel = 1; %use tabData to store current channel
                 obj.uiHandles.imageSurf.ZData = fftData;
             end
         catch
-        ax = obj.uiHandles.fftAxes;
-        
-        
-        kx = obj.miepGUIObj.workData.eval('SpatialFFT').kxAxis;
-        ky = obj.miepGUIObj.workData.eval('SpatialFFT').kyAxis;
-        obj.uiHandles.imageSurf = surf(ax, kx, ky, fftData, 'edgecolor', 'none');
-        view(ax,2)
-        ax.PlotBoxAspectRatio = [1 1 1];
-        ax.XLim = [min(kx) max(kx)];
-        ax.YLim = [min(ky) max(ky)];
-        
-        colorbar(ax)
-        
-        %add ticks, labels, ect.
-        ax.Color = obj.tabHandle.BackgroundColor;
-        ax.Box = 'on';
-        ax.TickDir = 'out';
-        ax.Layer = 'top';
-        ax.XLabel.String = '{\it k_x} [1/µm]';
-        ax.YLabel.String = '{\it k_y} [1/µm]';
-        obj.uiHandles.movie.CDataMapping = 'scaled';
+            ax = obj.uiHandles.fftAxes;
+            
+            
+            kx = obj.miepGUIObj.workData.eval('SpatialFFT').kxAxis;
+            ky = obj.miepGUIObj.workData.eval('SpatialFFT').kyAxis;
+            obj.uiHandles.imageSurf = surf(ax, kx, ky, fftData, 'edgecolor', 'none');
+            view(ax,2)
+            ax.PlotBoxAspectRatio = [1 1 1];
+            ax.XLim = [min(kx) max(kx)];
+            ax.YLim = [min(ky) max(ky)];
+            
+            colorbar(ax)
+            colormap(ax, miepGUIObj.settings.colorMaps{miepGUIObj.settings.kSpaceColorMap})
+            
+            %add ticks, labels, ect.
+            ax.Color = obj.tabHandle.BackgroundColor;
+            ax.Box = 'on';
+            ax.TickDir = 'out';
+            ax.Layer = 'top';
+            ax.XLabel.String = '{\it k_x} [1/µm]';
+            ax.YLabel.String = '{\it k_y} [1/µm]';
+            obj.uiHandles.movie.CDataMapping = 'scaled';
         end
     end
 

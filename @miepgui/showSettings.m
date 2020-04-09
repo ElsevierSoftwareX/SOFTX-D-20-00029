@@ -11,14 +11,14 @@ function showSettings(obj, ~, ~, ~)
 
 %determine figure position from screen size
 screenSize = get(0, 'ScreenSize');
-figSize = [600 130]; %figure width height
+figSize = [400 230]; %figure width height
 figPos(1) = screenSize(3)/2-figSize(1)/2; %position left
 figPos(2) = screenSize(4)/2-figSize(2)/2; %position bottom
 figPos(3) = figSize(1); %width
 figPos(4) = figSize(2); %height
 
 %open figure
-settingsDialog = figure('Position', figPos, 'Resize', 'off', 'WindowStyle', 'modal', ...
+settingsDialog = dialog('Position', figPos, 'Resize', 'off', 'WindowStyle', 'modal', ...
     'DockControls', 'off', 'MenuBar', 'none', 'ToolBar', 'none', ...
     'NumberTitle', 'off', 'Name', 'MIEP - Settings');
 
@@ -41,10 +41,10 @@ curPos(1) = 5;
 curPos(2) = butPos(2) + butPos(4) + 5;
 curPos(3) = 120;
 curPos(4) = 20;
-uicontrol('Style', 'text', 'String', 'Export Folder:', 'Position', curPos);
+uicontrol('Style', 'text', 'String', 'Export Folder:', 'Position', curPos, 'HorizontalAlignment', 'left');
 curPos(1) = curPos(1) + curPos(3) + 5;
 curPos(3) = figSize(1) - 120 - 20 - 4*5;
-outputFolder = uicontrol('Style', 'edit', 'String', obj.settings.outputFolder, 'Position', curPos);
+outputFolder = uicontrol('Style', 'edit', 'String', obj.settings.outputFolder, 'Position', curPos, 'HorizontalAlignment', 'left');
 curPos(1) = curPos(1) + curPos(3) + 5;
 curPos(3) = 20;
 uicontrol('Style', 'pushbutton', 'Position', curPos, 'CData', iconLoad, 'Callback', @openOutputFolder);
@@ -54,10 +54,10 @@ curPos(1) = 5;
 curPos(2) = curPos(2) + curPos(4) +5;
 curPos(3) = 120;
 curPos(4) = 20;
-uicontrol('Style', 'text', 'String', 'Measurement List File:', 'Position', curPos);
+uicontrol('Style', 'text', 'String', 'Measurement List File:', 'Position', curPos, 'HorizontalAlignment', 'left');
 curPos(1) = curPos(1) + curPos(3) + 5;
 curPos(3) = figSize(1) - 120 - 20 - 4*5;
-miepFile = uicontrol('Style', 'edit', 'String', obj.settings.miepFile, 'Position', curPos);
+miepFile = uicontrol('Style', 'edit', 'String', obj.settings.miepFile, 'Position', curPos, 'HorizontalAlignment', 'left');
 curPos(1) = curPos(1) + curPos(3) + 5;
 curPos(3) = 20;
 uicontrol('Style', 'pushbutton', 'Position', curPos, 'CData', iconLoad, 'Callback', @openMiepFile);
@@ -67,10 +67,10 @@ curPos(1) = 5;
 curPos(2) = curPos(2) + curPos(4) +5;
 curPos(3) = 120;
 curPos(4) = 20;
-uicontrol('Style', 'text', 'String', 'Evaluation Data Folder:', 'Position', curPos);
+uicontrol('Style', 'text', 'String', 'Evaluation Data Folder:', 'Position', curPos, 'HorizontalAlignment', 'left');
 curPos(1) = curPos(1) + curPos(3) + 5;
 curPos(3) = figSize(1) - 120 - 20 - 4*5;
-dataFolder = uicontrol('Style', 'edit', 'String', obj.settings.dataFolder, 'Position', curPos);
+dataFolder = uicontrol('Style', 'edit', 'String', obj.settings.dataFolder, 'Position', curPos, 'HorizontalAlignment', 'left');
 curPos(1) = curPos(1) + curPos(3) + 5;
 curPos(3) = 20;
 uicontrol('Style', 'pushbutton', 'Position', curPos, 'CData', iconLoad, 'Callback', @openDataFolder);
@@ -80,13 +80,53 @@ curPos(1) = 5;
 curPos(2) = curPos(2) + curPos(4) +5;
 curPos(3) = 120;
 curPos(4) = 20;
-uicontrol('Style', 'text', 'String', 'SXM Data Folder:', 'Position', curPos);
+uicontrol('Style', 'text', 'String', 'SXM Data Folder:', 'Position', curPos, 'HorizontalAlignment', 'left');
 curPos(1) = curPos(1) + curPos(3) + 5;
 curPos(3) = figSize(1) - 120 - 20 - 4*5;
-inputFolder = uicontrol('Style', 'edit', 'String', obj.settings.inputFolder, 'Position', curPos);
+inputFolder = uicontrol('Style', 'edit', 'String', obj.settings.inputFolder, 'Position', curPos, 'HorizontalAlignment', 'left');
 curPos(1) = curPos(1) + curPos(3) + 5;
 curPos(3) = 20;
 uicontrol('Style', 'pushbutton', 'Position', curPos, 'CData', iconLoad, 'Callback', @openInputFolder);
+
+%k-space color map
+curPos(1) = 5;
+curPos(2) = curPos(2) + curPos(4) +5;
+curPos(3) = 120;
+curPos(4) = 20;
+uicontrol('Style', 'text', 'String', 'k-Space Color Map:', 'Position', curPos, 'HorizontalAlignment', 'left');
+curPos(1) = curPos(1) + curPos(3) + 5;
+curPos(3) = figSize(1) - 120 - 3*5;
+kSpaceColorMap = uicontrol('Style', 'popupmenu', 'String', obj.settings.colorMaps, 'Value', obj.settings.kSpaceColorMap, 'Position', curPos);
+
+%movie color map
+curPos(1) = 5;
+curPos(2) = curPos(2) + curPos(4) +5;
+curPos(3) = 120;
+curPos(4) = 20;
+uicontrol('Style', 'text', 'String', 'Movie Color Map:', 'Position', curPos, 'HorizontalAlignment', 'left');
+curPos(1) = curPos(1) + curPos(3) + 5;
+curPos(3) = figSize(1) - 120 - 3*5;
+movieColorMap = uicontrol('Style', 'popupmenu', 'String', obj.settings.colorMaps, 'Value', obj.settings.movieColorMap, 'Position', curPos);
+
+%image color map
+curPos(1) = 5;
+curPos(2) = curPos(2) + curPos(4) +5;
+curPos(3) = 120;
+curPos(4) = 20;
+uicontrol('Style', 'text', 'String', 'Image Color Map:', 'Position', curPos, 'HorizontalAlignment', 'left');
+curPos(1) = curPos(1) + curPos(3) + 5;
+curPos(3) = figSize(1) - 120 - 3*5;
+imageColorMap = uicontrol('Style', 'popupmenu', 'String', obj.settings.colorMaps, 'Value', obj.settings.imageColorMap, 'Position', curPos);
+
+%frame rate
+curPos(1) = 5;
+curPos(2) = curPos(2) + curPos(4) +5;
+curPos(3) = 120;
+curPos(4) = 20;
+uicontrol('Style', 'text', 'String', 'Movie Frame Rate:', 'Position', curPos, 'HorizontalAlignment', 'left');
+curPos(1) = curPos(1) + curPos(3) + 5;
+curPos(3) = figSize(1) - 120 - 3*5;
+frameRate = uicontrol('Style', 'slider', 'Min', 1, 'Max', 30, 'SliderStep', [1/29 1/29], 'Value', obj.settings.frameRate, 'Position', curPos);
 
 %GUI Settings Dialog 'Callback'functions
     function butOK(~, ~, ~)
@@ -96,8 +136,14 @@ uicontrol('Style', 'pushbutton', 'Position', curPos, 'CData', iconLoad, 'Callbac
         obj.settings.miepFile = miepFile.String;
         obj.settings.dataFolder = dataFolder.String;
         obj.settings.outputFolder = outputFolder.String;
+        obj.settings.imageColorMap = imageColorMap.Value;
+        obj.settings.movieColorMap = movieColorMap.Value;
+        obj.settings.kSpaceColorMap = kSpaceColorMap.Value;
+        obj.settings.frameRate = round(frameRate.Value);
         %close dialog
         delete(settingsDialog)
+        %update display
+        obj.displayData
     end
     function butCancel(~, ~, ~)
         %Cancel Button
