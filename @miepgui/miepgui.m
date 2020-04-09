@@ -92,7 +92,7 @@ classdef (Sealed) miepgui < handle
             obj.menu = uimenu(obj.fig, 'Text', 'File');
             uimenu(obj.menu, 'Text', 'Settings', 'MenuSelectedFcn', @obj.showSettings);
             exportMenuFile = uimenu(obj.menu, 'Text', 'Export to...');
-            uimenu(exportMenuFile, 'Text', 'POV-Ray', 'MenuSelectedFcn', @obj.export2pov, 'Accelerator', 'E', 'Enable', 'off');
+            uimenu(exportMenuFile, 'Text', 'POV-Ray', 'MenuSelectedFcn', @obj.writePOV, 'Accelerator', 'E', 'Enable', 'off');
             uimenu(exportMenuFile, 'Text', 'CSV', 'MenuSelectedFcn', @obj.writeCSV, 'Accelerator', 'D', 'Enable', 'off');
 
             uimenu(obj.menu, 'Text', 'Close', 'MenuSelectedFcn', @obj.guiFileClose, 'Accelerator', 'X');
@@ -281,7 +281,7 @@ classdef (Sealed) miepgui < handle
 
         function writePOV(obj, ~, ~)
             %export fft movie to POV-Ray function
-            export2pov(obj.workData, obj.tabs.movie.uiHandles.frequencyList.Value, obj.settings.outputFolder)
+            writePOV(obj.workData, obj.tabs.movie.uiHandles.frequencyList.Value, obj.settings.outputFolder)
         end
         
         function writeCSV(obj, ~, ~)

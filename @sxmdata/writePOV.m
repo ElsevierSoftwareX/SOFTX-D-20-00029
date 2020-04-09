@@ -410,7 +410,7 @@ function writePov(M, X, Y, cellM, cellX, cellY, xRes, yRes, frequency, field, ou
     fprintf(fid, 'scale <%d,%d,2*%d> translate<-maxX+%d,0,0>}\n', tipscale,arrowDiameter,arrowDiameter,tipscale);
     %move union
     fprintf(fid, 'rotate<0,0,0> translate<0,boxshift + boxThickness/2,maxY+5*%d>\n', arrowDiameter);
-    fprintf(fid, 'texture{ pigment{ color rgb<0,0,0.7>} \n');
+    fprintf(fid, 'texture{ pigment{ color rgb<0,0,0>} \n');
     fprintf(fid, 'finish { reflection 0 phong 1} }\n');
     fprintf(fid, '}\n\n');
 
@@ -426,7 +426,7 @@ function writePov(M, X, Y, cellM, cellX, cellY, xRes, yRes, frequency, field, ou
     fprintf(fid, 'scale <2*%d,%d,%d> translate<0,0,-maxY+%d>}\n', arrowDiameter,arrowDiameter, tipscale,tipscale);
     %move union
     fprintf(fid, 'rotate<0,0,0> translate<maxX+5*%d,boxshift + boxThickness/2,0>\n', arrowDiameter);
-    fprintf(fid, 'texture{ pigment{ color rgb<0,0,0.7>} \n');
+    fprintf(fid, 'texture{ pigment{ color rgb<0,0,0>} \n');
     fprintf(fid, 'finish { reflection 0 phong 1} }\n');
     fprintf(fid, '}\n\n');
     
@@ -435,13 +435,13 @@ function writePov(M, X, Y, cellM, cellX, cellY, xRes, yRes, frequency, field, ou
 
     fprintf(fid, 'text{\n');
     fprintf(fid, 'ttf "arial.ttf" "%s µm" 1, 0\n', num2str(round(size(M,2)*yRes,3,'significant')));
-    fprintf(fid, 'texture{ pigment{ color rgb<0,0,0.7>}\n');
+    fprintf(fid, 'texture{ pigment{ color rgb<0,0,0>}\n');
     fprintf(fid, 'finish { reflection 0 phong 1} }\n');
     fprintf(fid, 'scale %d/20*<1,1,0.15> rotate<0,-90,90> translate<maxX+20*%d,boxshift + boxThickness/2,maxY/2>\n', size(M,2)*yRes, arrowDiameter);
     fprintf(fid, '}');
     fprintf(fid, 'text{');
     fprintf(fid, 'ttf "arial.ttf" "%s µm" 1, 0\n', num2str(round(size(M,3)*xRes,3,'significant')));
-    fprintf(fid, 'texture{ pigment{ color rgb<0,0,0.7>}\n');
+    fprintf(fid, 'texture{ pigment{ color rgb<0,0,0>}\n');
     fprintf(fid, 'finish { reflection 0 phong 1} }\n');
     fprintf(fid, 'scale %d/20*<1,1,0.15> rotate<0,-90,90> translate<3*maxX/4,boxshift + boxThickness/2,maxY+10*%d>\n', size(M,2)*yRes, arrowDiameter);
     fprintf(fid, '}');
@@ -449,13 +449,13 @@ function writePov(M, X, Y, cellM, cellX, cellY, xRes, yRes, frequency, field, ou
     %print B & f
     fprintf(fid, 'text{\n');
     fprintf(fid, 'ttf "arial.ttf" "f = %s" 1, 0\n', frequency);
-    fprintf(fid, 'texture{ pigment{ color rgb<0,0,0.7>}\n');
+    fprintf(fid, 'texture{ pigment{ color rgb<0,0,0>}\n');
     fprintf(fid, 'finish { reflection 0 phong 1} }\n');
     fprintf(fid, 'scale %d/20*<1,1,0.15> rotate<0,-90,90> translate<maxX+20*%d,boxshift + boxThickness/2,-maxY/2>\n', size(M,2)*yRes, arrowDiameter);
     fprintf(fid, '}\n');
     fprintf(fid, 'text{\n');
     fprintf(fid, 'ttf "arial.ttf" "B = %s" 1, 0\n', field);
-    fprintf(fid, 'texture{ pigment{ color rgb<0,0,0.7>}\n');
+    fprintf(fid, 'texture{ pigment{ color rgb<0,0,0>}\n');
     fprintf(fid, 'finish { reflection 0 phong 1} }\n');
     fprintf(fid, 'scale %d/20*<1,1,0.15> rotate<0,-90,90> translate<maxX+35*%d,boxshift + boxThickness/2,-maxY/2>\n', size(M,2)*yRes, arrowDiameter);
     fprintf(fid, '}\n');
