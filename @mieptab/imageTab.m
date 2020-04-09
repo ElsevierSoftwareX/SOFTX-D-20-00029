@@ -114,6 +114,8 @@ obj.tabData.workChannel = 1; %use tabData to store current channel
             
             ax.XLabel.String = '{\it x} [µm]';
             ax.YLabel.String = '{\it y} [µm]';
+            
+            colormap(ax, miepGUIObj.settings.colorMaps{miepGUIObj.settings.imageColorMap})
         end
     end
 

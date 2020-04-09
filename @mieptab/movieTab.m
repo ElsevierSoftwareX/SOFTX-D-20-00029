@@ -130,15 +130,10 @@ movieRun
     end
 
 %% support functions
-    function iconDir = getIconDir
-        %find directory of miepgui and therefore icon directory
-        miepDir = split(which('miepgui.m'), '@');
-        iconDir = fullfile(miepDir{1}, 'icons');
-    end
     function calculateSetSpeed(~, ~, ~)
         channel = obj.tabData.workChannel;
         %calculate and set speed
-            normMoviePeriod = 0.75;
+            normMoviePeriod = 0.75 * (30/miepGUIObj.settings.frameRate);
             if (channel == 1 || channel == 3 || channel == 4)
                 timerPeriod = normMoviePeriod/length(obj.uiHandles.frequencyList.String);
                 if length(obj.uiHandles.frequencyList.String) > 30
@@ -164,7 +159,7 @@ movieRun
         x = linspace(xMin, xMax, xPoints)-xMin;
         y = linspace(yMin, yMax, yPoints)-yMin;
         %reset the color map in case it was changed by the hsv plot
-        colormap(obj.uiHandles.movieAxes, parula)
+        colormap(obj.uiHandles.movieAxes, miepGUIObj.settings.colorMaps{miepGUIObj.settings.movieColorMap})
         try
             if ishandle(obj.uiHandles.imageSurf)
                 surfDraw(true, energy, channel, x, y)
