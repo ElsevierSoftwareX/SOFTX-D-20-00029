@@ -8,8 +8,7 @@ if isempty(varargin)
         return
     end
 elseif length(varargin) == 1
-    
-    outpath = [varargin{1} '\Export'];
+    outpath = varargin{1};
 else
     errordlg('Please enter Output Path', 'Error')
     return
@@ -39,7 +38,7 @@ flag = obj.header.Flags;
 header{1} = [flag ' ' scannumber];
 
 %if spectrum export all channels, APD and VCO
-if strcmp(flag, 'Spectra') || strcmp(flag, 'Multi-Region Spectra')
+if contains(flag, 'Spectra')
     energy = obj.data('Energy');
     
     
@@ -56,7 +55,7 @@ if strcmp(flag, 'Spectra') || strcmp(flag, 'Multi-Region Spectra')
     %write to file
     writeFile(header, dataMat, [CSVFile '.txt'])
     
-elseif strcmp(flag, 'Image') || strcmp(flag, 'Image Stack') 
+elseif contains(flag, 'Image')
     %if image, export BBX and APD
     for i = 1:length(obj.channels)
         for j = 1:length(obj.energies)
