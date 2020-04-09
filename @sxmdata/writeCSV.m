@@ -39,7 +39,7 @@ flag = obj.header.Flags;
 header{1} = [flag ' ' scannumber];
 
 %if spectrum export all channels, APD and VCO
-if strcmp(flag, 'Spectra')
+if strcmp(flag, 'Spectra') || strcmp(flag, 'Multi-Region Spectra')
     energy = obj.data('Energy');
     
     
@@ -47,20 +47,23 @@ if strcmp(flag, 'Spectra')
     dataMat = energy;
     
     for i = 1:length(obj.channels)
-        header{2} = [header{2} ',' obj.channels{i}];
-        dataMat = [dataMat obj.data(obj.channels{i})];
+        for j = 1:length(obj.header.Regions)
+            header{2} = [header{2} ',' obj.channels{i} ' Region ' num2str(j)];
+            dataMat = [dataMat obj.data(obj.channels{i},1,j)];
+        end
     end
     
     %write to file
     writeFile(header, dataMat, [CSVFile '.txt'])
     
-elseif strcmp(flag, 'Image')
+elseif strcmp(flag, 'Image') || strcmp(flag, 'Image Stack') 
     %if image, export BBX and APD
     for i = 1:length(obj.channels)
-        header{2} = [obj.channels{i} ', Pixel by Pixel'];
-        dataMat = obj.data(obj.channels{i});
-        
-        writeFile(header, dataMat, [CSVFile '_' obj.channels{i} '.txt'])
+        for j = 1:length(obj.energies)
+            header{2} = [obj.channels{i} ' ' obj.energies{j} ', Pixel by Pixel'];
+            dataMat = obj.data(obj.channels{i}, j);
+            writeFile(header, dataMat, [CSVFile '_' obj.channels{i} '_' obj.energies{j} '.txt'])
+        end
     end
     
     %If movie, also export RawMovie and Normalized Movie
