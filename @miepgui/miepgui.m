@@ -279,7 +279,7 @@ classdef (Sealed) miepgui < handle
             obj.miepFile.writeEntry(miepDate, miepEntry)
         end
 
-        function export2pov(obj, ~, ~)
+        function writePOV(obj, ~, ~)
             %export fft movie to POV-Ray function
             export2pov(obj.workData, obj.tabs.movie.uiHandles.frequencyList.Value, obj.settings.outputFolder)
         end

@@ -1,4 +1,4 @@
-function export2pov(obj, varargin)
+function writePOV(obj, varargin)
 %Function to export MIEP data to PovRay, requires working PovRay installation
     %check if BBX exists for this data
     if ~any(strcmp(obj.channels,'BBX'))
