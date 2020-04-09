@@ -288,6 +288,7 @@ classdef (Sealed) miepgui < handle
                     obj.regionList.String = newList;
                     obj.regionList.Enable = 'on';
                 end
+                obj.regionList.Value = 1;
                 obj.workRegion = 1;
                 
                 %display Tabs and update export menu
