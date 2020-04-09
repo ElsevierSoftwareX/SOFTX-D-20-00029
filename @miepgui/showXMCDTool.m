@@ -13,7 +13,9 @@ function showXMCDTool(obj, ~, ~, ~)
 [file1, file2] = selectSXMData;
 
 %load data
-if ~isempty(file1) && ~isempty(file2)
+if isempty(file1) || isempty(file2)
+	return
+else
     data1 = obj.loadSXMData(file1);
     data2 = obj.loadSXMData(file2);
 end
@@ -21,22 +23,57 @@ end
 %show dialog to select channel
 [channel1, channel2] = selectChannel;
 
+%load data
+if isempty(channel1) || isempty(channel2)
+	return
+end
+
 %evaluate data
 if ~isempty(channel1) && ~isempty(channel2)
     if ~strcmp(data1.header.Flags, data2.header.Flags)
         errordlg('Incomptabile data flags', 'MIEP - XMCD Tool')
     end
     try
-        xmcdSignal = (data1.data(channel1) - data2.data(channel2)) ./ (data1.data(channel1) + data2.data(channel2));
         newFigure = figure;
+        xmcdSignal = (data1.data(channel1) - data2.data(channel2)) ./ (data1.data(channel1) + data2.data(channel2));
         newAxes = axes(newFigure);
         switch data1.header.Flags
             case 'Image'
-                imagesc(newAxes, xmcdSignal)
+                xMin = data1.header.Regions(1).PAxis.Min;
+                xMax = data1.header.Regions(1).PAxis.Max;
+                xPoints = data1.header.Regions(1).PAxis.Points;
+                yMin = data1.header.Regions(1).QAxis.Min;
+                yMax = data1.header.Regions(1).QAxis.Max;
+                yPoints = data1.header.Regions(1).QAxis.Points;
+                x = linspace(xMin, xMax, xPoints)-xMin;
+                y = linspace(yMin, yMax, yPoints)-yMin;
+            
+                surf(newAxes, x, y, xmcdSignal, 'edgecolor', 'none');
+                        
+                view(newAxes, 2)
+
+                newAxes.XLim = [min(x) max(x)];
+                newAxes.YLim = [min(y) max(y)];
+
+                newAxes.Box = 'on';
+                newAxes.DataAspectRatio = [1 1 1];
+                newAxes.TickDir = 'out';
+                newAxes.Layer = 'top';
+
+                newAxes.XLabel.String = '{\it x} [µm]';
+                newAxes.YLabel.String = '{\it y} [µm]';
             case 'Spectra'
                 plot(newAxes, data1.data('Energy'), xmcdSignal)
+                
+                newAxes.TickDir = 'out';
+                xLabel = data1.header.Regions(1).PAxis.Name;
+                xUnit = data1.header.Regions(1).PAxis.Unit;
+                yLabel = 'XMCD';
+                yUnit = 'a.u.';
+                newAxes.XLabel.String = [xLabel ' [' xUnit ']'];
+                newAxes.YLabel.String = [yLabel ' [' yUnit ']'];
+
             otherwise
-                delete(newFigure)
                 warndlg('Data flag not supported', 'MIEP - XMCD Tool')
         end
     catch
@@ -83,7 +120,7 @@ end
         
         %wait for selection
         uiwait(d)
-        
+
         function guiNext(~, ~, ~)
             %evaluate dialog input
             file1 = select1.String{select1.Value};
