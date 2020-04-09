@@ -242,6 +242,7 @@ classdef (Sealed) miepgui < handle
         
         function updateRegion(obj, ~, ~)
             %get work region from selector and update tabs
+            obj.closeTabs
             obj.workRegion = obj.regionList.Value;
             obj.displayTabs
         end
