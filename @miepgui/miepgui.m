@@ -94,6 +94,7 @@ classdef (Sealed) miepgui < handle
             exportMenuFile = uimenu(obj.menu, 'Text', 'Export to...');
             uimenu(exportMenuFile, 'Text', 'POV-Ray', 'MenuSelectedFcn', @obj.writePOV, 'Accelerator', 'E', 'Enable', 'off');
             uimenu(exportMenuFile, 'Text', 'CSV', 'MenuSelectedFcn', @obj.writeCSV, 'Accelerator', 'D', 'Enable', 'off');
+            uimenu(exportMenuFile, 'Text', 'JPG', 'MenuSelectedFcn', @obj.writeJPG, 'Accelerator', 'F', 'Enable', 'off');
             
             uimenu(obj.menu, 'Text', 'Close', 'MenuSelectedFcn', @obj.guiFileClose, 'Accelerator', 'X');
             
@@ -244,7 +245,10 @@ classdef (Sealed) miepgui < handle
             %export data to csv format
             writeCSV(obj.workData, obj.settings.outputFolder)
         end
-        
+        function writeJPG(obj, ~, ~)
+            %export data to csv format
+            writeJPG(obj.workData, obj.settings.outputFolder)
+        end        
         function updateRegion(obj, ~, ~)
             %get work region from selector and update tabs
             obj.closeTabs
@@ -334,7 +338,9 @@ classdef (Sealed) miepgui < handle
             
             %always on menus
             csvMenu = findobj(obj.menu.Children, 'Text', 'CSV');
+            jpgMenu = findobj(obj.menu.Children, 'Text', 'JPG');
             csvMenu.Enable = 'on';
+            jpgMenu.Enable = 'on';
             
             %determine if specturm or image
             if ~isempty(strfind(obj.workData.header.Flags, 'Spectra'))
