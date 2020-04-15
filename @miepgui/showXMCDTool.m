@@ -60,9 +60,10 @@ end
 
 %show XMCD result
 newFigure = figure;
-newAxes = axes(newFigure);
+
 switch data1.header.Flags
     case 'Image'
+        
         xMin = data1.header.Regions(1).PAxis.Min;
         xMax = data1.header.Regions(1).PAxis.Max;
         xPoints = data1.header.Regions(1).PAxis.Points;
@@ -72,26 +73,58 @@ switch data1.header.Flags
         x = linspace(xMin, xMax, xPoints)-xMin;
         y = linspace(yMin, yMax, yPoints)-yMin;
         
-        surf(newAxes, x, y, xmcdSignal, 'edgecolor', 'none');
-        view(newAxes, 2)
-        newAxes.XLim = [min(x) max(x)];
-        newAxes.YLim = [min(y) max(y)];
-        newAxes.Box = 'on';
-        newAxes.DataAspectRatio = [1 1 1];
-        newAxes.TickDir = 'out';
-        newAxes.Layer = 'top';
-        newAxes.XLabel.String = '{\it x} [µm]';
-        newAxes.YLabel.String = '{\it y} [µm]';
+        sub1 = subplot(2,2,1);
+        surf(sub1, x, y, xas1, 'edgecolor', 'none');
+        sub1.Title.String = 'XAS 1';
+        
+        sub2 = subplot(2,2,3);
+        surf(sub2, x, y, xas2, 'edgecolor', 'none');
+        sub2.Title.String = 'XAS 2';
+        
+        sub3 = subplot(1,2,2);
+        surf(sub3, x, y, xmcdSignal, 'edgecolor', 'none');
+        sub3.Title.String = 'XMCD';
+        
+        for i = 1:length(newFigure.Children)
+            newFigure.Children(i).View = [0 90];
+            newFigure.Children(i).XLim = [min(x) max(x)];
+            newFigure.Children(i).YLim = [min(y) max(y)];
+            newFigure.Children(i).Box = 'on';
+            newFigure.Children(i).DataAspectRatio = [1 1 1];
+            newFigure.Children(i).TickDir = 'out';
+            newFigure.Children(i).Layer = 'top';
+            newFigure.Children(i).XLabel.String = '{\it x} [µm]';
+            newFigure.Children(i).YLabel.String = '{\it y} [µm]';
+            newFigure.Children(i).Colormap = eval(obj.settings.colorMaps{obj.settings.imageColorMap});
+        end
+        
     case 'Spectra'
+        sub1 = subplot(2,1,1);
+        xLabel = data1.header.Regions(1).PAxis.Name;
+        xUnit = data1.header.Regions(1).PAxis.Unit;
+        yLabel = 'XAS';
+        yUnit = 'counts';
+        
+        plot(sub1, data1.data('Energy'), xas1)
+        hold on
+        plot(sub1, data1.data('Energy'), xas2)
+        hold off
+        sub1.TickDir = 'out';
+        sub1.XLabel.String = [xLabel ' [' xUnit ']'];
+        sub1.YLabel.String = [yLabel ' [' yUnit ']'];
+        
+        legend(data1.header.Label, data2.header.Label, 'interpreter', 'none')
+        
+        sub2 = subplot(2,1,2);
         xLabel = data1.header.Regions(1).PAxis.Name;
         xUnit = data1.header.Regions(1).PAxis.Unit;
         yLabel = 'XMCD';
         yUnit = 'a.u.';
         
-        plot(newAxes, data1.data('Energy'), xmcdSignal)
-        newAxes.TickDir = 'out';
-        newAxes.XLabel.String = [xLabel ' [' xUnit ']'];
-        newAxes.YLabel.String = [yLabel ' [' yUnit ']'];
+        plot(sub2, data1.data('Energy'), xmcdSignal)
+        sub2.TickDir = 'out';
+        sub2.XLabel.String = [xLabel ' [' xUnit ']'];
+        sub2.YLabel.String = [yLabel ' [' yUnit ']'];
     otherwise
         warndlg('Data flag not supported', 'MIEP - XMCD Tool')
 end
