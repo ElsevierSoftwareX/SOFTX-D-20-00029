@@ -92,9 +92,10 @@ classdef (Sealed) miepgui < handle
             obj.menu = uimenu(obj.fig, 'Text', 'File');
             uimenu(obj.menu, 'Text', 'Settings', 'MenuSelectedFcn', @obj.showSettings);
             exportMenuFile = uimenu(obj.menu, 'Text', 'Export to...');
-            uimenu(exportMenuFile, 'Text', 'POV-Ray', 'MenuSelectedFcn', @obj.writePOV, 'Accelerator', 'E', 'Enable', 'off');
             uimenu(exportMenuFile, 'Text', 'CSV', 'MenuSelectedFcn', @obj.writeCSV, 'Accelerator', 'D', 'Enable', 'off');
-            uimenu(exportMenuFile, 'Text', 'JPG', 'MenuSelectedFcn', @obj.writeJPG, 'Accelerator', 'F', 'Enable', 'off');
+            uimenu(exportMenuFile, 'Text', 'JPG', 'MenuSelectedFcn', @obj.writeJPG, 'Accelerator', 'J', 'Enable', 'off');
+            uimenu(exportMenuFile, 'Text', 'MP4', 'MenuSelectedFcn', @obj.writeMP4, 'Accelerator', 'M', 'Enable', 'off');
+            uimenu(exportMenuFile, 'Text', 'POV-Ray', 'MenuSelectedFcn', @obj.writePOV, 'Accelerator', 'E', 'Enable', 'off');
             
             uimenu(obj.menu, 'Text', 'Close', 'MenuSelectedFcn', @obj.guiFileClose, 'Accelerator', 'X');
             
@@ -246,9 +247,13 @@ classdef (Sealed) miepgui < handle
             writeCSV(obj.workData, obj.settings.outputFolder)
         end
         function writeJPG(obj, ~, ~)
-            %export data to csv format
-            writeJPG(obj.workData, obj.settings.outputFolder)
-        end        
+            %export data to jpg format
+            writeJPG(obj.workData, obj.settings)
+        end     
+        function writeMP4(obj, ~, ~)
+            %export data to mp4 format
+            writeMP4(obj.workData, obj.settings)
+        end 
         function updateRegion(obj, ~, ~)
             %get work region from selector and update tabs
             obj.closeTabs
@@ -347,8 +352,10 @@ classdef (Sealed) miepgui < handle
             else
                 %check for bbx
                 if strcmp(obj.workData.channels{end}, 'BBX')
-                    %enable POV-Ray export for Movie
+                    %enable POV-Ray and movie export for Movie
                     povMenu = findobj(obj.menu.Children, 'Text', 'POV-Ray');
+                    povMenu.Enable = 'on';
+                    povMenu = findobj(obj.menu.Children, 'Text', 'MP4');
                     povMenu.Enable = 'on';
                 end
             end

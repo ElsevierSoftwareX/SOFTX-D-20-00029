@@ -7,44 +7,21 @@ if isempty(varargin)
     if outpath == 0
         return
     end
-    if any(strcmp(obj.channels, 'BBX'))
-        answer = questdlg('Export useless FFT movie frequencies as well?', 'Useless Export?');
-        if strcmp(answer, 'Yes')
-            uselessFlag = 1;
-        elseif strcmp(answer, 'No')
-            uselessFlag = 0;
-        else
-            return
+    try
+        load('settings.mat', 'settings')
+        if ~isobject(settings)
+            settings = 'standard';
         end
-    else
-        uselessFlag = 0;
+    catch
+        settings = 'standard';
     end
 elseif length(varargin) == 1
-    outpath = varargin{1};
-    
-    if any(strcmp(obj.channels, 'BBX'))
-        answer = questdlg('Export useless FFT movie frequencies as well?', 'Useless Export?');
-        if strcmp(answer, 'Yes')
-            uselessFlag = 1;
-        elseif strcmp(answer, 'No')
-            uselessFlag = 0;
-        else
-            return
-        end
-    else
-        uselessFlag = 0;
-    end
-elseif length(varargin) == 2
-    outpath = varargin{1};
-    
-    uselessFlag = varargin{2};
+    outpath = varargin{1}.outputFolder;
+    settings = varargin{1};
 else
     errordlg('Please enter Output Path', 'Error')
     return
 end
-
-
-
 
 %get scan name MPI_ from obj
 scanname = split(obj.header.Label, '.');
@@ -59,12 +36,12 @@ end
 JPGFile = [outfolder '\' scannumber];
 
 %export data
-exportData(obj, JPGFile, uselessFlag)
+exportData(obj, JPGFile, settings)
 
 fclose('all');
 end
 
-function exportData(obj, JPGFile, uselessFlag)
+function exportData(obj, JPGFile, settings)
 %function to call all the individual export functions for different
 %categories (spectrum, image, raw movie, normalized movie, ect...)
 flag = obj.header.Flags;
@@ -83,7 +60,7 @@ if contains(flag, 'Spectra')
             dataMat = obj.data(obj.channels{i},1,j);
             
             %write to file
-            writeImage(obj, energy, [], dataMat, config, [JPGFile '_' obj.channels{i} '_Region_' num2str(j) '.jpg'])
+            writeImage(obj, energy, [], dataMat, config, [JPGFile '_' obj.channels{i} '_Region_' num2str(j) '.jpg'], settings)
         end
     end
     
@@ -104,19 +81,16 @@ elseif contains(flag, 'Image')
     for i = 1:length(obj.channels)
         for j = 1:length(obj.energies)
             dataMat = obj.data(obj.channels{i}, j);
-            writeImage(obj, x, y, dataMat, [], [JPGFile '_' obj.channels{i} '_' obj.energies{j} '.jpg'])
+            writeImage(obj, x, y, dataMat, [], [JPGFile '_' obj.channels{i} '_' obj.energies{j} '.jpg'], settings)
         end
     end
         
     
     if any(strcmp(obj.channels, 'BBX'))
         %Export all the different mieptab 
-        writeMovie(x, y, obj.data('Movie'), [JPGFile '_' 'NormMovie' '.mp4'])
-        writeFFTMovie(x, y, obj.eval('FFT'), [JPGFile '_' 'FFTMovie' '.mp4'], uselessFlag)
         writeHSV(x, y, obj.eval('FFT'), obj.eval('FrequencySpectrum').Frequency, [JPGFile '_' 'HSV' '.jpg'])
-        writeMovie(x, y, obj.data('RawMovie'), [JPGFile '_' 'RawMovie' '.mp4'])
         writeFFT(obj.eval('FrequencySpectrum'), [JPGFile '_' 'FrequencySpectrum' '.jpg'])
-        writekSpace(obj.eval('SpatialFFT'), obj.eval('FrequencySpectrum').Frequency, [JPGFile '_' 'kSpace' '.jpg'])
+        writekSpace(obj.eval('SpatialFFT'), obj.eval('FrequencySpectrum').Frequency, [JPGFile '_' 'kSpace' '.jpg'], settings)
  
     end
 
@@ -125,7 +99,7 @@ end
 end
 
 
-function writeImage(obj, x, y, dataMat, config, JPGFile)
+function writeImage(obj, x, y, dataMat, config, JPGFile, settings)
 %Function to export the image tab as pictures
 flag = obj.header.Flags;
 
@@ -151,98 +125,14 @@ elseif contains(flag, 'Image')
 
     ax.XLabel.String = '{\it x} [µm]';
     ax.YLabel.String = '{\it y} [µm]';
-   
+    
+    if ~strcmp(settings, 'standard')
+        colormap(settings.colorMaps{settings.imageColorMap})
+    end
 end
 
 saveas(fig,JPGFile)
 close(fig)
-end
-function writeMovie(x, y, data, MP4File)
-    %function to export normalized movie and raw movie
-    fig = figure('visible', 'off');
-    ax = axes(fig);
-    
-    v = VideoWriter(MP4File, 'MPEG-4');
-    v.FrameRate = size(data,3)/0.75;
-    if size(data,3) > 30
-        v.FrameRate = v.FrameRate/10;
-    end
-    open(v);
-    
-    for i = 1:size(data,3)
-        surf(ax, x, y, data(:,:,i), 'edgecolor', 'none');
-
-        ax.View = [0, 90];
-        ax.XLim = [min(x) max(x)];
-        ax.YLim = [min(y) max(y)];
-        ax.Layer = 'Top';
-        ax.Box = 'on';
-        ax.DataAspectRatio = [1 1 1];
-        ax.TickDir = 'out';
-        ax.XLabel.String = '{\it x} [µm]';
-        ax.YLabel.String = '{\it y} [µm]';
-        
-        %fix for axis stuttering
-        zlim = max(abs(data(:)));
-        ax.ZLim = [-zlim zlim];
-        
-        writeVideo(v,getframe(fig));
-    end
-    
-
-    close(v);
-    close(fig)
-end
-function writeFFTMovie(x, y, fft, MP4File, uselessFlag)
-    %function to export fft movie including all frequencies
-    fig = figure('visible', 'off');
-    ax = axes(fig);
-    
-    freq = fft.Frequency;
-    nFrames = 30;
-    
-    shift = linspace(0,2*pi,nFrames+1);
-    shift(end) = [];
-    data = NaN([size(fft.Amplitude) nFrames]);
-    for i = 1:nFrames
-        data(:,:,:,i) = fft.Amplitude.*sin(fft.Phase + shift(i));
-    end
-    
-    if uselessFlag
-        exportNum = 1:size(data,3);
-    else
-        exportNum = ceil(size(data,3)/2)+1;
-    end
-    
-    for i = exportNum
-        
-        v = VideoWriter(insertBefore(MP4File,'.',['_' sprintf('%.2e',freq(i))]), 'MPEG-4');
-        v.FrameRate = nFrames/0.75;
-        open(v);
-        
-        for j = 1:size(data,4)
-            surf(ax, x, y, data(:,:,i,j), 'edgecolor', 'none');
-
-            ax.View = [0, 90];
-            ax.XLim = [min(x) max(x)];
-            ax.YLim = [min(y) max(y)];
-            ax.Layer = 'Top';
-            ax.Box = 'on';
-            ax.DataAspectRatio = [1 1 1];
-            ax.TickDir = 'out';
-            ax.XLabel.String = '{\it x} [µm]';
-            ax.YLabel.String = '{\it y} [µm]';
-
-            %fix for axis stuttering
-            zlim = max(abs(data(:)));
-            ax.ZLim = [-zlim zlim];
-
-            writeVideo(v,getframe(fig));
-        end
-    close(v)
-    end
-    
-    close(fig)
 end
 function writeHSV(x, y, data, freq, JPGFile)
     %function to export hsv picture
@@ -286,11 +176,12 @@ function writeHSV(x, y, data, freq, JPGFile)
         ax.TickDir = 'out';
         ax.XLabel.String = '{\it x} [µm]';
         ax.YLabel.String = '{\it y} [µm]';
+        
         saveas(fig,insertBefore(JPGFile,'.',['_' sprintf('%.2e',freq(i))]))
     end
     close(fig)
 end
-function writekSpace(data, freq, JPGFile)
+function writekSpace(data, freq, JPGFile, settings)
 %functoin to export all k-space frequencie pictures
 kx = data.kxAxis;
 ky = data.kyAxis;
@@ -314,6 +205,11 @@ for i = 1:length(freq)
     ax.Layer = 'top';
     ax.XLabel.String = '{\it k_x} [1/µm]';
     ax.YLabel.String = '{\it k_y} [1/µm]';
+    
+    if ~strcmp(settings, 'standard')
+        colormap(settings.colorMaps{settings.kSpaceColorMap})
+    end
+    
     saveas(fig,insertBefore(JPGFile,'.',['_' sprintf('%.2e',freq(i))]))
 end
 
