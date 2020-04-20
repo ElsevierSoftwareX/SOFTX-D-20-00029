@@ -143,7 +143,9 @@ movieRun
                 timerPeriod = normMoviePeriod/30;
             end
             obj.uiHandles.timer.Period = round(timerPeriod,3);
-            
+            %fix for weird speed bug of normalized movie when selecting
+            %high frequencies in fft movie
+            pause(0.05)
     end
 
     function movieDraw(~,~,energy, channel)
