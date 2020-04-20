@@ -1,12 +1,12 @@
 <deployment-project plugin="plugin.ezdeploy" plugin-version="1.0">
-  <configuration build-checksum="4000339923" file="D:\GitHub\miep\MIEP.prj" location="D:\GitHub\miep" name="MIEP" preferred-package-location="D:\GitHub\miep\MIEP\for_redistribution" preferred-package-type="package.type.exe" target="target.ezdeploy.standalone" target-name="Application Compiler">
+  <configuration build-checksum="2681122423" file="D:\GitHub\miep\MIEP.prj" location="D:\GitHub\miep" name="MIEP" preferred-package-location="D:\GitHub\miep\MIEP\for_redistribution" preferred-package-type="package.type.exe" target="target.ezdeploy.standalone" target-name="Application Compiler">
     <param.appname>MIEP</param.appname>
     <param.icon />
     <param.icons />
     <param.version>1.0</param.version>
     <param.authnamewatermark>Joachim Gräfe</param.authnamewatermark>
     <param.email>graefe@is.mpg.de</param.email>
-    <param.company>Max Planck Institute for Intelligent Syste</param.company>
+    <param.company>MPI for Intelligent Systems</param.company>
     <param.summary>MAXYMUS Image Evaluation Program</param.summary>
     <param.description />
     <param.screenshot />
@@ -80,15 +80,16 @@
       <file>${PROJECT_ROOT}\@miepicons\pause.png</file>
       <file>${PROJECT_ROOT}\@miepicons\refresh.png</file>
       <file>${PROJECT_ROOT}\@miepicons\run.png</file>
-      <file>${PROJECT_ROOT}\settings.mat</file>
     </fileset.resources>
     <fileset.package />
     <fileset.depfun>
       <file>${PROJECT_ROOT}\@miepgui\loadFile.m</file>
       <file>${PROJECT_ROOT}\@miepgui\loadFolder.m</file>
+      <file>${PROJECT_ROOT}\@miepgui\loadSXMData.m</file>
       <file>${PROJECT_ROOT}\@miepgui\miepgui.m</file>
       <file>${PROJECT_ROOT}\@miepgui\saveFile.m</file>
       <file>${PROJECT_ROOT}\@miepgui\showSettings.m</file>
+      <file>${PROJECT_ROOT}\@miepgui\showXMCDTool.m</file>
       <file>${PROJECT_ROOT}\@miepicons\miepicons.m</file>
       <file>${PROJECT_ROOT}\@mieptab\fftTab.m</file>
       <file>${PROJECT_ROOT}\@mieptab\imageTab.m</file>
@@ -104,8 +105,13 @@
       <file>${PROJECT_ROOT}\@sxmdata\readXIM.m</file>
       <file>${PROJECT_ROOT}\@sxmdata\readXSP.m</file>
       <file>${PROJECT_ROOT}\@sxmdata\sxmdata.m</file>
+      <file>${PROJECT_ROOT}\@sxmdata\writeCSV.m</file>
+      <file>${PROJECT_ROOT}\@sxmdata\writeJPG.m</file>
+      <file>${PROJECT_ROOT}\@sxmdata\writeMP4.m</file>
+      <file>${PROJECT_ROOT}\@sxmdata\writePOV.m</file>
       <file>${PROJECT_ROOT}\miepfile.m</file>
       <file>${PROJECT_ROOT}\miepsettings.m</file>
+      <file>${PROJECT_ROOT}\settings.mat</file>
     </fileset.depfun>
     <build-deliverables>
       <file location="${PROJECT_ROOT}\MIEP\for_testing" name="readme.txt" optional="true">D:\GitHub\miep\MIEP\for_testing\readme.txt</file>

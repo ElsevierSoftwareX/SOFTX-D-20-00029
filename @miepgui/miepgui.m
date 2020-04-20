@@ -12,7 +12,8 @@ classdef (Sealed) miepgui < handle
     properties
         fig = []; %figure handle
         tBar = []; %toolbar handle
-        menu = [] %menu handle
+        menu = []; %menu handle
+        exportMenu = []; %export menu handle 
         fileList = []; %file listbox handle
         tabGroup = []; %tab group handle
         tabs = struct(); %stores individual miep tab handles
@@ -48,22 +49,74 @@ classdef (Sealed) miepgui < handle
     %dependent properties and respective get/set methods
     properties (Dependent)
         settings; %settings are stored in settings.mat
+        settingsFile; %determines location dependent on runtime environemtn
     end
     methods
-        function settings = get.settings(~)
-            if(~exist(fullfile(tempdir, 'settings.mat'),'file'))
+        function settings = get.settings(obj)
+            %check for file and load from disk
+            if ~exist(obj.settingsFile, 'file')
                 settings = miepsettings;
-                save(fullfile(tempdir, 'settings.mat'), 'settings')
+                save(obj.settingsFile, 'settings')
             else
-                input = load(fullfile(tempdir, 'settings.mat'), 'settings');
+                input = load(obj.settingsFile, 'settings');
                 settings = input.settings;
             end
-        end
-        function set.settings(~, settings)
-            if isa(settings, 'miepsettings')
-                save(fullfile(tempdir, 'settings.mat'), 'settings')
+            %check for empty values and set defaults
+            reSave = false;
+            if isempty(settings.inputFolder)
+                settings.inputFolder = fullfile(getenv('HOMEDRIVE'), getenv('HOMEPATH'));
+                reSave = true;
+            end
+            if isempty(settings.miepFile)
+                settings.miepFile = fullfile(getenv('APPDATA'), 'MIEP', 'MIEP.xlsx');
+                reSave = true;
+            end
+            if isempty(settings.dataFolder)
+                settings.dataFolder = fullfile(getenv('APPDATA'), 'MIEP', 'Data');
+                reSave = true;
+            end
+            if isempty(settings.outputFolder)
+                settings.outputFolder = fullfile(getenv('HOMEDRIVE'), getenv('HOMEPATH'));
+                reSave = true;
+            end
+            if isempty(settings.imageColorMap)
+                settings.imageColorMap = 1;
+                reSave = true;
+            end
+            if isempty(settings.movieColorMap)
+                settings.movieColorMap = 1;
+                reSave = true;
+            end
+            if isempty(settings.kSpaceColorMap)
+                settings.kSpaceColorMap = 1;
+                reSave = true;
+            end
+            if isempty(settings.frameRate)
+                settings.frameRate = 30;
+                reSave = true;
+            end
+            %resave data if defaults were set
+            if reSave
+                save(obj.settingsFile, 'settings')
             end
         end
+        function set.settings(obj, settings)
+            if isa(settings, 'miepsettings')
+                save(obj.settingsFile, 'settings')
+            end
+        end
+        function settingsFile = get.settingsFile(~)
+            if isdeployed
+                miepsettingsFile = fullfile(getenv('APPDATA'), 'MIEP');
+                if ~exist(miepsettingsFile, 'dir')
+                    mkdir(miepsettingsFile)
+                end
+                settingsFile = fullfile(miepsettingsFile, 'settings.mat');
+            else
+                settingsFile = 'settings.mat';
+            end
+        end
+            
     end
     
     methods (Access = public)
@@ -89,16 +142,16 @@ classdef (Sealed) miepgui < handle
             obj.miepIcons = miepicons(obj.fig.Color);
             
             %add menubar to figure
-            obj.menu = uimenu(obj.fig, 'Text', '&File')%, 'MenuSelectedFcn', @obj.guiPrettyMenu);
+            obj.menu = uimenu(obj.fig, 'Text', '&File');%, 'MenuSelectedFcn', @obj.guiPrettyMenu);
             uimenu(obj.menu, 'Text', '&Open Folder', 'MenuSelectedFcn', @obj.guiLoadFolder, 'Accelerator', 'O');
             uimenu(obj.menu, 'Text', '&Refresh Folder', 'MenuSelectedFcn', @obj.guiRefreshFolder, 'Accelerator', 'R');
             
             uimenu(obj.menu, 'Text', '&Reset SXM Data', 'MenuSelectedFcn', @obj.guiFileReset, 'Separator', 'on')
-            exportMenuFile = uimenu(obj.menu, 'Text', '&Export SXM Data to...');
-            uimenu(exportMenuFile, 'Text', '&CSV', 'MenuSelectedFcn', @obj.writeCSV, 'Accelerator', 'C', 'Enable', 'off');
-            uimenu(exportMenuFile, 'Text', '&JPG', 'MenuSelectedFcn', @obj.writeJPG, 'Accelerator', 'J', 'Enable', 'off');
-            uimenu(exportMenuFile, 'Text', '&MP4', 'MenuSelectedFcn', @obj.writeMP4, 'Accelerator', 'M', 'Enable', 'off');
-            uimenu(exportMenuFile, 'Text', '&POV-Ray', 'MenuSelectedFcn', @obj.writePOV, 'Accelerator', 'P', 'Enable', 'off');
+            obj.exportMenu = uimenu(obj.menu, 'Text', '&Export SXM Data to...');
+            uimenu(obj.exportMenu, 'Text', '&CSV', 'MenuSelectedFcn', @obj.writeCSV, 'Accelerator', 'C', 'Enable', 'off');
+            uimenu(obj.exportMenu, 'Text', '&JPG', 'MenuSelectedFcn', @obj.writeJPG, 'Accelerator', 'J', 'Enable', 'off');
+            uimenu(obj.exportMenu, 'Text', '&MP4', 'MenuSelectedFcn', @obj.writeMP4, 'Accelerator', 'M', 'Enable', 'off');
+            uimenu(obj.exportMenu, 'Text', '&POV-Ray', 'MenuSelectedFcn', @obj.writePOV, 'Accelerator', 'P', 'Enable', 'off');
             
             uimenu(obj.menu, 'Text', '&Settings', 'MenuSelectedFcn', @obj.showSettings, 'Separator', 'on');
             uimenu(obj.menu, 'Text', '&Close', 'MenuSelectedFcn', @obj.guiFileClose);
@@ -377,15 +430,14 @@ classdef (Sealed) miepgui < handle
         function updateExportMenu(obj)
             %update available exports depending on settings
             %Turn off all export menues
-            exportMenu = findobj(obj.menu.Children, 'Text', 'Export to...');
-            exportOptions = exportMenu.Children;
+            exportOptions = obj.exportMenu.Children;
             for i = 1:length(exportOptions)
                 exportOptions(i).Enable = 'off';
             end
             
             %always on menus
-            csvMenu = findobj(obj.menu.Children, 'Text', 'CSV');
-            jpgMenu = findobj(obj.menu.Children, 'Text', 'JPG');
+            csvMenu = findobj(obj.menu.Children, 'Text', '&CSV');
+            jpgMenu = findobj(obj.menu.Children, 'Text', '&JPG');
             csvMenu.Enable = 'on';
             jpgMenu.Enable = 'on';
             
@@ -395,9 +447,9 @@ classdef (Sealed) miepgui < handle
                 %check for bbx
                 if strcmp(obj.workData.channels{end}, 'BBX')
                     %enable POV-Ray and movie export for Movie
-                    povMenu = findobj(obj.menu.Children, 'Text', 'POV-Ray');
+                    povMenu = findobj(obj.menu.Children, 'Text', '&POV-Ray');
                     povMenu.Enable = 'on';
-                    povMenu = findobj(obj.menu.Children, 'Text', 'MP4');
+                    povMenu = findobj(obj.menu.Children, 'Text', '&MP4');
                     povMenu.Enable = 'on';
                 end
             end

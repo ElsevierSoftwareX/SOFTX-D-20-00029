@@ -21,7 +21,7 @@ classdef miepsettings
     end
     
     properties (SetAccess = private)
-       colorMaps = {'parula', 'jet', 'hsv', 'hot', 'cool', 'spring', 'summer', 'autumn', 'winter', 'gray', 'bone', 'copper', 'pink', 'lines'}; %available color maps
+        colorMaps = {'parula', 'jet', 'hsv', 'hot', 'cool', 'spring', 'summer', 'autumn', 'winter', 'gray', 'bone', 'copper', 'pink', 'lines'}; %available color maps
     end
     
     methods
@@ -35,13 +35,21 @@ classdef miepsettings
         end
         function obj = set.dataFolder(obj, value)
             if ~exist(value, 'dir') && ~isempty(value)
-                mkdir(value)
+                try
+                    mkdir(value)
+                catch
+                    value = [];
+                end  
             end
             obj.dataFolder = value;
         end
         function obj = set.outputFolder(obj, value)
             if ~exist(value, 'dir') && ~isempty(value)
-                mkdir(value)
+                try
+                    mkdir(value)
+                catch
+                    value = [];
+                end 
             end
             obj.outputFolder = value;
         end

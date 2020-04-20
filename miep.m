@@ -9,8 +9,11 @@
 function miep
     myMiep = miepgui;
     try
-        waitfor(myMiep)
-        %myMiep;
+        if ~isdeployed
+            waitfor(myMiep)
+        else
+            myMiep;
+        end
     catch errMiep
         disp(errMiep)
         delete(myMiep)
