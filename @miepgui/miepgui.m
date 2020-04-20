@@ -89,27 +89,32 @@ classdef (Sealed) miepgui < handle
             obj.miepIcons = miepicons(obj.fig.Color);
             
             %add menubar to figure
-            obj.menu = uimenu(obj.fig, 'Text', 'File');
-            uimenu(obj.menu, 'Text', 'Settings', 'MenuSelectedFcn', @obj.showSettings);
-            exportMenuFile = uimenu(obj.menu, 'Text', 'Export to...');
-            uimenu(exportMenuFile, 'Text', 'CSV', 'MenuSelectedFcn', @obj.writeCSV, 'Accelerator', 'D', 'Enable', 'off');
-            uimenu(exportMenuFile, 'Text', 'JPG', 'MenuSelectedFcn', @obj.writeJPG, 'Accelerator', 'J', 'Enable', 'off');
-            uimenu(exportMenuFile, 'Text', 'MP4', 'MenuSelectedFcn', @obj.writeMP4, 'Accelerator', 'M', 'Enable', 'off');
-            uimenu(exportMenuFile, 'Text', 'POV-Ray', 'MenuSelectedFcn', @obj.writePOV, 'Accelerator', 'E', 'Enable', 'off');
+            obj.menu = uimenu(obj.fig, 'Text', '&File')%, 'MenuSelectedFcn', @obj.guiPrettyMenu);
+            uimenu(obj.menu, 'Text', '&Open Folder', 'MenuSelectedFcn', @obj.guiLoadFolder, 'Accelerator', 'O');
+            uimenu(obj.menu, 'Text', '&Refresh Folder', 'MenuSelectedFcn', @obj.guiRefreshFolder, 'Accelerator', 'R');
             
-            uimenu(obj.menu, 'Text', 'Close', 'MenuSelectedFcn', @obj.guiFileClose, 'Accelerator', 'X');
+            uimenu(obj.menu, 'Text', '&Reset SXM Data', 'MenuSelectedFcn', @obj.guiFileReset, 'Separator', 'on')
+            exportMenuFile = uimenu(obj.menu, 'Text', '&Export SXM Data to...');
+            uimenu(exportMenuFile, 'Text', '&CSV', 'MenuSelectedFcn', @obj.writeCSV, 'Accelerator', 'C', 'Enable', 'off');
+            uimenu(exportMenuFile, 'Text', '&JPG', 'MenuSelectedFcn', @obj.writeJPG, 'Accelerator', 'J', 'Enable', 'off');
+            uimenu(exportMenuFile, 'Text', '&MP4', 'MenuSelectedFcn', @obj.writeMP4, 'Accelerator', 'M', 'Enable', 'off');
+            uimenu(exportMenuFile, 'Text', '&POV-Ray', 'MenuSelectedFcn', @obj.writePOV, 'Accelerator', 'P', 'Enable', 'off');
             
-            menuTools = uimenu(obj.fig, 'Text', 'Tools');
-            uimenu(menuTools, 'Text', 'XMCD', 'MenuSelectedFcn', @obj.showXMCDTool);
+            uimenu(obj.menu, 'Text', '&Settings', 'MenuSelectedFcn', @obj.showSettings, 'Separator', 'on');
+            uimenu(obj.menu, 'Text', '&Close', 'MenuSelectedFcn', @obj.guiFileClose);
             
-            menuHelp = uimenu(obj.fig, 'Text', '?');
-            uimenu(menuHelp, 'Text', 'Info', 'MenuSelectedFcn', @obj.guiHelpInfo);
+            menuTools = uimenu(obj.fig, 'Text', '&Tools');
+            uimenu(menuTools, 'Text', '&XMCD', 'MenuSelectedFcn', @obj.showXMCDTool, 'Accelerator', 'X');
+            uimenu(menuTools, 'Text', '&Export All', 'MenuSelectedFcn', @obj.showExportTool, 'Accelerator', 'E');
+            
+            menuHelp = uimenu(obj.fig, 'Text', '&?');%, 'MenuSelectedFcn', @obj.guiPrettyMenu);
+            uimenu(menuHelp, 'Text', '&Info', 'MenuSelectedFcn', @obj.guiHelpInfo);
             
             %add toolbar to figure
             obj.tBar = uitoolbar(obj.fig);
             
             %load folder icon and add to toolbar
-            uipushtool(obj.tBar, 'CData', obj.miepIcons.file_open, 'TooltipString', 'Load Folder', 'ClickedCallback', @obj.guiLoadFolder);
+            uipushtool(obj.tBar, 'CData', obj.miepIcons.file_open, 'TooltipString', 'Open Folder', 'ClickedCallback', @obj.guiLoadFolder);
             
             %load refresh icon and add to toolbar
             uipushtool(obj.tBar, 'CData', obj.miepIcons.refresh, 'TooltipString', 'Refresh Folder', 'ClickedCallback', @obj.guiRefreshFolder);
@@ -155,11 +160,15 @@ classdef (Sealed) miepgui < handle
             
             %load work folder from settings
             obj.workFolder = obj.settings.inputFolder;
+            
+            obj.guiPrettyMenu
         end
         
         showSettings(obj, ~, ~, ~) %show settings dialog
         
         showXMCDTool(obj, ~, ~, ~) %show XMCD tool
+        
+        showExportTool(obj, ~, ~, ~) %show Export Tool
     end
     
     methods (Access = private)
@@ -168,7 +177,7 @@ classdef (Sealed) miepgui < handle
         
         function guiHelpInfo(~, ~, ~)
             %help info function
-            msgbox({'MIEP - MAXYMUS Image Evaluation Program','Max Planck Institute for Intelligent Systems','Joachim Gräfe, Nick-André Träger'}, ...
+            msgbox({'MIEP - MAXYMUS Image Evaluation Program','Max Planck Institute for Intelligent Systems','Joachim Gräfe, Felix Groß, Nick-André Träger'}, ...
                 'MIEP', 'help')
         end
         
@@ -236,7 +245,7 @@ classdef (Sealed) miepgui < handle
             miepEntry.MagicNumber = obj.workData.magicNumber;
             obj.miepFile.writeEntry(miepDate, miepEntry)
         end
-
+        
         function writePOV(obj, ~, ~)
             %export fft movie to POV-Ray function
             writePOV(obj.workData, obj.tabs.movie.uiHandles.frequencyList.Value, obj.settings.outputFolder)
@@ -249,11 +258,11 @@ classdef (Sealed) miepgui < handle
         function writeJPG(obj, ~, ~)
             %export data to jpg format
             writeJPG(obj.workData, obj.settings)
-        end     
+        end
         function writeMP4(obj, ~, ~)
             %export data to mp4 format
             writeMP4(obj.workData, obj.settings)
-        end 
+        end
         function updateRegion(obj, ~, ~)
             %get work region from selector and update tabs
             obj.closeTabs
@@ -265,6 +274,38 @@ classdef (Sealed) miepgui < handle
     methods (Access = private)
         %private methods
         %GUI helper functions
+        
+        function guiPrettyMenu(obj, ~, ~)
+            %useless prettyfication of menubar
+            %mute warning
+            oldWarning = warning;
+            warning('off', 'all')
+            jFrame = get(obj.fig, 'JavaFrame');
+            jMenuBar = jFrame.fHG2Client.getMenuBar;
+            while jMenuBar.getComponentCount < 3
+                pause(0.05)
+            end
+            jMenu = jMenuBar.getComponents;
+            if length(jMenu) > 1
+                jMenu(1).doClick
+                while jMenu(1).getMenuComponentCount < 2
+                    pause(0.05)
+                end
+                jFileMenu = jMenu(1).getMenuComponents;
+                jFileMenu(1).setIcon(javax.swing.ImageIcon(fullfile(obj.miepIcons.iconDir, 'file_open.png')))
+                jFileMenu(2).setIcon(javax.swing.ImageIcon(fullfile(obj.miepIcons.iconDir, 'refresh.png')))
+                jMenu(3).doClick
+                while jMenu(3).getMenuComponentCount < 1
+                    pause(0.05)
+                end
+                jInfoMenu = jMenu(3).getMenuComponents;
+                jInfoMenu(1).setIcon(javax.swing.ImageIcon(fullfile(obj.miepIcons.iconDir, 'help_ex.png')))
+            end
+            welcome = msgbox('Welcome to MIEP, the MAXYMUS Image Evaluation Program!', 'MIEP', 'help');
+            pause(2)
+            delete(welcome)
+            warning(oldWarning)
+        end
         
         function displayData(obj)
             %close old tabs to avoid error in timer function
