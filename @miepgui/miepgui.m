@@ -301,8 +301,9 @@ classdef (Sealed) miepgui < handle
                 jInfoMenu = jMenu(3).getMenuComponents;
                 jInfoMenu(1).setIcon(javax.swing.ImageIcon(fullfile(obj.miepIcons.iconDir, 'help_ex.png')))
             end
-            welcome = msgbox('Welcome to MIEP, the MAXYMUS Image Evaluation Program!', 'MIEP', 'help');
-            pause(2)
+            welcome = msgbox({'Welcome to MIEP!', 'MAXYMUS Image Evaluation Program','Max Planck Institute for Intelligent Systems','Joachim Gräfe, Felix Groß, Nick-André Träger'}, ...
+                'MIEP', 'help');
+            pause(3)
             delete(welcome)
             warning(oldWarning)
         end
