@@ -12,6 +12,7 @@ classdef (Sealed) miepgui < handle
     properties
         fig = []; %figure handle
         tBar = []; %toolbar handle
+        menu = [] %menu handle
         fileList = []; %file listbox handle
         tabGroup = []; %tab group handle
         tabs = struct(); %stores individual miep tab handles
@@ -37,6 +38,10 @@ classdef (Sealed) miepgui < handle
                 obj.miepFile = miepfile(obj.settings.miepFile);
             end
             miepFile = obj.miepFile;
+        end
+        
+        function set.workTab(obj, tabType)
+            obj.tabGroup.SelectedTab = obj.tabs.(tabType).tabHandle;
         end
     end
     
@@ -84,17 +89,32 @@ classdef (Sealed) miepgui < handle
             obj.miepIcons = miepicons(obj.fig.Color);
             
             %add menubar to figure
-            menuFile = uimenu(obj.fig, 'Text', 'File');
-            uimenu(menuFile, 'Text', 'Settings', 'MenuSelectedFcn', @obj.showSettings);
-            uimenu(menuFile, 'Text', 'Close', 'MenuSelectedFcn', @obj.guiFileClose, 'Accelerator', 'X');
-            menuHelp = uimenu(obj.fig, 'Text', '?');
-            uimenu(menuHelp, 'Text', 'Info', 'MenuSelectedFcn', @obj.guiHelpInfo);
+            obj.menu = uimenu(obj.fig, 'Text', '&File')%, 'MenuSelectedFcn', @obj.guiPrettyMenu);
+            uimenu(obj.menu, 'Text', '&Open Folder', 'MenuSelectedFcn', @obj.guiLoadFolder, 'Accelerator', 'O');
+            uimenu(obj.menu, 'Text', '&Refresh Folder', 'MenuSelectedFcn', @obj.guiRefreshFolder, 'Accelerator', 'R');
+            
+            uimenu(obj.menu, 'Text', '&Reset SXM Data', 'MenuSelectedFcn', @obj.guiFileReset, 'Separator', 'on')
+            exportMenuFile = uimenu(obj.menu, 'Text', '&Export SXM Data to...');
+            uimenu(exportMenuFile, 'Text', '&CSV', 'MenuSelectedFcn', @obj.writeCSV, 'Accelerator', 'C', 'Enable', 'off');
+            uimenu(exportMenuFile, 'Text', '&JPG', 'MenuSelectedFcn', @obj.writeJPG, 'Accelerator', 'J', 'Enable', 'off');
+            uimenu(exportMenuFile, 'Text', '&MP4', 'MenuSelectedFcn', @obj.writeMP4, 'Accelerator', 'M', 'Enable', 'off');
+            uimenu(exportMenuFile, 'Text', '&POV-Ray', 'MenuSelectedFcn', @obj.writePOV, 'Accelerator', 'P', 'Enable', 'off');
+            
+            uimenu(obj.menu, 'Text', '&Settings', 'MenuSelectedFcn', @obj.showSettings, 'Separator', 'on');
+            uimenu(obj.menu, 'Text', '&Close', 'MenuSelectedFcn', @obj.guiFileClose);
+            
+            menuTools = uimenu(obj.fig, 'Text', '&Tools');
+            uimenu(menuTools, 'Text', '&XMCD', 'MenuSelectedFcn', @obj.showXMCDTool, 'Accelerator', 'X');
+            uimenu(menuTools, 'Text', '&Export All', 'MenuSelectedFcn', @obj.showExportTool, 'Accelerator', 'E');
+            
+            menuHelp = uimenu(obj.fig, 'Text', '&?');%, 'MenuSelectedFcn', @obj.guiPrettyMenu);
+            uimenu(menuHelp, 'Text', '&Info', 'MenuSelectedFcn', @obj.guiHelpInfo);
             
             %add toolbar to figure
             obj.tBar = uitoolbar(obj.fig);
-
+            
             %load folder icon and add to toolbar
-            uipushtool(obj.tBar, 'CData', obj.miepIcons.file_open, 'TooltipString', 'Load Folder', 'ClickedCallback', @obj.guiLoadFolder);
+            uipushtool(obj.tBar, 'CData', obj.miepIcons.file_open, 'TooltipString', 'Open Folder', 'ClickedCallback', @obj.guiLoadFolder);
             
             %load refresh icon and add to toolbar
             uipushtool(obj.tBar, 'CData', obj.miepIcons.refresh, 'TooltipString', 'Refresh Folder', 'ClickedCallback', @obj.guiRefreshFolder);
@@ -135,63 +155,20 @@ classdef (Sealed) miepgui < handle
             Pos(2) = drawingArea(4) - 20 - 5; % position bottom
             Pos(3) = drawingArea(3)*3/4 - 5; %width
             Pos(4) = 20; %height
-            obj.regionList = uicontrol(obj.fig, 'Style', 'popupmenu', 'Units', 'pixels', 'Position', Pos);
+            obj.regionList = uicontrol(obj.fig, 'Style', 'popupmenu', 'Units', 'pixels', 'Position', Pos, 'Callback', @obj.updateRegion);
             obj.regionList.String = 'Select Region ...';
             
             %load work folder from settings
             obj.workFolder = obj.settings.inputFolder;
-        end
-        
-        function displayData(obj)
-            %display data
-            %clear current tabs
-            curTabs = fields(obj.tabs);
-            for i=1:size(curTabs, 1)
-                delete(obj.tabs.(curTabs{i}))
-            end
             
-            %display comment
-            miepDate = obj.workFile(5:10);
-            miepNumber = str2double(obj.workFile(11:13));
-            miepEntry = obj.miepFile.readEntry(miepDate, miepNumber);
-            obj.comment.String = miepEntry.Comment;
-            
-            %display region list
-            try
-                numRegions = size(obj.workData.header.Regions);
-            catch
-                numRegions = 1;
-            end
-            if numRegions == 1
-                obj.regionList.String = 'Region 1';
-                obj.regionList.Enable = 'off';
-            else
-                newList = cell(numRegions);
-                for i = 1:numRegions
-                    newList{i} = ['Region ', num2str(i)];
-                end
-                obj.regionList.String = newList;
-                obj.regionList.Enable = 'on';
-            end
-            obj.workRegion = 1;
-            
-            %determine if specturm or image
-            if strcmp(obj.workData.header.Flags, 'Spectra')
-                mieptab(obj, 'spectrum');
-                obj.workTab = 'spectrum';
-            else
-                mieptab(obj, 'image');
-                obj.workTab = 'image';
-                if strcmp(obj.workData.channels{end}, 'BBX')
-                    mieptab(obj, 'movie');
-                    mieptab(obj, 'fft');
-                    mieptab(obj, 'kspace');
-                    obj.workTab = 'movie';
-                end
-            end
+            obj.guiPrettyMenu
         end
         
         showSettings(obj, ~, ~, ~) %show settings dialog
+        
+        showXMCDTool(obj, ~, ~, ~) %show XMCD tool
+        
+        showExportTool(obj, ~, ~, ~) %show Export Tool
     end
     
     methods (Access = private)
@@ -200,7 +177,7 @@ classdef (Sealed) miepgui < handle
         
         function guiHelpInfo(~, ~, ~)
             %help info function
-            msgbox({'MIEP - MAXYMUS Image Evaluation Program','Max Planck Institute for Intelligent Systems','Joachim Gräfe, Nick-André Träger'}, ...
+            msgbox({'MIEP - MAXYMUS Image Evaluation Program','Max Planck Institute for Intelligent Systems','Joachim Gräfe, Felix Groß, Nick-André Träger'}, ...
                 'MIEP', 'help')
         end
         
@@ -223,6 +200,8 @@ classdef (Sealed) miepgui < handle
             if curFolder == 0
                 return
             end
+            %close old tabs
+            obj.closeTabs
             %write new folder to object
             obj.workFolder = curFolder;
             %actually load folder
@@ -241,6 +220,12 @@ classdef (Sealed) miepgui < handle
         end
         
         function guiLoadFile(obj, ~, ~)
+            %If no File is loaded yet, return to avoid errors
+            if isempty(obj.fileList.String)
+                return
+            end
+            %close old tabs to avoid error in timer function
+            obj.closeTabs
             %save previous file, comments and Magic Number
             obj.guiSave
             obj.saveFile
@@ -260,5 +245,164 @@ classdef (Sealed) miepgui < handle
             miepEntry.MagicNumber = obj.workData.magicNumber;
             obj.miepFile.writeEntry(miepDate, miepEntry)
         end
+        
+        function writePOV(obj, ~, ~)
+            %export fft movie to POV-Ray function
+            writePOV(obj.workData, obj.tabs.movie.uiHandles.frequencyList.Value, obj.settings.outputFolder)
+        end
+        
+        function writeCSV(obj, ~, ~)
+            %export data to csv format
+            writeCSV(obj.workData, obj.settings.outputFolder)
+        end
+        function writeJPG(obj, ~, ~)
+            %export data to jpg format
+            writeJPG(obj.workData, obj.settings)
+        end
+        function writeMP4(obj, ~, ~)
+            %export data to mp4 format
+            writeMP4(obj.workData, obj.settings)
+        end
+        function updateRegion(obj, ~, ~)
+            %get work region from selector and update tabs
+            obj.closeTabs
+            obj.workRegion = obj.regionList.Value;
+            obj.displayTabs
+        end
+    end
+    
+    methods (Access = private)
+        %private methods
+        %GUI helper functions
+        
+        function guiPrettyMenu(obj, ~, ~)
+            %useless prettyfication of menubar
+            %mute warning
+            oldWarning = warning;
+            warning('off', 'all')
+            jFrame = get(obj.fig, 'JavaFrame');
+            jMenuBar = jFrame.fHG2Client.getMenuBar;
+            while jMenuBar.getComponentCount < 3
+                pause(0.05)
+            end
+            jMenu = jMenuBar.getComponents;
+            if length(jMenu) > 1
+                jMenu(1).doClick
+                while jMenu(1).getMenuComponentCount < 2
+                    pause(0.05)
+                end
+                jFileMenu = jMenu(1).getMenuComponents;
+                jFileMenu(1).setIcon(javax.swing.ImageIcon(fullfile(obj.miepIcons.iconDir, 'file_open.png')))
+                jFileMenu(2).setIcon(javax.swing.ImageIcon(fullfile(obj.miepIcons.iconDir, 'refresh.png')))
+                jMenu(3).doClick
+                while jMenu(3).getMenuComponentCount < 1
+                    pause(0.05)
+                end
+                jInfoMenu = jMenu(3).getMenuComponents;
+                jInfoMenu(1).setIcon(javax.swing.ImageIcon(fullfile(obj.miepIcons.iconDir, 'help_ex.png')))
+            end
+            welcome = msgbox({'Welcome to MIEP!', 'MAXYMUS Image Evaluation Program','Max Planck Institute for Intelligent Systems','Joachim Gräfe, Felix Groß, Nick-André Träger'}, ...
+                'MIEP', 'help');
+            pause(3)
+            delete(welcome)
+            warning(oldWarning)
+        end
+        
+        function displayData(obj)
+            %close old tabs to avoid error in timer function
+            obj.closeTabs
+            
+            if isempty(obj.workFile)
+                %if no file is loaded show startup tab
+                mieptab(obj, 'miep');
+            else
+                %display comment
+                miepDate = obj.workFile(5:10);
+                miepNumber = str2double(obj.workFile(11:13));
+                miepEntry = obj.miepFile.readEntry(miepDate, miepNumber);
+                obj.comment.String = miepEntry.Comment;
+                
+                %display region list
+                try
+                    numRegions = size(obj.workData.header.Regions,2);
+                catch
+                    numRegions = 1;
+                end
+                if numRegions == 1
+                    obj.regionList.String = 'Region 1';
+                    obj.regionList.Enable = 'off';
+                else
+                    newList = cell(numRegions,1);
+                    for i = 1:numRegions
+                        newList{i} = ['Region ', num2str(i)];
+                    end
+                    obj.regionList.String = newList;
+                    obj.regionList.Enable = 'on';
+                end
+                obj.regionList.Value = 1;
+                obj.workRegion = 1;
+                
+                %display Tabs and update export menu
+                obj.displayTabs
+                obj.updateExportMenu
+            end
+        end
+        
+        function closeTabs(obj)
+            %clear current tabs
+            curTabs = fields(obj.tabs);
+            for i=1:size(curTabs, 1)
+                delete(obj.tabs.(curTabs{i}))
+            end
+        end
+        
+        function displayTabs(obj)
+            %display tabs
+            %determine if specturm or image
+            if ~isempty(strfind(obj.workData.header.Flags, 'Spectra'))
+                mieptab(obj, 'spectrum');
+                obj.workTab = 'spectrum';
+            else
+                mieptab(obj, 'image');
+                obj.workTab = 'image';
+                if strcmp(obj.workData.channels{end}, 'BBX')
+                    mieptab(obj, 'movie');
+                    mieptab(obj, 'fft');
+                    mieptab(obj, 'kspace');
+                    obj.workTab = 'movie';
+                end
+            end
+        end
+        
+        function updateExportMenu(obj)
+            %update available exports depending on settings
+            %Turn off all export menues
+            exportMenu = findobj(obj.menu.Children, 'Text', 'Export to...');
+            exportOptions = exportMenu.Children;
+            for i = 1:length(exportOptions)
+                exportOptions(i).Enable = 'off';
+            end
+            
+            %always on menus
+            csvMenu = findobj(obj.menu.Children, 'Text', 'CSV');
+            jpgMenu = findobj(obj.menu.Children, 'Text', 'JPG');
+            csvMenu.Enable = 'on';
+            jpgMenu.Enable = 'on';
+            
+            %determine if specturm or image
+            if ~isempty(strfind(obj.workData.header.Flags, 'Spectra'))
+            else
+                %check for bbx
+                if strcmp(obj.workData.channels{end}, 'BBX')
+                    %enable POV-Ray and movie export for Movie
+                    povMenu = findobj(obj.menu.Children, 'Text', 'POV-Ray');
+                    povMenu.Enable = 'on';
+                    povMenu = findobj(obj.menu.Children, 'Text', 'MP4');
+                    povMenu.Enable = 'on';
+                end
+            end
+        end
+        
+        
     end
 end

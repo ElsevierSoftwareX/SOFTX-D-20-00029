@@ -10,8 +10,8 @@ function readBBX(obj)
 if isempty(obj.magicNumber)
     obj.magicNumber = str2double(inputdlg(['Magic Number for ', obj.header.Label, '?']));
 end
-while isempty(obj.magicNumber)
-    obj.magicNumber = str2double(inputdlg(['Magic Number for ', obj.header.Label, 'Nochmals: ?']));
+while isempty(obj.magicNumber) || isnan(obj.magicNumber)
+    obj.magicNumber = str2double(inputdlg(['Magic Number for ', obj.header.Label, ', nochmals: ?']));
 end
 
 %open file

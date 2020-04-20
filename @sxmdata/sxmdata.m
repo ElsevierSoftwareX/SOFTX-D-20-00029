@@ -22,7 +22,7 @@ classdef (Sealed) sxmdata < dynamicprops
         basefile = []; %stores the base filename
     end
     
-    properties (Access = private)
+    properties %(Access = private)
         %storage variables for data and evaluation results
         %should be accessed via obj.data() and obj.eval()
         dataStore = []; %stores the imported data (region,energy)
@@ -59,7 +59,7 @@ classdef (Sealed) sxmdata < dynamicprops
             end
         end
     end
-            
+    
     
     methods (Access = public)
         %public methods including constructor and display
@@ -117,11 +117,13 @@ classdef (Sealed) sxmdata < dynamicprops
                 end
             end
             %check for data presence
-            if strcmp(obj.header.Flags, 'Spectra')
+            if ~isempty(strfind(obj.header.Flags, 'Spectra'))
                 if isempty(obj.dataStore(region).(channel))
                     %read XSP file
                     obj.readXSP(region)
                 end
+                %return data
+                output = obj.dataStore(region).(channel);
             else
                 if isempty(obj.dataStore(region,energy).(channel))
                     switch channel
@@ -149,9 +151,11 @@ classdef (Sealed) sxmdata < dynamicprops
                             obj.readBBX
                     end
                 end
+                %return data
+                output = obj.dataStore(region,energy).(channel);
             end
-            %return data
-            output = obj.dataStore(region,energy).(channel);
+            
+            
         end
         
         function output = eval(obj, type, varargin)
@@ -188,7 +192,7 @@ classdef (Sealed) sxmdata < dynamicprops
         function initDataStore(obj)
             %initializes dataStore depending on header information
             
-            if strcmp(obj.header.Flags, 'Spectra')
+            if ~isempty(strfind(obj.header.Flags, 'Spectra'))
                 %init for Spectra
                 obj.dataStore = struct;
                 obj.dataStore.Energy = [];
@@ -200,7 +204,7 @@ classdef (Sealed) sxmdata < dynamicprops
             else
                 %init for Images
                 for region = 1:size(obj.header.Regions,2)
-                    numEnergies = 1:obj.header.StackAxis.Points;
+                    numEnergies = obj.header.StackAxis.Points;
                     if isnan(numEnergies)
                         numEnergies = 1; %OSA Focus Scan contingency
                     end
@@ -222,7 +226,7 @@ classdef (Sealed) sxmdata < dynamicprops
         
         function initEvalStore(obj)
             %initializes evalStore for potential eval results
-            %current time machine only runs on single region/energy         
+            %current time machine only runs on single region/energy
             obj.evalStore(1,1).FFT = [];
             obj.evalStore(1,1).FrequencySpectrum = [];
             obj.evalStore(1,1).SpatialFFT = [];

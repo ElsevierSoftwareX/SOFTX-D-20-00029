@@ -58,6 +58,15 @@ classdef mieptab < handle
         
         function delete(obj)
             %miep tab destructor removes tab from miep GUI
+            
+            %stop previous timer and delete if existent to avoid timer
+            %errors and multiple timers
+
+            if ~isempty(timerfind)
+                stop(timerfind)
+                delete(timerfind)
+            end
+
             delete(obj.tabHandle)
         end
     end
