@@ -48,7 +48,7 @@ for i=1:fileListLength
         if strcmp(obj.workData.channels{end}, 'BBX')
             %export MP4 video
             if wMP4
-                tempData.writeMP4(obj.settings)
+                tempData.writeMP4(obj.settings, true) %use silent mode
                 waitbar((i-0.75)/fileListLength, wb)
             end
             %export POV-Ray

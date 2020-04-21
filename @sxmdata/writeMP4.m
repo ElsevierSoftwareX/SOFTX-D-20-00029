@@ -1,6 +1,9 @@
 function writeMP4(obj, varargin)
 %Function to export MIEP data to JPG/MP4
+%Optional Inputs: miepsettings, silent
 
+%parse input
+silent = false;
 if isempty(varargin)
     %Get directory from user input
     outpath = uigetdir([getenv('USERPROFILE') '\documents\'], 'Select Output Folder');
@@ -18,6 +21,10 @@ if isempty(varargin)
 elseif length(varargin) == 1
     outpath = varargin{1}.outputFolder;
     settings = varargin{1};
+elseif length(varargin) == 2
+    outpath = varargin{1}.outputFolder;
+    settings = varargin{1};
+    silent = true;
 else
     errordlg('Please enter Output Path', 'Error')
     return
@@ -36,12 +43,12 @@ end
 MP4File = [outfolder '\' scannumber];
 
 %export data
-exportData(obj, MP4File, settings)
+exportData(obj, MP4File, settings, silent)
 
 fclose('all');
 end
 
-function exportData(obj, MP4File, settings)
+function exportData(obj, MP4File, settings, silent)
 %function to call all the individual export functions for different
 %categories (spectrum, image, raw movie, normalized movie, ect...)
 
@@ -58,7 +65,7 @@ x = linspace(xMin, xMax, xPoints)-xMin;
 y = linspace(yMin, yMax, yPoints)-yMin;
 
 %Export all the different mieptab 
-writeFFTMovie(x, y, obj.eval('FFT'), [MP4File '_' 'FFTMovie' '.mp4'], settings)
+writeFFTMovie(x, y, obj.eval('FFT'), [MP4File '_' 'FFTMovie' '.mp4'], settings, silent)
 writeMovie(x, y, obj.data('Movie'), [MP4File '_' 'NormMovie' '.mp4'], settings)
 writeMovie(x, y, obj.data('RawMovie'), [MP4File '_' 'RawMovie' '.mp4'], settings)
 
@@ -111,7 +118,7 @@ function writeMovie(x, y, data, MP4File, settings)
     close(v);
     close(fig)
 end
-function writeFFTMovie(x, y, fft, MP4File, settings)
+function writeFFTMovie(x, y, fft, MP4File, settings, silent)
     %function to export fft movie including all frequencies
     fig = figure('visible', 'off');
     ax = axes(fig);
@@ -126,7 +133,12 @@ function writeFFTMovie(x, y, fft, MP4File, settings)
         data(:,:,:,i) = fft.Amplitude.*sin(fft.Phase + shift(i));
     end
     
-    exportNum = selectFreq(freq);
+    %ask for frequencies to export, unless in silent mode
+    if ~silent
+        exportNum = selectFreq(freq);
+    else
+        exportNum = ceil(length(freq)/2+1);
+    end
     
     for i = exportNum
         
