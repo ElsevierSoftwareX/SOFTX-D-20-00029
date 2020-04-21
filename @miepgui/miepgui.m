@@ -159,6 +159,7 @@ classdef (Sealed) miepgui < handle
             menuTools = uimenu(obj.fig, 'Text', '&Tools');
             uimenu(menuTools, 'Text', '&XMCD', 'MenuSelectedFcn', @obj.showXMCDTool, 'Accelerator', 'X');
             uimenu(menuTools, 'Text', '&Export All', 'MenuSelectedFcn', @obj.showExportTool, 'Accelerator', 'E');
+            uimenu(menuTools, 'Text', 'Clear &Cache', 'MenuSelectedFcn', @obj.showCacheTool);
             
             menuHelp = uimenu(obj.fig, 'Text', '&?');%, 'MenuSelectedFcn', @obj.guiPrettyMenu);
             uimenu(menuHelp, 'Text', '&Info', 'MenuSelectedFcn', @obj.guiHelpInfo);
@@ -222,6 +223,8 @@ classdef (Sealed) miepgui < handle
         showXMCDTool(obj, ~, ~, ~) %show XMCD tool
         
         showExportTool(obj, ~, ~, ~) %show Export Tool
+        
+        showCacheTool(obj, ~, ~, ~) %show Cache Tool
     end
     
     methods (Access = private)
