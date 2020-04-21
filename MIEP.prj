@@ -1,5 +1,5 @@
 <deployment-project plugin="plugin.ezdeploy" plugin-version="1.0">
-  <configuration build-checksum="2681122423" file="D:\GitHub\miep\MIEP.prj" location="D:\GitHub\miep" name="MIEP" preferred-package-location="D:\GitHub\miep\MIEP\for_redistribution" preferred-package-type="package.type.exe" target="target.ezdeploy.standalone" target-name="Application Compiler">
+  <configuration build-checksum="3618404102" file="D:\GitHub\miep\MIEP.prj" location="D:\GitHub\miep" name="MIEP" preferred-package-location="D:\GitHub\miep\MIEP\for_redistribution" preferred-package-type="package.type.exe" target="target.ezdeploy.standalone" target-name="Application Compiler">
     <param.appname>MIEP</param.appname>
     <param.icon />
     <param.icons />
@@ -88,6 +88,8 @@
       <file>${PROJECT_ROOT}\@miepgui\loadSXMData.m</file>
       <file>${PROJECT_ROOT}\@miepgui\miepgui.m</file>
       <file>${PROJECT_ROOT}\@miepgui\saveFile.m</file>
+      <file>${PROJECT_ROOT}\@miepgui\showCacheTool.m</file>
+      <file>${PROJECT_ROOT}\@miepgui\showExportTool.m</file>
       <file>${PROJECT_ROOT}\@miepgui\showSettings.m</file>
       <file>${PROJECT_ROOT}\@miepgui\showXMCDTool.m</file>
       <file>${PROJECT_ROOT}\@miepicons\miepicons.m</file>
