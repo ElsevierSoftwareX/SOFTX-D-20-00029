@@ -146,7 +146,7 @@ classdef (Sealed) miepgui < handle
             uimenu(obj.menu, 'Text', '&Open Folder', 'MenuSelectedFcn', @obj.guiLoadFolder, 'Accelerator', 'O');
             uimenu(obj.menu, 'Text', '&Refresh Folder', 'MenuSelectedFcn', @obj.guiRefreshFolder, 'Accelerator', 'R');
             
-            uimenu(obj.menu, 'Text', '&Reset SXM Data', 'MenuSelectedFcn', @obj.guiFileReset, 'Separator', 'on')
+            uimenu(obj.menu, 'Text', '&Reset SXM Data', 'MenuSelectedFcn', @obj.guiResetFile, 'Separator', 'on')
             obj.exportMenu = uimenu(obj.menu, 'Text', '&Export SXM Data to...');
             uimenu(obj.exportMenu, 'Text', '&CSV', 'MenuSelectedFcn', @obj.writeCSV, 'Accelerator', 'C', 'Enable', 'off');
             uimenu(obj.exportMenu, 'Text', '&JPG', 'MenuSelectedFcn', @obj.writeJPG, 'Accelerator', 'J', 'Enable', 'off');
@@ -287,6 +287,13 @@ classdef (Sealed) miepgui < handle
             obj.loadFile
             %focus back on gui list
             uicontrol(obj.fileList)
+        end
+        
+        function guiResetFile(obj, ~, ~)
+            %reset evaluation and data cache of current file
+            obj.workData.reset
+            obj.saveFile
+            obj.loadFile
         end
         
         function guiSave(obj, ~, ~)
