@@ -9,6 +9,11 @@
 function showXMCDTool(obj, ~, ~, ~)
 %XMCD tool
 
+if isempty(obj.fileList.String)
+    warndlg('Please load folder containing scans first.', 'No files found.')
+    return
+end
+
 %show dialog to select spectra
 [file1, file2] = selectSXMData;
 
