@@ -32,6 +32,7 @@ classdef miepicons
         pause
         refresh
         run
+        welcome
     end
     methods
         %methods that load files
@@ -49,6 +50,9 @@ classdef miepicons
         end
         function icon = get.run(obj)
             icon = obj.readIcon('run.png');
+        end
+        function icon = get.welcome(obj)
+            icon = obj.readIcon('welcome.png');
         end
     end
     

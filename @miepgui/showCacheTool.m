@@ -11,10 +11,10 @@ function showCacheTool(obj, ~, ~, ~)
 
 %show dialog to select measurements
 fileList = selectCacheData;
+
 if isempty(fileList)
     return
 end
-
 
 %show waitbar
 fileListLength = length(fileList);
@@ -43,10 +43,15 @@ delete(wb)
         cacheFiles = dir(fullfile(obj.settings.dataFolder, '*.miep'));
         fileNames = {cacheFiles.name};
         
+        if isempty(cacheFiles)
+            warndlg('No cache found.','Cache empty');
+            return
+        end
+        
         %determine position from screen size and open dialog
         listLength = length(fileNames) * 10 + 20 + 3*5;
         screenSize = get(0, 'ScreenSize');
-        dSize = [300 min(listLength, screenSize(3)*0.8)]; %figure width height
+        dSize = [300 max(min(listLength, screenSize(3)*0.8), 130)]; %figure width height
         dPos(1) = screenSize(3)/2-dSize(1)/2; %position left
         dPos(2) = screenSize(4)/2-dSize(2)/2; %position bottom
         dPos(3) = dSize(1); %width

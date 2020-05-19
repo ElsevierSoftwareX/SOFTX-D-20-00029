@@ -73,6 +73,6 @@ switch numRegions
 end
 
 %readfile
-obj.dataStore(region,energy).(obj.header.Channels(channel).Name) = flipud(dlmread(filename));
+obj.dataStore(region,energy).(obj.header.Channels(channel).Name) = dlmread(filename);
 
 end

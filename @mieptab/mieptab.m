@@ -30,14 +30,15 @@ classdef mieptab < handle
             
             %create tab
             obj.tabHandle = uitab(miepGUIObj.tabGroup, 'Units', 'pixels');
-
+            %drawnow%fix matlab madness
+            
             miepGUIObj.tabs.(tabType) = obj;
-
+            
             %decide which type of tab to draw
             switch tabType
                 case 'miep'
                     obj.tabHandle.Title = 'MIEP';
-                    %empty welcome tab
+                    obj.welcomeTab(miepGUIObj)
                 case 'image'
                     obj.tabHandle.Title = 'Image';
                     obj.imageTab(miepGUIObj)

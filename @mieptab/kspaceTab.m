@@ -49,7 +49,6 @@ Pos(3) = 90; %width
 Pos(4) = 30; %height
 obj.uiHandles.run = uicontrol(obj.tabHandle, 'Style', 'pushbutton', 'Units', 'pixels', 'Position', Pos, 'Callback', @openinFigure, 'String', 'Open in Figure');
 
-
 %draw image axes and image
 Pos(1) = 5; %position left
 Pos(2) = 5; % position bottom
@@ -62,6 +61,8 @@ obj.uiHandles.fftAxes = axes(obj.tabHandle, 'Units', 'pixels', 'OuterPosition', 
 %chose first frequency to plot
 obj.uiHandles.frequencyList.Value = round(length(frequencies)/2)+1;
 obj.tabData.workSlice = obj.uiHandles.frequencyList.Value;
+
+drawnow % fix for stuttering
 
 %draw image on first energy/channel
 fftDraw;

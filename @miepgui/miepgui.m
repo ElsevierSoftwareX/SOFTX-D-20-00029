@@ -43,6 +43,7 @@ classdef (Sealed) miepgui < handle
         
         function set.workTab(obj, tabType)
             obj.tabGroup.SelectedTab = obj.tabs.(tabType).tabHandle;
+            obj.workTab = tabType;
         end
     end
     
@@ -201,7 +202,7 @@ classdef (Sealed) miepgui < handle
             Pos(2) = 60 + 2*5; % position bottom
             Pos(3) = drawingArea(3)*3/4; %width
             Pos(4) = drawingArea(4) - 20 - 60 - 4*5; %height
-            obj.tabGroup = uitabgroup(obj.fig, 'Units', 'pixels', 'Position', Pos);
+            obj.tabGroup = uitabgroup(obj.fig, 'Units', 'pixels', 'Position', Pos, 'SelectionChangedFcn', @obj.selectWorkTab);
             mieptab(obj, 'miep');
             
             %draw region selector list
@@ -280,6 +281,7 @@ classdef (Sealed) miepgui < handle
             if isempty(obj.fileList.String)
                 return
             end
+            
             %close old tabs to avoid error in timer function
             obj.closeTabs
             %save previous file, comments and Magic Number
@@ -424,16 +426,47 @@ classdef (Sealed) miepgui < handle
             %determine if specturm or image
             if ~isempty(strfind(obj.workData.header.Flags, 'Spectra'))
                 mieptab(obj, 'spectrum');
-                obj.workTab = 'spectrum';
+                try 
+                    obj.workTab = obj.workTab;
+                catch
+                    obj.workTab = 'spectrum';
+                end
             else
                 mieptab(obj, 'image');
-                obj.workTab = 'image';
+                %obj.workTab = 'image';
                 if strcmp(obj.workData.channels{end}, 'BBX')
                     mieptab(obj, 'movie');
                     mieptab(obj, 'fft');
                     mieptab(obj, 'kspace');
-                    obj.workTab = 'movie';
+                    try 
+                        obj.workTab = obj.workTab;
+                    catch
+                        obj.workTab = 'movie';
+                    end
                 end
+            end
+        end
+        
+        function selectWorkTab(obj,~,~)
+            %get title from selected tab
+            title = obj.tabGroup.SelectedTab.Title;
+            
+            stop(obj.tabs.movie.uiHandles.timer)
+            switch title
+                case 'MIEP'
+                    obj.workTab = 'miep';
+                case 'Image'
+                    obj.workTab = 'image';
+                case 'spectrum'
+                    obj.workTab = 'spectrum';
+                case 'FFT'
+                    obj.workTab = 'fft';
+                case 'k-Space'
+                    obj.workTab = 'kspace';
+                case 'Movie'
+                    obj.workTab = 'movie';
+                    start(obj.tabs.movie.uiHandles.timer)
+                    obj.tabs.movie.uiHandles.run.CData = obj.miepIcons.pause;
             end
         end
         

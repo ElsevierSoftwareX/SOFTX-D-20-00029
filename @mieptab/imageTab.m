@@ -37,6 +37,8 @@ if max(size(channels)) == 1
     obj.uiHandles.channelList.Enable = 'off';
 end
 
+drawnow % fix for stuttering
+
 %draw open figure
 Pos(1) = 5; %position left
 Pos(2) = 5; % position bottom

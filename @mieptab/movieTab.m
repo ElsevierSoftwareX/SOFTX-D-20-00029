@@ -42,6 +42,8 @@ if obj.uiHandles.movieList.Value == 1 || obj.uiHandles.movieList.Value == 3
     obj.uiHandles.frequencyList.Enable = 'off';
 end
 
+drawnow % fix for stuttering
+
 %draw movie axes and movie
 Pos(1) = 5; %position left
 Pos(2) = 2*5 + 20; % position bottom
