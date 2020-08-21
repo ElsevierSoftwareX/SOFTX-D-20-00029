@@ -9,7 +9,7 @@
     <param.company>MPI for Intelligent Systems</param.company>
     <param.summary>MAXYMUS Image Evaluation Program</param.summary>
     <param.description />
-    <param.screenshot />
+    <param.screenshot>${PROJECT_ROOT}\@miepicons\welcome.png</param.screenshot>
     <param.guid />
     <param.installpath.string>\MPI Intelligent Systems\MIEP\</param.installpath.string>
     <param.installpath.combo>option.installpath.programfiles</param.installpath.combo>
@@ -47,7 +47,6 @@
       <param.icons />
       <param.version />
       <param.description />
-      <param.screenshot />
       <param.guid />
       <param.installpath.combo />
       <param.logo />
@@ -80,6 +79,7 @@
       <file>${PROJECT_ROOT}\@miepicons\pause.png</file>
       <file>${PROJECT_ROOT}\@miepicons\refresh.png</file>
       <file>${PROJECT_ROOT}\@miepicons\run.png</file>
+      <file>${PROJECT_ROOT}\@miepicons\welcome.png</file>
     </fileset.resources>
     <fileset.package />
     <fileset.depfun>
@@ -99,6 +99,7 @@
       <file>${PROJECT_ROOT}\@mieptab\mieptab.m</file>
       <file>${PROJECT_ROOT}\@mieptab\movieTab.m</file>
       <file>${PROJECT_ROOT}\@mieptab\spectrumTab.m</file>
+      <file>${PROJECT_ROOT}\@mieptab\welcomeTab.m</file>
       <file>${PROJECT_ROOT}\@sxmdata\evalFFT.m</file>
       <file>${PROJECT_ROOT}\@sxmdata\evalFrequencySpectrum.m</file>
       <file>${PROJECT_ROOT}\@sxmdata\evalSpatialFFT.m</file>

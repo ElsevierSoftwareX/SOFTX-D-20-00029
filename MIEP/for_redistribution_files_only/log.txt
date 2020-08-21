@@ -1,0 +1,17 @@
+Error using imread>get_full_filename (line 567)
+File "C:\Users\Graefe\AppData\Local\Temp\Graefe\mcrCache9.8\MIEP_90\MIEP\@miepicons\welcome.png" does not exist.
+
+Error in imread (line 374)
+
+Error in miepicons/readIcon (line 62)
+
+Error in miepicons/get.welcome (line 55)
+
+Error in mieptab/welcomeTab (line 26)
+
+Error in mieptab (line 41)
+
+Error in miepgui (line 206)
+
+Error in miep (line 10)
+
