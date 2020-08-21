@@ -24,6 +24,29 @@ end
 %save current sxmdata file
 dataPath = fullfile(obj.settings.dataFolder, strcat(obj.workFile, '.miep'));
 data = obj.workData;
-save(dataPath, 'data')
+
+dataSize = checkSize(data);
+if dataSize > 1e8
+    wbar = waitbar(1,'...This might take some time depending on the scan size.','Name',...
+        sprintf('Saving %0.1f Gigabytes of Data...',round(dataSize/1e9,1)));
+    save(dataPath, 'data', '-nocompression')
+    delete(wbar)
+else
+    save(dataPath, 'data', '-nocompression')
+end
+
 delete(data)
+end
+
+
+function dataSize = checkSize(dataObj) 
+   props = properties(dataObj); 
+   dataSize = 0; 
+   
+   for i=1:length(props) 
+      currentProperty = dataObj.(props{i}); 
+      s = whos('currentProperty'); 
+      dataSize = dataSize + s.bytes; 
+   end
+  
 end

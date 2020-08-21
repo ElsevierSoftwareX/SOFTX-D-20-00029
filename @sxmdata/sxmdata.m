@@ -48,14 +48,19 @@ classdef (Sealed) sxmdata < dynamicprops
         end
         function energies = get.energies(obj)
             %compile list of energies
-            numEnergies = obj.header.StackAxis.Points;
-            if isnan(numEnergies)
-                energies{1} = obj.header.Type;
-            else
-                energies = cell(numEnergies, 1);
-                for i=1:numEnergies
-                    energies{i} = [num2str(obj.header.StackAxis.Axis(i)), ' ', obj.header.StackAxis.Unit];
+            if isfield(obj.header, 'StackAxis')
+                numEnergies = obj.header.StackAxis.Points;
+                if isnan(numEnergies)
+                    energies{1} = obj.header.Type;
+                else
+                    energies = cell(numEnergies, 1);
+                    for i=1:numEnergies
+                        energies{i} = [num2str(obj.header.StackAxis.Axis(i)), ' ', obj.header.StackAxis.Unit];
+                    end
                 end
+            else
+                %for spectrum
+                energies = strcat(cellstr(""+obj.data('Energy',1,1)), ' eV');
             end
         end
     end
