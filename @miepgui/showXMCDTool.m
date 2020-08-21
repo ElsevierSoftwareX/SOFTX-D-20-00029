@@ -9,6 +9,11 @@
 function showXMCDTool(obj, ~, ~, ~)
 %XMCD tool
 
+if isempty(obj.fileList.String)
+    warndlg('Please load folder containing scans first.', 'No files found.')
+    return
+end
+
 %show dialog to select spectra
 [file1, file2] = selectSXMData;
 
@@ -81,9 +86,13 @@ switch data1.header.Flags
         surf(sub2, x, y, xas2, 'edgecolor', 'none');
         sub2.Title.String = 'XAS 2';
         
-        sub3 = subplot(1,2,2);
+        sub3 = subplot(2,2,2);
         surf(sub3, x, y, xmcdSignal, 'edgecolor', 'none');
         sub3.Title.String = 'XMCD';
+        
+        sub3 = subplot(2,2,4);
+        surf(sub3, x, y, xas1 + xas2, 'edgecolor', 'none');
+        sub3.Title.String = 'XAS 1 + XAS 2';   
         
         for i = 1:length(newFigure.Children)
             newFigure.Children(i).View = [0 90];

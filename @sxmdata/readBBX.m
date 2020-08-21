@@ -28,12 +28,16 @@ images = zeros(height, width, nImages);
 for i=1:nImages
     for j=1:width
         col = fread(fid, height, 'int', 'b');
-        images(1:height,j,i) = flipud(col);
+        images(1:height,j,i) = col;
     end
 end
 
 %close file
 fclose(fid);
+
+%bad pixel fix
+images(1,1,:) = images(2,1,:);
+images(1,2,:) = images(2,2,:);
 
 %calculate image times and normalize
 obj.dataStore(1).BBX = mean(images,3);

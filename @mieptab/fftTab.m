@@ -32,6 +32,8 @@ Pos(3) = 90; %width
 Pos(4) = 30; %height
 obj.uiHandles.run = uicontrol(obj.tabHandle, 'Style', 'pushbutton', 'Units', 'pixels', 'Position', Pos, 'Callback', @openinFigure, 'String', 'Open in Figure');
 
+drawnow % fix for stuttering
+
 %draw image axes and image
 Pos(1) = 5; %position left
 Pos(2) = 5; % position bottom

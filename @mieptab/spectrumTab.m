@@ -13,7 +13,6 @@ function spectrumTab(obj, miepGUIObj)
 %determine drawing area
 drawingArea = obj.tabHandle.Position - [-2 -3 5 30]; %correct MATLAB madness?
 
-
 %draw channel selector list
 Pos(1) = 5; %position left
 Pos(2) = drawingArea(4) - 20 - 5; % position bottom
@@ -25,6 +24,8 @@ obj.uiHandles.channelList.String = channels;
 if max(size(channels)) == 1
     obj.uiHandles.channelList.Enable = 'off';
 end
+
+drawnow % fix for stuttering
 
 %draw open figure
 Pos(1) = 5; %position left

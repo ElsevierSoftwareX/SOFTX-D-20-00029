@@ -16,20 +16,26 @@ timeSteps = size(timeSlices,3);
 bunchSpacing = 2*10^-9; %ns
 samplingRate = 1/(bunchSpacing/obj.magicNumber);
 
-%init storage
-power = zeros(width,height,timeSteps);
-amplitude = zeros(width,height,timeSteps);
-phase = zeros(width,height,timeSteps);
+% %init storage
+% power = zeros(width,height,timeSteps);
+% amplitude = zeros(width,height,timeSteps);
+% phase = zeros(width,height,timeSteps);
+% 
+% %calculates FFTs by looping
+% for i=1:width
+%     for j=1:height
+%         ijfft = fftshift(fft(timeSlices(i,j,:),timeSteps));
+%         power(i,j,:) = ijfft.*conj(ijfft)/timeSteps;
+%         amplitude(i,j,:) = abs(ijfft);
+%         phase(i,j,:) = angle(ijfft);
+%     end
+% end
 
 %calculates FFTs
-for i=1:width
-    for j=1:height
-        ijfft = fftshift(fft(timeSlices(i,j,:),timeSteps));
-        power(i,j,:) = ijfft.*conj(ijfft)/timeSteps;
-        amplitude(i,j,:) = abs(ijfft);
-        phase(i,j,:) = angle(ijfft);
-    end
-end
+ffts = fftshift(fft(timeSlices,[],3),3);
+amplitude = abs(ffts);
+phase = angle(ffts);
+power = amplitude.^2/timeSteps;
 
 %write results into evalStore
 obj.evalStore.FFT.Frequency = (-floor(timeSteps/2):floor(timeSteps/2))*(samplingRate/timeSteps);
