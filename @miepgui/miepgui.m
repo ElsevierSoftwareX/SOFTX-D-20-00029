@@ -359,6 +359,12 @@ classdef (Sealed) miepgui < handle
                 jFileMenu = jMenu(1).getMenuComponents;
                 jFileMenu(1).setIcon(javax.swing.ImageIcon(fullfile(obj.miepIcons.iconDir, 'file_open.png')))
                 jFileMenu(2).setIcon(javax.swing.ImageIcon(fullfile(obj.miepIcons.iconDir, 'refresh.png')))
+                jFileMenu(4).setIcon(javax.swing.ImageIcon(fullfile(obj.miepIcons.iconDir, 'reset.png')))
+                jFileMenu(5).setIcon(javax.swing.ImageIcon(fullfile(obj.miepIcons.iconDir, 'export.png')))
+                jFileMenu(7).setIcon(javax.swing.ImageIcon(fullfile(obj.miepIcons.iconDir, 'settings.png')))
+                jFileMenu(8).setIcon(javax.swing.ImageIcon(fullfile(obj.miepIcons.iconDir, 'close.png')))
+
+
                 jMenu(3).doClick
                 while jMenu(3).getMenuComponentCount < 1
                     pause(0.05)
