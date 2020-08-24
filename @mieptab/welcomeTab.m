@@ -15,8 +15,8 @@ drawingArea = obj.tabHandle.Position - [-2 -3 5 30]; %correct MATLAB madness?
 
 
 %draw image axes and image
-Pos(1) = -150; %position left
-Pos(2) = -85; % position bottom
+Pos(1) = -210; %position left
+Pos(2) = -130; % position bottom
 Pos(3) = drawingArea(3) - 2*5 + 250; %width
 Pos(4) = drawingArea(4) - 3*5 - 20 + 150; %height
 
