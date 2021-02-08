@@ -64,7 +64,7 @@ catch
 end
 
 %show XMCD result
-newFigure = figure;
+newFigure = figure('MenuBar', 'None', 'NumberTitle', 'off', 'name', 'XMCD Tool');
 
 switch data1.header.Flags
     case 'Image'
