@@ -28,6 +28,18 @@ for i=1:fileListLength
         wbString  = ['Clearing Cache (' num2str(i) '/' num2str(fileListLength) ') ...'];
         waitbar((i-1)/fileListLength, wb, wbString)
         delete(fullfile(fileList(i).folder, fileList(i).name))
+        
+        %delete entries in miep file
+        miepDate = fileList(i).name(end-13:end-8);
+        miepNumber = str2double(fileList(i).name(end-7:end-5));
+        obj.miepFile.resetEntry(miepDate, miepNumber)
+        
+        if strcmp(obj.workData.basefile(end-8:end),[miepDate sprintf('%03d', miepNumber)])
+            resetWorkData = true;
+        else
+            resetWorkData = false;
+        end
+        
     catch errMIEP
         disp(errMIEP)
     end
@@ -35,6 +47,11 @@ end
 
 %delete waitbar
 delete(wb)
+
+%reset workdata if contained in the list
+if resetWorkData
+    obj.workData.reset
+end
 
 %% gui functions
     function fileList = selectCacheData
@@ -51,7 +68,7 @@ delete(wb)
         %determine position from screen size and open dialog
         listLength = length(fileNames) * 10 + 20 + 3*5;
         screenSize = get(0, 'ScreenSize');
-        dSize = [300 max(min(listLength, screenSize(3)*0.8), 130)]; %figure width height
+        dSize = [300 max(min(listLength, screenSize(3)*0.5), 130)]; %figure width height
         dPos(1) = screenSize(3)/2-dSize(1)/2; %position left
         dPos(2) = screenSize(4)/2-dSize(2)/2; %position bottom
         dPos(3) = dSize(1); %width

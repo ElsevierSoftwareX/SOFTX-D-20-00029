@@ -105,5 +105,13 @@ classdef miepfile < handle
             %write to file
             obj.writeDate(miepDate, miepTable);
         end
+        
+        function resetEntry(obj, miepDate, miepNumber)
+            %reset magic number and comment in miep entry
+            miepEntry = obj.readEntry(miepDate, miepNumber);
+            miepEntry.MagicNumber = 0;
+            miepEntry.Comment = {[]};
+            obj.writeEntry(miepDate, miepEntry)
+        end
     end
 end

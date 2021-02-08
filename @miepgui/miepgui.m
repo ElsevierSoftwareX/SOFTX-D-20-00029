@@ -107,15 +107,15 @@ classdef (Sealed) miepgui < handle
             end
         end
         function settingsFile = get.settingsFile(~)
-            if isdeployed
+%             if isdeployed
                 miepsettingsFile = fullfile(getenv('APPDATA'), 'MIEP');
                 if ~exist(miepsettingsFile, 'dir')
                     mkdir(miepsettingsFile)
                 end
                 settingsFile = fullfile(miepsettingsFile, 'settings.mat');
-            else
-                settingsFile = 'settings.mat';
-            end
+%             else
+%                 settingsFile = 'settings.mat';
+%             end
         end
             
     end
@@ -298,13 +298,15 @@ classdef (Sealed) miepgui < handle
             %reset evaluation and data cache of current file
             obj.workData.reset
             obj.saveFile
+            %pause is supposed to fix multiple MN requests
+            pause(0.1)
             obj.loadFile
         end
         
         function guiSave(obj, ~, ~)
             %write comment to miep file after change
-            miepDate = obj.workFile(5:10);
-            miepNumber = str2double(obj.workFile(11:13));
+            miepDate = obj.workFile(end-8:end-3);
+            miepNumber = str2double(obj.workFile(end-2:end));
             miepEntry = obj.miepFile.readEntry(miepDate, miepNumber);
             miepEntry.Comment = obj.comment.String;
             miepEntry.MagicNumber = obj.workData.magicNumber;
@@ -388,8 +390,8 @@ classdef (Sealed) miepgui < handle
                 mieptab(obj, 'miep');
             else
                 %display comment
-                miepDate = obj.workFile(5:10);
-                miepNumber = str2double(obj.workFile(11:13));
+                miepDate = obj.workFile(end-8:end-3);
+                miepNumber = str2double(obj.workFile(end-2:end));
                 miepEntry = obj.miepFile.readEntry(miepDate, miepNumber);
                 obj.comment.String = miepEntry.Comment;
                 

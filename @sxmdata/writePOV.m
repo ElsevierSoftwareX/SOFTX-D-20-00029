@@ -89,20 +89,25 @@ function writePOV(obj, varargin)
     [xRes, yRes] = getRes(obj);
     
     %check for long side and switch if neccessary
-    if yRes*size(amplitude,1) < xRes*size(amplitude,2)
-        amplitude = permute(amplitude,[2,1,3]);
-        phase = permute(phase,[2,1,3]);
+    if yRes*size(amplitude,1) <= xRes*size(amplitude,2)
+        amplitude = amplitude';
+        phase = phase';
         tempXRes = xRes;
         xRes = yRes;
         yRes = tempXRes;
-
-        switched = 1;
+        
+        amplitude = flip(amplitude, 2);
+        phase = flip(phase, 2);
+        
     else
-        switched = 0;
+        
+        amplitude = flip(amplitude, 1);
+        phase = flip(phase, 1);
+        
     end
     
     %write dynamic image to png file
-    writeDynImg(outfolder, filename, amplitude, phase, switched)
+    writeDynImg(outfolder, filename, amplitude, phase)
     
     %calculating and normalizing M
     M = NaN([nFrames, size(amplitude)]);
@@ -111,6 +116,7 @@ function writePOV(obj, varargin)
     end
     M = M/max(abs(M(:)));
 
+    
     %create X and Y
     [X,Y] = meshgrid(((0:size(M,3)-1)-(size(M,3)-1)/2)*xRes,((0:size(M,2)-1)-(size(M,2)-1)/2)*yRes);
 
@@ -139,7 +145,7 @@ function writePOV(obj, varargin)
 end
 
 
-function writeDynImg(outfolder, infile, amplitude, phase, switched)
+function writeDynImg(outfolder, infile, amplitude, phase)
     
     hue = (phase+pi)/(2*pi);
     sat = ones(size(hue,1),size(hue,2));
@@ -149,13 +155,9 @@ function writeDynImg(outfolder, infile, amplitude, phase, switched)
     hsv(:,:,3) = val;
     
     dynPath = [outfolder infile '_dyn.png'];
-    
-    if ~switched
-        hsvPic = flip(hsv2rgb(hsv),1);
-    else
-        hsvPic = hsv2rgb(hsv);
-    end
-    
+
+    hsvPic = hsv2rgb(hsv);
+
     imwrite(hsvPic, dynPath);
 
 end
@@ -207,7 +209,7 @@ function cellMat = formPov(mat, matName)
         %dimension of X,Y is 2
         for j = 1:size(cellMat,1)
             waitbar(j/size(cellMat,1), h)
-            for k = 1:size(cellMat,1)
+            for k = 1:size(cellMat,2)
 
                 if j == 1 && k == 1
                     cellMat{j,k} = strcat('{{', cellMat{j,k});
@@ -392,7 +394,7 @@ function writePov(M, X, Y, cellM, cellX, cellY, xRes, yRes, frequency, field, ou
     fprintf(fid, 'object{\n');
     fprintf(fid, 'Round_Box(<-maxX,boxshift,-minY>, <maxX,boxshift+boxThickness,minY>, boxThickness/2, 0)\n');
     fprintf(fid, 'texture{ pigment { image_map{ png "%s"}\n', dynPath);
-    fprintf(fid, 'scale <maxX-minX,-1*(maxY-minY),1> rotate <270,0,0> translate <(maxX-minX)/2,0,(maxY-minY)/2> }\n');
+    fprintf(fid, 'scale <maxX-minX,-1*(maxY-minY),1> rotate <90,0,0> translate <(maxX-minX)/2,0,(maxY-minY)/2> }\n');
     fprintf(fid, 'finish { ambient 1 diffuse 0.9 phong 0.1}\n');
     fprintf(fid, '}\n');
     fprintf(fid, '}\n');

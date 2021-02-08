@@ -46,9 +46,9 @@ drawnow % fix for stuttering
 
 %draw movie axes and movie
 Pos(1) = 5; %position left
-Pos(2) = 2*5 + 20; % position bottom
+Pos(2) = 5; % position bottom
 Pos(3) = drawingArea(3) - 2*5; %width
-Pos(4) = drawingArea(4) - 4*5 - 2*20; %height
+Pos(4) = drawingArea(4) - 3*5 - 20; %height
 
 %create axes to draw movie
 obj.uiHandles.movieAxes = axes(obj.tabHandle, 'Units', 'pixels', 'OuterPosition', Pos);
@@ -71,7 +71,7 @@ movieDraw(1,1,1,1);
 obj.tabData.workMovie = 1; %use tabData to store current moive
 obj.tabData.workFrequency = 1; %use tabData to store current frequency
 obj.tabData.workOnes = ones(size(miepGUIObj.workData.data(1,1,1),1), size(miepGUIObj.workData.data(1,1,1),2));
-obj.tabData.workCountInterp = 0; %use tabData to store current counter for FFT movie
+obj.tabData.workCountInterp = 1; %use tabData to store current counter for FFT movie
 obj.tabData.workChannel = 1; %start out with normalized movie
 
 
@@ -92,6 +92,14 @@ movieRun
             obj.tabData.workSlice = 1;
             obj.tabData.workFrequency = frequency;
             obj.tabData.workChannel = channel;
+            
+            %precalculate FFT Movie for better performance
+            if channel == 2
+                nFrames = 30;
+                FFTdata = miepGUIObj.workData.eval('FFT');
+                phasePointMatrix = bsxfun(@times, permute((1:nFrames)./30,[1 3 2]), ones(size(FFTdata.Phase,1),size(FFTdata.Phase,2),nFrames))*2*pi;
+                obj.tabData.FFTMovieData = FFTdata.Amplitude(:,:,frequency).*sin(phasePointMatrix+FFTdata.Phase(:,:,frequency));
+            end
             
             try
                 movieDraw(1,1,1,channel);
@@ -214,14 +222,16 @@ movieRun
                                                       
                 %fix for axis stuttering
                 zlim = max(abs(data(:)));
-                obj.uiHandles.movieAxes.ZLim = [-zlim zlim];
+                try
+                    obj.uiHandles.movieAxes.ZLim = [-zlim zlim];
+                catch
+                end
                 
             case 2
                 channel = 'FFT';
-                data = miepGUIObj.workData.eval(channel);
-                workOnes = obj.tabData.workOnes;
+                data = obj.tabData.FFTMovieData;
                 countInterp = obj.tabData.workCountInterp;
-                surfData =  data.Amplitude(:,:,freqVal).*sin(countInterp./30.*workOnes.*2.*pi+data.Phase(:,:,freqVal));
+                surfData =  data(:,:,countInterp);
                 
                 if surfaceExists
                     obj.uiHandles.imageSurf.ZData = surfData;
@@ -231,13 +241,16 @@ movieRun
                 obj.uiHandles.frequencyList.Enable = 'on';
                 obj.uiHandles.run.Enable = 'on';
                 obj.tabData.workCountInterp = countInterp + 1;
-                if obj.tabData.workCountInterp > 29
-                    obj.tabData.workCountInterp = 0;
+                if obj.tabData.workCountInterp > 30
+                    obj.tabData.workCountInterp = 1;
                 end
                                       
                 %fix for axis stuttering
-                zlim = max(abs(data.Amplitude(:)));
-                obj.uiHandles.movieAxes.ZLim = [-zlim zlim];
+                zlim = max(abs(surfData(:)));
+                try
+                    obj.uiHandles.movieAxes.ZLim = [-zlim zlim];
+                catch
+                end
                 
             case 3
                 %hsv picture is a little tricky. First of all, stop the
@@ -289,7 +302,10 @@ movieRun
                 
                 %fix for axis stuttering
                 zlim = max(abs(colData(:)));
+                try
                 obj.uiHandles.movieAxes.ZLim = [-zlim zlim];
+                catch
+                end
 
             case 4
                 channel = 'RawMovie';
@@ -309,7 +325,10 @@ movieRun
                 
                 %fix for axis stuttering
                 zlim = max(abs(data(:)));
+                try
                 obj.uiHandles.movieAxes.ZLim = [-zlim zlim];
+                catch
+                end
         end
     end
 end

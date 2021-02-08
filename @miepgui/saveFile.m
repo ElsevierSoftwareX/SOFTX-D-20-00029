@@ -10,8 +10,8 @@
 
 function saveFile(obj)
 %load miep file entry
-miepDate = obj.workFile(5:10);
-miepNumber = str2double(obj.workFile(11:13));
+miepDate = obj.workFile(end-8:end-3);
+miepNumber = str2double(obj.workFile(end-2:end));
 miepEntry = obj.miepFile.readEntry(miepDate, miepNumber);
 
 %check magic number and save it
@@ -22,7 +22,8 @@ if ~isempty(obj.workData.magicNumber) && (miepEntry.MagicNumber == 0)
 end
 
 %save current sxmdata file
-dataPath = fullfile(obj.settings.dataFolder, strcat(obj.workFile, '.miep'));
+workFilePath = strsplit(obj.workFile, '\');
+dataPath = fullfile(obj.settings.dataFolder, strcat(workFilePath{end}, '.miep'));
 data = obj.workData;
 
 dataSize = checkSize(data);

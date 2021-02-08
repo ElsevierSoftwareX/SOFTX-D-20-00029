@@ -27,8 +27,8 @@ function loadFolder(obj)
         hdrFile = fullfile(hdrList(i).folder, hdrList(i).name);
         
         %load MIEP file
-        miepDate = hdrList(i).name(5:10);
-        miepNumber = str2double(hdrList(i).name(11:13));
+        miepDate = hdrList(i).name(end-12:end-7);
+        miepNumber = str2double(hdrList(i).name(end-6:end-4));
         miepEntry = obj.miepFile.readEntry(miepDate, miepNumber);
         
         %update MIEP entry
@@ -49,7 +49,18 @@ function loadFolder(obj)
         end
         
         %put entry into display list
-        dispFileList{i} = strrep(hdrList(i).name, '.hdr', '');
+        fileName = strrep(hdrList(i).name, '.hdr', '');
+        folderName = strrep(hdrList(i).folder, obj.workFolder, '');
+        
+        if ~isempty(folderName)
+            dispFileList{i} = [folderName(2:end) '\' fileName];
+        else
+            dispFileList{i} = fileName;
+        end
+        
+        %old version for only 1 Folder
+        %dispFileList{i} = [strrep(hdrList(i).name, '.hdr', '')];
+
     end
     dispFileList = sort(dispFileList);
     
