@@ -63,7 +63,7 @@ function writePOV(obj, varargin)
     prompt = {'Applied Field [mT]:','Number of Rendering Frames:',...
         'Gaussian Filter Width:', 'Aliasing Threshhold', 'Aliasing Depth'};
     definput = {'0', '50', '1.5', '0.2', '5'};
-    userInput = inputdlg(prompt,'Enter Personal Information' ,[1 50] ,definput);
+    userInput = inputdlg(prompt,'Enter Rendering Parameters' ,[1 50] ,definput);
     
     if isempty(userInput)
         return
