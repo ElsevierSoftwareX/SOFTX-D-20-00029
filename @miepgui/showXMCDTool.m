@@ -30,14 +30,27 @@ end
 if isempty(channel1) || isempty(channel2)
     return
 end
+
+if strcmp(data1.header.Flags, 'Multi-Region Spectra')
+    [region1, region2] = selectRegion;
+    if isempty(region1) || isempty(region2)
+        return
+    end
+else
+    region1 = 1;
+    region2 = 1;
+end
+
 if ~strcmp(data1.header.Flags, data2.header.Flags)
     errordlg('Incomptabile data flags', 'MIEP - XMCD Tool')
     return
 end
 
+
+
 %get data from sxmdata
-xas1 = data1.data(channel1);
-xas2 = data2.data(channel2);
+xas1 = data1.data(channel1, 1, region1);
+xas2 = data2.data(channel2, 1, region2);
 
 %image registration for images
 if strcmp(data1.header.Flags, 'Image')
@@ -55,6 +68,10 @@ if strcmp(data1.header.Flags, 'Image')
     end
 end
 
+
+    
+    
+    
 %evaluate data
 try
     xmcdSignal = (xas1 - xas2) ./ (xas1 + xas2);
@@ -64,7 +81,7 @@ catch
 end
 
 %show XMCD result
-newFigure = figure('MenuBar', 'None', 'NumberTitle', 'off', 'name', 'MIEP - XMCD Tool');
+newFigure = figure('NumberTitle', 'off', 'name', 'MIEP - XMCD Tool');
 
 switch data1.header.Flags
     case 'Image'
@@ -107,7 +124,7 @@ switch data1.header.Flags
             newFigure.Children(i).Colormap = eval(obj.settings.colorMaps{obj.settings.imageColorMap});
         end
         
-    case 'Spectra'
+    case {'Spectra', 'Multi-Region Spectra'}
         sub1 = subplot(2,1,1);
         xLabel = data1.header.Regions(1).PAxis.Name;
         xUnit = data1.header.Regions(1).PAxis.Unit;
@@ -257,7 +274,6 @@ end
         curPos(2) = butPos(2) + butPos(4) + 5;
         curPos(3) = dSize(1) - 2*5;
         curPos(4) = 20;
-        select1 = uicontrol(d, 'Style', 'popup', 'Position', curPos, 'String', {'monomodal', 'multimodal'});
         select2 = uicontrol(d, 'Style', 'popup', 'Position', curPos, 'String', {'affine','similarity','rigid','translation','none'});
         
         %registration mode selector
@@ -274,6 +290,52 @@ end
             %evaluate dialog input
             regMode = select1.String{select1.Value};
             regType = select2.String{select2.Value};
+            delete(d)
+        end
+    end
+
+    function [region1, region2] = selectRegion
+        %select region from current sxmdata
+        region1 = [];
+        region2 = [];
+        
+        %determine position from screen size and open dialog
+        screenSize = get(0, 'ScreenSize');
+        dSize = [300 80]; %figure width height
+        dPos(1) = screenSize(3)/2-dSize(1)/2; %position left
+        dPos(2) = screenSize(4)/2-dSize(2)/2; %position bottom
+        dPos(3) = dSize(1); %width
+        dPos(4) = dSize(2); %height
+        d = dialog('Position', dPos, 'Name', 'MIEP - XMCD Tool');
+        
+        %next button
+        butPos(3) = 50; %width
+        butPos(4) = 20; %height
+        butPos(1) = dPos(3)/2 - butPos(3)/2; %position left
+        butPos(2) = 5; %position bottom
+        uicontrol(d, 'Style', 'pushbutton', 'String', 'Next', 'Position', butPos, 'Callback', @guiNext);
+        
+        %second data selector
+        curPos(1) = 5;
+        curPos(2) = butPos(2) + butPos(4) + 5;
+        curPos(3) = dSize(1) - 2*5;
+        curPos(4) = 20;
+        select2 = uicontrol(d, 'Style', 'popup', 'Position', curPos, 'String', strcat('Region ', sprintfc('%d',1:size(data2.dataStore,2))));
+        
+        %first data selector
+        curPos(1) = 5;
+        curPos(2) = curPos(2) + curPos(4) + 5;
+        curPos(3) = dSize(1) - 2*5;
+        curPos(4) = 20;
+        select1 = uicontrol(d, 'Style', 'popup', 'Position', curPos, 'String', strcat('Region ', sprintfc('%d',1:size(data1.dataStore,2))));
+        
+        %wait for selection
+        uiwait(d)
+        
+        function guiNext(~, ~, ~)
+            %evaluate dialog input
+            region1 = select1.Value;
+            region2 = select2.Value;
             delete(d)
         end
     end
