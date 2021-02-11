@@ -1,74 +1,84 @@
 
-ScanDefinition = { Label = "tutorial000000001.hdr"; Type = "Image Scan"; Flags = "Image"; Dwell = 35;
-	Regions = (1,
+ScanDefinition = { Label = "tutorial000000001.hdr"; Type = "NEXAFS Point Scan"; Flags = "Multi-Region Spectra"; ScanType = "Spectra"; Dwell = 1000;
+	Regions = (4,
 {
-			PAxis = { Name = "Sample X"; Unit = "um"; Min = 547.621; Max = 549.621; Dir = 1;
-				Points = (100, 547.621, 547.641, 547.661, 547.681, 547.701, 547.721, 547.741, 547.761, 547.781, 547.801, 547.821, 547.841, 547.861, 547.881, 547.901, 547.921, 547.941, 547.961, 547.981, 548.001, 548.021, 548.041, 548.061, 548.081, 548.101, 548.121, 548.141, 548.161, 548.181, 548.201, 548.221, 548.241, 548.261, 548.281, 548.301, 548.321, 548.341, 548.361, 548.381, 548.401, 548.421, 548.441, 548.461, 548.481, 548.501, 548.521, 548.541, 548.561, 548.581, 548.601, 548.621, 548.641, 548.661, 548.681, 548.701, 548.721, 548.741, 548.761, 548.781, 548.801, 548.821, 548.841, 548.861, 548.881, 548.901, 548.921, 548.941, 548.961, 548.981, 549.001, 549.021, 549.041, 549.061, 549.081, 549.101, 549.121, 549.141, 549.161, 549.181, 549.201, 549.221, 549.241, 549.261, 549.281, 549.301, 549.321, 549.341, 549.361, 549.381, 549.401, 549.421, 549.441, 549.461, 549.481, 549.501, 549.521, 549.541, 549.561, 549.581, 549.601);
+			PAxis = { Name = "Energy"; Unit = "eV"; Min = 700; Max = 735; Dir = 1;
+				Points = (141, 700.000, 700.250, 700.500, 700.750, 701.000, 701.250, 701.500, 701.750, 702.000, 702.250, 702.500, 702.750, 703.000, 703.250, 703.500, 703.750, 704.000, 704.250, 704.500, 704.750, 705.000, 705.250, 705.500, 705.750, 706.000, 706.250, 706.500, 706.750, 707.000, 707.250, 707.500, 707.750, 708.000, 708.250, 708.500, 708.750, 709.000, 709.250, 709.500, 709.750, 710.000, 710.250, 710.500, 710.750, 711.000, 711.250, 711.500, 711.750, 712.000, 712.250, 712.500, 712.750, 713.000, 713.250, 713.500, 713.750, 714.000, 714.250, 714.500, 714.750, 715.000, 715.250, 715.500, 715.750, 716.000, 716.250, 716.500, 716.750, 717.000, 717.250, 717.500, 717.750, 718.000, 718.250, 718.500, 718.750, 719.000, 719.250, 719.500, 719.750, 720.000, 720.250, 720.500, 720.750, 721.000, 721.250, 721.500, 721.750, 722.000, 722.250, 722.500, 722.750, 723.000, 723.250, 723.500, 723.750, 724.000, 724.250, 724.500, 724.750, 725.000, 725.250, 725.500, 725.750, 726.000, 726.250, 726.500, 726.750, 727.000, 727.250, 727.500, 727.750, 728.000, 728.250, 728.500, 728.750, 729.000, 729.250, 729.500, 729.750, 730.000, 730.250, 730.500, 730.750, 731.000, 731.250, 731.500, 731.750, 732.000, 732.250, 732.500, 732.750, 733.000, 733.250, 733.500, 733.750, 734.000, 734.250, 734.500, 734.750, 735.000);
 };
-
-			QAxis = { Name = "Sample Y"; Unit = "um"; Min = -3199.896; Max = -3197.896; Dir = 1;
-				Points = (100, -3199.896, -3199.876, -3199.856, -3199.836, -3199.816, -3199.796, -3199.776, -3199.756, -3199.736, -3199.716, -3199.696, -3199.676, -3199.656, -3199.636, -3199.616, -3199.596, -3199.576, -3199.556, -3199.536, -3199.516, -3199.496, -3199.476, -3199.456, -3199.436, -3199.416, -3199.396, -3199.376, -3199.356, -3199.336, -3199.316, -3199.296, -3199.276, -3199.256, -3199.236, -3199.216, -3199.196, -3199.176, -3199.156, -3199.136, -3199.116, -3199.096, -3199.076, -3199.056, -3199.036, -3199.016, -3198.996, -3198.976, -3198.956, -3198.936, -3198.916, -3198.896, -3198.876, -3198.856, -3198.836, -3198.816, -3198.796, -3198.776, -3198.756, -3198.736, -3198.716, -3198.696, -3198.676, -3198.656, -3198.636, -3198.616, -3198.596, -3198.576, -3198.556, -3198.536, -3198.516, -3198.496, -3198.476, -3198.456, -3198.436, -3198.416, -3198.396, -3198.376, -3198.356, -3198.336, -3198.316, -3198.296, -3198.276, -3198.256, -3198.236, -3198.216, -3198.196, -3198.176, -3198.156, -3198.136, -3198.116, -3198.096, -3198.076, -3198.056, -3198.036, -3198.016, -3197.996, -3197.976, -3197.956, -3197.936, -3197.916);
+},
+{
+			PAxis = { Name = "Energy"; Unit = "eV"; Min = 700; Max = 735; Dir = 1;
+				Points = (141, 700.000, 700.250, 700.500, 700.750, 701.000, 701.250, 701.500, 701.750, 702.000, 702.250, 702.500, 702.750, 703.000, 703.250, 703.500, 703.750, 704.000, 704.250, 704.500, 704.750, 705.000, 705.250, 705.500, 705.750, 706.000, 706.250, 706.500, 706.750, 707.000, 707.250, 707.500, 707.750, 708.000, 708.250, 708.500, 708.750, 709.000, 709.250, 709.500, 709.750, 710.000, 710.250, 710.500, 710.750, 711.000, 711.250, 711.500, 711.750, 712.000, 712.250, 712.500, 712.750, 713.000, 713.250, 713.500, 713.750, 714.000, 714.250, 714.500, 714.750, 715.000, 715.250, 715.500, 715.750, 716.000, 716.250, 716.500, 716.750, 717.000, 717.250, 717.500, 717.750, 718.000, 718.250, 718.500, 718.750, 719.000, 719.250, 719.500, 719.750, 720.000, 720.250, 720.500, 720.750, 721.000, 721.250, 721.500, 721.750, 722.000, 722.250, 722.500, 722.750, 723.000, 723.250, 723.500, 723.750, 724.000, 724.250, 724.500, 724.750, 725.000, 725.250, 725.500, 725.750, 726.000, 726.250, 726.500, 726.750, 727.000, 727.250, 727.500, 727.750, 728.000, 728.250, 728.500, 728.750, 729.000, 729.250, 729.500, 729.750, 730.000, 730.250, 730.500, 730.750, 731.000, 731.250, 731.500, 731.750, 732.000, 732.250, 732.500, 732.750, 733.000, 733.250, 733.500, 733.750, 734.000, 734.250, 734.500, 734.750, 735.000);
+};
+},
+{
+			PAxis = { Name = "Energy"; Unit = "eV"; Min = 700; Max = 735; Dir = 1;
+				Points = (141, 700.000, 700.250, 700.500, 700.750, 701.000, 701.250, 701.500, 701.750, 702.000, 702.250, 702.500, 702.750, 703.000, 703.250, 703.500, 703.750, 704.000, 704.250, 704.500, 704.750, 705.000, 705.250, 705.500, 705.750, 706.000, 706.250, 706.500, 706.750, 707.000, 707.250, 707.500, 707.750, 708.000, 708.250, 708.500, 708.750, 709.000, 709.250, 709.500, 709.750, 710.000, 710.250, 710.500, 710.750, 711.000, 711.250, 711.500, 711.750, 712.000, 712.250, 712.500, 712.750, 713.000, 713.250, 713.500, 713.750, 714.000, 714.250, 714.500, 714.750, 715.000, 715.250, 715.500, 715.750, 716.000, 716.250, 716.500, 716.750, 717.000, 717.250, 717.500, 717.750, 718.000, 718.250, 718.500, 718.750, 719.000, 719.250, 719.500, 719.750, 720.000, 720.250, 720.500, 720.750, 721.000, 721.250, 721.500, 721.750, 722.000, 722.250, 722.500, 722.750, 723.000, 723.250, 723.500, 723.750, 724.000, 724.250, 724.500, 724.750, 725.000, 725.250, 725.500, 725.750, 726.000, 726.250, 726.500, 726.750, 727.000, 727.250, 727.500, 727.750, 728.000, 728.250, 728.500, 728.750, 729.000, 729.250, 729.500, 729.750, 730.000, 730.250, 730.500, 730.750, 731.000, 731.250, 731.500, 731.750, 732.000, 732.250, 732.500, 732.750, 733.000, 733.250, 733.500, 733.750, 734.000, 734.250, 734.500, 734.750, 735.000);
+};
+},
+{
+			PAxis = { Name = "Energy"; Unit = "eV"; Min = 700; Max = 735; Dir = 1;
+				Points = (141, 700.000, 700.250, 700.500, 700.750, 701.000, 701.250, 701.500, 701.750, 702.000, 702.250, 702.500, 702.750, 703.000, 703.250, 703.500, 703.750, 704.000, 704.250, 704.500, 704.750, 705.000, 705.250, 705.500, 705.750, 706.000, 706.250, 706.500, 706.750, 707.000, 707.250, 707.500, 707.750, 708.000, 708.250, 708.500, 708.750, 709.000, 709.250, 709.500, 709.750, 710.000, 710.250, 710.500, 710.750, 711.000, 711.250, 711.500, 711.750, 712.000, 712.250, 712.500, 712.750, 713.000, 713.250, 713.500, 713.750, 714.000, 714.250, 714.500, 714.750, 715.000, 715.250, 715.500, 715.750, 716.000, 716.250, 716.500, 716.750, 717.000, 717.250, 717.500, 717.750, 718.000, 718.250, 718.500, 718.750, 719.000, 719.250, 719.500, 719.750, 720.000, 720.250, 720.500, 720.750, 721.000, 721.250, 721.500, 721.750, 722.000, 722.250, 722.500, 722.750, 723.000, 723.250, 723.500, 723.750, 724.000, 724.250, 724.500, 724.750, 725.000, 725.250, 725.500, 725.750, 726.000, 726.250, 726.500, 726.750, 727.000, 727.250, 727.500, 727.750, 728.000, 728.250, 728.500, 728.750, 729.000, 729.250, 729.500, 729.750, 730.000, 730.250, 730.500, 730.750, 731.000, 731.250, 731.500, 731.750, 732.000, 732.250, 732.500, 732.750, 733.000, 733.250, 733.500, 733.750, 734.000, 734.250, 734.500, 734.750, 735.000);
 };
 });
-
-	StackAxis = { Name = "Energy"; Unit = "eV"; Min = 707.8; Max = 707.8; Dir = -1;
-		Points = (1, 707.800);
-};
 
 	Channels = (1,
 { Name = "APD"; Unit = "counts";});
 };
- Time = "2019 March 22 10:37:42"; BeamFeedback = false; ShutterAutomatic = true;
+ Time = "2020 November 07 01:29:55"; BeamFeedback = false; ShutterAutomatic = true;
 Channels = (1,
 { ID = 2; Type = 0; Name = "APD"; Controller = 0; DeviceNumber = 1; UnitName = "counts"; LinearCoefficient = 1; ConstantCoefficient = 1; ProcessString = "I";});
 
-Monochromator = { Name = "Energy"; LastPosition = 707.80252; Status = 0; Type = 0; ControllerID = 103; Vel = 0;};
+Monochromator = { Name = "Energy"; LastPosition = 734.90794; Status = 0; Type = 0; ControllerID = 103; Vel = 0;};
 
-EntranceSlit = { Name = "PineholePosition"; LastPosition = 0.27603; Status = 0; Type = 0; ControllerID = 104; Vel = 200;};
+EntranceSlit = { Name = "Pinehole"; LastPosition = -9.0955; Status = 0; Type = 0; ControllerID = 104; Vel = 200;};
 
-ExitVSlit = { Name = "Pinehole"; LastPosition = 19.950272; Status = 1; Type = 0; ControllerID = 103; Vel = 200;};
+ExitVSlit = { Name = "Pinehole"; LastPosition = 50.002257; Status = 1; Type = 0; ControllerID = 103; Vel = 200;};
 
-ExitHSlit = { Name = "Microscopy Slit Height"; LastPosition = 19.999311; Status = 1; Type = 0; ControllerID = 101; Vel = 200;};
+ExitHSlit = { Name = "Microscopy Slit Height"; LastPosition = 34.998333; Status = 1; Type = 0; ControllerID = 101; Vel = 200;};
 
-SampleFineX = { Name = "SampleX"; LastPosition = 549.57987; Status = 0; Type = 0; ControllerID = 41; Vel = 5;};
+SampleFineX = { Name = "SampleX"; LastPosition = -3067.0725; Status = 0; Type = 0; ControllerID = 41; Vel = 5;};
 
-SampleFineY = { Name = "SampleY"; LastPosition = -3197.9124; Status = 0; Type = 0; ControllerID = 42; Vel = 4;};
+SampleFineY = { Name = "SampleY"; LastPosition = -503.45514; Status = 0; Type = 0; ControllerID = 42; Vel = 4;};
 
 SampleFineZ = { Name = "SampleZ"; LastPosition = -20.004884; Status = 0; Type = 0; ControllerID = 31; Vel = 1;};
 
-SampleCoarseX = { Name = "CoarseX"; LastPosition = 542.27009; Status = 0; Type = 1; ControllerID = 84; Vel = 2;};
+SampleCoarseX = { Name = "CoarseX"; LastPosition = -3051.5966; Status = 1; Type = 1; ControllerID = 84; Vel = 2;};
 
-SampleCoarseY = { Name = "CoarseY"; LastPosition = -3207.3322; Status = 0; Type = 1; ControllerID = 85; Vel = 1;};
+SampleCoarseY = { Name = "CoarseY"; LastPosition = -502.59705; Status = 0; Type = 1; ControllerID = 85; Vel = 1;};
 
-SampleCoarseZ = { Name = "CoarseZ"; LastPosition = 2685.7075; Status = 0; Type = 1; ControllerID = 91; Vel = 4;};
+SampleCoarseZ = { Name = "CoarseZ"; LastPosition = 1665.1085; Status = 0; Type = 1; ControllerID = 91; Vel = 4;};
 
-ZonePlateZ = { Name = "ZonePlate"; LastPosition = -2640.976; Status = 0; Type = 2; ControllerID = 81; Vel = 1;};
+ZonePlateZ = { Name = "ZonePlate"; LastPosition = -2614.7966; Status = 0; Type = 2; ControllerID = 81; Vel = 1;};
 
-OSAX = { Name = "OSA-X"; LastPosition = 0.36439727; Status = 0; Type = 2; ControllerID = 82; Vel = 0.5;};
+OSAX = { Name = "OSA-X"; LastPosition = 0.0024397266; Status = 0; Type = 2; ControllerID = 82; Vel = 0.5;};
 
-OSAY = { Name = "OSA-Y"; LastPosition = -0.48344121; Status = 0; Type = 2; ControllerID = 83; Vel = 0.5;};
+OSAY = { Name = "OSA-Y"; LastPosition = 0.11472871; Status = 0; Type = 2; ControllerID = 83; Vel = 0.5;};
 
-DetectorX = { Name = "DET-X"; LastPosition = 0.92894648; Status = 0; Type = 2; ControllerID = 86; Vel = 1;};
+DetectorX = { Name = "DET-X"; LastPosition = 1.8127021; Status = 0; Type = 2; ControllerID = 86; Vel = 1;};
 
-DetectorY = { Name = "DET-Y"; LastPosition = -0.3125; Status = 0; Type = 1; ControllerID = 87; Vel = 0.75;};
+DetectorY = { Name = "DET-Y"; LastPosition = 0.93755; Status = 0; Type = 1; ControllerID = 87; Vel = 0.75;};
 
-DetectorZ = { Name = "DET-Z"; LastPosition = 2561.8596; Status = 0; Type = 2; ControllerID = 88; Vel = 1;};
+DetectorZ = { Name = "DET-Z"; LastPosition = 2001.2059; Status = 0; Type = 2; ControllerID = 88; Vel = 1;};
 
-AUX1 = { Name = "AUX1"; LastPosition = 0.27603; Status = 0; Type = 0; ControllerID = 117; Vel = 0;};
+AUX1 = { Name = "MagnetField"; LastPosition = 250; Status = 0; Type = 0; ControllerID = 117; Vel = 0;};
 
-AUX2 = { Name = "AUX2"; LastPosition = 19.949008; Status = 0; Type = 0; ControllerID = 119; Vel = 3;};
+AUX2 = { Name = "AUX2"; LastPosition = 50.002257; Status = 0; Type = 0; ControllerID = 119; Vel = 3;};
 
-EPUGap = { Name = "EPU Gap"; LastPosition = 21.193176; Status = 0; Type = 2; ControllerID = 107; Vel = 200;};
+EPUGap = { Name = "EPU Gap"; LastPosition = 21.576462; Status = 0; Type = 2; ControllerID = 107; Vel = 200;};
 
-EPU_Z = { Name = "EPUPhase"; LastPosition = 9.954014; Status = 1; Type = 2; ControllerID = 108; Vel = 200;};
+EPU_Z = { Name = "EPUPhase"; LastPosition = 9.917004; Status = 1; Type = 2; ControllerID = 108; Vel = 200;};
 
-EPU_Polarization = { Name = "EPU_Polarization"; LastPosition = 0; Status = 0; Type = 2; ControllerID = 0; Vel = 0;};
- StorageRingCurrent = 249; PMT_CounterDivider = 10; Ao = 623.9; Defocus = 22;
-ImageScan = { ScanType = "Image (Point by Point)"; Stage = "Automatic"; Shutter = "Automatic"; Interferometry = "On"; SingleEnergy = true;
+EPU_Polarization = { Name = "SlitPosH"; LastPosition = -9.0955; Status = 0; Type = 2; ControllerID = 115; Vel = 0;};
+ StorageRingCurrent = 51; PMT_CounterDivider = 10; Ao = 796.2; Defocus = 1000;
+ImageScan = { ScanType = "Point"; Stage = "Automatic"; Shutter = "Automatic"; Interferometry = "On"; SingleEnergy = false;
 	EnergyRegions = (1,
-{ StartEnergy = 707.8; EndEnergy = 710.8; Range = 3; Step = 3; Points = 2; DwellTime = 35;});
- PointDelay = 1; LineDelay = 150; AccelDist = 0.15; MultipleRegions = true;
-	SpatialRegions = (1,
-{ CentreXPos = 548.621; CentreYPos = -3198.896; XRange = 2; YRange = 2; XStep = 0.02; YStep = 0.02; XPoints = 100; YPoints = 100; SquareRegion = false; SquarePixels = false;});
+{ StartEnergy = 700; EndEnergy = 735; Range = 35; Step = 0.25; Points = 141; DwellTime = 1000;});
+ PointDelay = 1; LineDelay = 150; AccelDist = 0.3; MultipleRegions = true;
+	SpatialRegions = (4,
+{ CentreXPos = -3045.324; CentreYPos = -517.636;},
+{ CentreXPos = -3052.004; CentreYPos = -519.417;},
+{ CentreXPos = -3059.892; CentreYPos = -511.147;},
+{ CentreXPos = -3067.08; CentreYPos = -503.45;});
 };
-Image0 = {StorageRingCurrent = 249.02; Energy = 707.80; Time = "2019 March 22 10:37:42";};
+Image0 = {StorageRingCurrent = 51.16; Energy = 734.91; Time = "2020 November 07 01:29:55";};
